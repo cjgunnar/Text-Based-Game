@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<level>
+
+	<room id="1">
+		<name>Bedroom</name>
+		<description>A messy bedroom with a bed, a desk, and a window. Posters line the walls. The bedroom door leads out to the hall</description>
+		<aliases>
+			<alias>My room</alias>
+		</aliases>
+		<objects>
+			<simple_object>
+				<name>Desk</name>
+				<description>A simple wooden desk. It is full of junk</description>
+			</simple_object>
+			<simple_object>
+				<name>Window</name>
+				<description>The window looks out into the street</description>
+			</simple_object>
+			<simple_object>
+				<name>Bed</name>
+				<description>A full sized bed is put in the corner. The sheets are unmade</description>
+			</simple_object>
+			<simple_object>
+				<name>Poster</name>
+				<description>A poster of space hangs above the desk</description>
+				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<actions>
+							<action type="out">You look at the poster. It is a space poster with some sort of nebula on it</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">take</input>
+						<actions>
+							<action type="out">You have a feeling you will tear it if you take it down</action>
+						</actions>
+					</request>
+				
+				</requests>
+				<aliases>
+					<alias>Posters</alias>
+					<alias>Wall</alias>
+				</aliases>
+			</simple_object>
+		</objects>
+		<exits>
+			<exit>
+				<name>Bedroom Door</name>
+				<description>A simple white door with a silver knob</description>
+				<entranceTo>2</entranceTo>
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You turn the knob and leave the bedroom</action>
+						</actions>
+					
+					</request>
+				
+				</requests>
+			</exit>
+		</exits>
+	</room>
+
+	<room id="2">
+		<name>Hallway</name>
+		<description>The second floor hallway leads to three doors: your parents' bedroom, your bedroom, and the bathroom
+Picture frames line the wall. A stairwell descends to the main level</description>
+		<objects>
+			<simple_object>
+				<name>Picture Frames</name>
+				<description>Picture frames line the walls</description>
+			</simple_object>
+		</objects>
+		<exits>
+			<exit>
+				<name>stairs</name>
+				<description>The carpeted stairs reach a small landing, turn 90 degrees, and then exit on the main level</description>
+				<entranceTo>3</entranceTo>
+			</exit>
+			<exit>
+				<name>Bedroom Door</name>
+				<description>A simple white door with a silver knob</description>
+				<entranceTo>1</entranceTo>
+			</exit>
+		</exits>
+
+	</room>
+	<room id="3">
+		<name>Family Room</name>
+		<description>The family room</description>
+		<objects>
+			<simple_object>
+				<name>Couch</name>
+				<description>An old couch</description>
+			</simple_object>
+		</objects>
+		<exits>
+			<exit>
+				<name>stairs</name>
+				<description>The stairs lead back up to the second floor hallway</description>
+				<entranceTo>2</entranceTo>
+			</exit>
+		</exits>
+	</room>
+
+
+</level>

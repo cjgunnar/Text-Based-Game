@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<level>
+
+	<room id="1">
+		<name>Classroom</name>
+		<description>Mr. Wespetal's class</description>
+		<aliases>
+			<alias>Classroom</alias>
+			<alias>The class</alias>
+		</aliases>
+		<objects>
+			<simple_object>
+				<name>Teacher's Desk</name>
+				<description>Mr. Wespetal's desk has his computer, a phone, a chromebook, and math textbooks on his desk.</description>
+				<aliases>
+					<alias>Teacher Desk</alias>
+					<alias>Mr. Wespetal's Desk</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">sit at</input>
+						<actions>
+							<action type="out">You take a seat at Wespetal's desk</action>
+						
+						</actions>
+					</request>
+				
+				</requests>
+			</simple_object>
+		
+		
+		</objects>
+	
+	</room>
+
+</level>
