@@ -51,6 +51,12 @@
 				<entranceTo>2</entranceTo>
 				<requests>
 					<request>
+						<input type="exact">go to sleep</input>
+						<actions>
+							<action type="out">Sleep is for the weak</action>
+						</actions>
+					</request>
+					<request>
 						<input type="verb">use</input>
 						<actions>
 							<action type="out">You turn the knob and leave the bedroom</action>
