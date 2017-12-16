@@ -171,13 +171,14 @@ public class Game
 		if(command.getBaseObject() != null && command.getTypeOfCommand() != null && manager.getRoom().FindObjectByName(command.getBaseObject()) != null)
 		{
 			manager.getRoom().FindObjectByName(command.getBaseObject()).ExecuteCommand(command);
+			return;
 		}
 		
-		//if nothing worked...
-		else
-		{
-			sendErrorMessage("I do not understand that");
-		}
+		//try to execute on everything in case raw/exact phrase is used
+		manager.getRoom().ExecuteCommandAll(command);
+		
+		//otherwise say it didn't understand
+		sendErrorMessage("I do not understand that");
 	}
 	
 	/** 

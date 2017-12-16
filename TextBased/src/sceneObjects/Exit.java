@@ -83,7 +83,7 @@ public class Exit implements SceneObject
 			}
 		}
 		
-		if(command.getTypeOfCommand().equalsIgnoreCase("use"))
+		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("use"))
 		{
 			game.manager.ChangeRoom(entranceTo);
 			game.Output(game.manager.getRoom().getDescription());

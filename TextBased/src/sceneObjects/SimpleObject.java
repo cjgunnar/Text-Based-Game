@@ -6,6 +6,7 @@ import gamelogic.Command;
 import gamelogic.Game;
 import gamelogic.Request;
 
+//implementation of SceneObject
 public class SimpleObject implements SceneObject
 {
 	//name of simple object
@@ -74,7 +75,7 @@ public class SimpleObject implements SceneObject
 			}
 		}
 		
-		if(command.getTypeOfCommand().equals("look at"))
+		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equals("look at"))
 		{
 			game.Output(description);
 		}

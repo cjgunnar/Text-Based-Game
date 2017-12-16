@@ -16,7 +16,7 @@ public class Room implements SceneObject
 	//aliases of the room
 	List<String> aliases = new ArrayList<String>();
 	
-	//description of the object
+	//description of the room
 	String description;
 	
 	//id of the room
@@ -41,6 +41,24 @@ public class Room implements SceneObject
 	
 	//default constructor
 	public Room() {};
+	
+	/**
+	 * Execute command on every object in room
+	 * Ensures exact phrases will be matched
+	 * @param command to execute
+	 */
+	public void ExecuteCommandAll(Command command)
+	{
+		for(SceneObject object: objects)
+		{
+			object.ExecuteCommand(command);
+		}
+		
+		for(Exit exit: exits)
+		{
+			exit.ExecuteCommand(command);
+		}
+	}
 	
 	public String getDescription() 
 	{
