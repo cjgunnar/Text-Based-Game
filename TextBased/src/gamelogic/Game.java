@@ -177,6 +177,8 @@ public class Game
 		//try to execute on everything in case raw/exact phrase is used
 		manager.getRoom().ExecuteCommandAll(command);
 		
+		//TODO improve feedback error
+		
 		//otherwise say it didn't understand
 		sendErrorMessage("I do not understand that");
 	}
