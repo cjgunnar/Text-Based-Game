@@ -85,8 +85,23 @@ public class Exit implements SceneObject
 		
 		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("use"))
 		{
-			game.manager.ChangeRoom(entranceTo);
-			game.Output(game.manager.getRoom().getDescription());
+			if(entranceToID == 0)
+			{
+				System.out.println(name.toUpperCase() + " leads to nowhere");
+				
+				//"use" action should be specified, as internal logic will do nothing
+				return;
+			}
+			else
+			{
+				game.manager.ChangeRoom(entranceTo);
+				game.Output(game.manager.getRoom().getDescription());
+			}
+		}
+		
+		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("look at"))
+		{
+			game.Output(description);
 		}
 		
 		/*
@@ -133,7 +148,8 @@ public class Exit implements SceneObject
 		//System.out.println("Initializing exit " + name);
 		if(entranceToID == 0)
 		{
-			System.out.println("ERROR: UNSET ID FOR " + name);
+			System.err.println("ERROR: UNSET ID FOR " + name);
+			return;
 		}
 		if(game == null || game.level == null)
 			System.err.println("ERROR: null game or game.level reference");
@@ -189,6 +205,7 @@ public class Exit implements SceneObject
 	@Override
 	public void addAlias(String alias)
 	{
+		System.out.println("Add alias: " + alias + " to " + name);
 		aliases.add(alias);
 	}
 

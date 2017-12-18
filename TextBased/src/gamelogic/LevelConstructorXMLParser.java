@@ -34,6 +34,8 @@ public class LevelConstructorXMLParser
     static final String INTERACTIVE = "interactive";
 	 */
 
+	static final String PROLOG = "prolog";
+	
 	static final String SIMPLE_OBJECT = "simple_object";
 	static final String NAME = "name";
 	static final String DESCRIPTION = "description";
@@ -60,6 +62,8 @@ public class LevelConstructorXMLParser
 	
 	boolean debugMode = false;
 	
+	Game _game;
+	
 	String levelFile;
 
 	//the iterator
@@ -69,6 +73,11 @@ public class LevelConstructorXMLParser
 	//placed here so helper methods have access
 	XMLEvent event;
 
+	public LevelConstructorXMLParser(Game game)
+	{
+		this._game = game;
+	}
+	
 	public List<Room> readLevel(String levelFile)
 	{
 		//set the file to load
@@ -160,6 +169,12 @@ public class LevelConstructorXMLParser
 						}
 					}
 
+					//prolog gets outputed at the beginning of the game
+					else if (elementName.equals(PROLOG))
+					{
+						_game.level.setProlog(eventData);
+					}
+					
 					//exits
 					else if (elementName.equals(EXITS))
 					{
@@ -449,6 +464,18 @@ public class LevelConstructorXMLParser
 						continue;
 					}
 
+					else if(startElementName.equals(ALIASES))
+					{
+						List<String> aliases = readAliases();
+						
+						//add aliases to current object
+						for(String alias : aliases)
+						{
+							debugLog("Setting alias list, current alias: " + alias);
+							exit.addAlias(alias);
+						}
+					}
+					
 					//description element
 					else if (startElementName.equals(DESCRIPTION))
 					{

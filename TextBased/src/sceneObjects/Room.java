@@ -167,11 +167,13 @@ public class Room implements SceneObject
 			return null;
 		}
 		
-		if (objects.isEmpty())
+		if (objects.isEmpty() && exits.isEmpty())
 		{
-			System.out.println("ERROR: no objects in room");
+			System.out.println("ERROR: no objects or exits in room");
 			return null;
 		}
+		
+		//System.out.println("Searching for name: " + name);
 		
 		//search through each object in room for object with name
 		for(SceneObject object : objects)
@@ -199,18 +201,33 @@ public class Room implements SceneObject
 			}
 		}
 		
+		//System.out.println("Searching for " + name + " in " + exits.size() + " exits");
+		
 		//search through each exits in room for matching name
 		for(Exit exit : exits)
 		{
-			if (exit.getName() != null && exit.getName().equalsIgnoreCase(name))
+			//System.out.println("CURRENT EXIT: " + exit.getName());
+			
+			if (exit.getName() == null)
+			{
+				//System.err.println("ERROR: this exit has no name");
+				
+				//move to next exit
+				continue;
+			}
+			
+			if (exit.getName().equalsIgnoreCase(name))
 			{
 				//return the object with matching name
 				return exit;
 			}
 			
+			System.out.println("Looking in " + exit.getAliases().length);
+			
 			//search through each exits aliases as well
 			for(String alias : exit.getAliases())
 			{
+				//System.out.println(exit.getName().toUpperCase() + ": Searching in alias: " + alias);
 				if(alias != null && alias.equalsIgnoreCase(name))
 				{
 					return exit;
