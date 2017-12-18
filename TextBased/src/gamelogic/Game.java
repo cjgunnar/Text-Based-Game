@@ -171,11 +171,13 @@ public class Game
 		if(command.getBaseObject() != null && command.getTypeOfCommand() != null && manager.getRoom().FindObjectByName(command.getBaseObject()) != null)
 		{
 			manager.getRoom().FindObjectByName(command.getBaseObject()).ExecuteCommand(command);
+			
+			//end
 			return;
 		}
 		
 		//try to execute on everything in case raw/exact phrase is used
-		manager.getRoom().ExecuteCommandAll(command);
+		//manager.getRoom().ExecuteCommandAll(command);
 		
 		//TODO improve feedback error
 		
@@ -214,7 +216,7 @@ public class Game
 		
 		CreateGameFrame();
 		
-		Output(manager.getRoom().getDescription());
+		Output(level.getProlog());
 	}
 	
 	private void CreateLevelSelectionWindow()

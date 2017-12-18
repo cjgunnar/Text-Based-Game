@@ -15,10 +15,22 @@ public class Level
 {
 	List<Room> rooms = new ArrayList<Room>();
 	
+	String _prolog;
+	
+	public void setProlog(String prolog)
+	{
+		this._prolog = prolog;
+	}
+	
+	public String getProlog()
+	{
+		return this._prolog;
+	}
+	
 	public void LoadLevel(String levelFile, Game game)
 	{		
     	//maybe that name can be shortened
-    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser();
+    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser(game);
     	
     	//create the list from the XML file
     	List<Room> rooms = reader.readLevel(levelFile);
