@@ -144,6 +144,7 @@ public class GameFrame extends JFrame
 		logText.setFont(logTextFont);
 		logText.setBackground(Color.black);
 		logText.setForeground(Color.white);
+		logText.setLineWrap(true);
 		
 		JPanel panel = new JPanel();
 		JPanel inputPanel = new JPanel();
