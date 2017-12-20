@@ -122,8 +122,28 @@ public class GameFrame extends JFrame
 	
 	private void CreateComponents ()
 	{
+		//The UI goes like this:
+		//At the top/center, there is the logText, which is basically the output
+		//Then there is the input area
+		//The input area has a button, a textbox, and a camoflauged error message
+		//If bad input is entered, the error message space can be used
+		
+		//The nested panels go like this:
+		//panel is the main panel
+		//input panel contains the button, textbox, and error message
+		//outerInputPanel is used so inputPanel's components don't stretch with the window
+		
+		//simple go button, replace with enter key eventually
 		button = new JButton("Go");
 
+		//add listener to button
+		ClickListener listener = new ClickListener();
+		button.addActionListener(listener);
+		//KeyListener listener = new EnterListener();
+		//this.addKeyListener(listener);
+		//setFocusable(true);
+
+		//error text
 		errText = new JTextArea(1, 10);
 		errText.setBackground(Color.black);
 		errText.setForeground(Color.red);
@@ -132,22 +152,25 @@ public class GameFrame extends JFrame
 		Font errTextFont = new Font("Arial", Font.BOLD, 24);
 		errText.setFont(errTextFont);
 		
+		//Input text
 		Font inputTextFont = new Font("Arial", Font.PLAIN, 24);
 		inputText = new JTextField(20);
 		inputText.setFont(inputTextFont);
 		
+		//log text
 		Font logTextFont = new Font("Arial", Font.PLAIN, 24);
 
 		logText = new JTextArea(20, 20);
 		logText.setEditable(false);
-		//logText.setText("Log:");
 		logText.setFont(logTextFont);
 		logText.setBackground(Color.black);
 		logText.setForeground(Color.white);
 		logText.setLineWrap(true);
 		
+		//panels and nested panels (see above)
 		JPanel panel = new JPanel();
 		JPanel inputPanel = new JPanel();
+		JPanel outerInputPanel = new JPanel(new BorderLayout());
 		
 		panel.setLayout(new BorderLayout());
 		inputPanel.setLayout(new BorderLayout());
@@ -156,18 +179,14 @@ public class GameFrame extends JFrame
 		inputPanel.add(inputText, BorderLayout.CENTER);
 		inputPanel.add(errText, BorderLayout.NORTH);
 		
+		outerInputPanel.add(inputPanel, BorderLayout.CENTER);
+		
 		panel.add(logText, BorderLayout.NORTH);
 		panel.setBackground(Color.black);
 		
-		panel.add(inputPanel);
+		panel.add(outerInputPanel, BorderLayout.SOUTH);
 		
+		//finally add the main panel
 		add(panel);
-		//add(inputPanel);
-		
-		ClickListener listener = new ClickListener();
-		//KeyListener listener = new EnterListener();
-		//this.addKeyListener(listener);
-		//setFocusable(true);
-		button.addActionListener(listener);
 	}
 }
