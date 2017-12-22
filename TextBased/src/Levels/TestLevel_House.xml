@@ -1,24 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
 
+	<prolog>You slip out of bed. Your bare feet touch the cool carpet floor. The room is illuminated by the digital LCD clock on your
+nightstand, the light streaming in from the window, and the glowing-red santa night-light. Your bedroom door is slightly ajar, allowing you to see into the hall.</prolog>
+	
 	<room id="1">
 		<name>Bedroom</name>
-		<description>A messy bedroom with a bed, a desk, and a window. Posters line the walls. The bedroom door leads out to the hall</description>
+		<description>Your bedroom is cool, but not completely dark. A santa clause night light lays in the corner under a desk.
+A glowing green LCD clock sits on your nightstand. The bedroom door leads out to the hallway, and is opposite the window.</description>
 		<aliases>
 			<alias>My room</alias>
+			<alias>My bedroom</alias>
 		</aliases>
 		<objects>
 			<simple_object>
 				<name>Desk</name>
 				<description>A simple wooden desk. It is full of junk</description>
+				<requests>
+					<request>
+						<input type="verb">sit at</input>
+						<actions>
+							<action type="out">You don't have time to sit at your desk</action>
+						</actions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object>
+				<name>Nightlight</name>
+				<description>Mommy gave you the santa night-light. It glows red and is glows from underneath the desk</description>
+				<aliases>
+					<alias>night light</alias>
+					<alias>night-light</alias>
+					<alias>santa night light</alias>
+					<alias>santa night-light</alias>
+				</aliases>
 			</simple_object>
 			<simple_object>
 				<name>Window</name>
-				<description>The window looks out into the street</description>
+				<description>The window looks out into the dark street
+The street is dusted with a fresh layer of white snow</description>
+			</simple_object>
+			<simple_object>
+				<name>Clock</name>
+				<description>The clock glows green with the time 11:50 PM</description>
+				<aliases>
+					<alias>LCD Clock</alias>
+					<alias>alarmclock</alias>
+					<alias>alarm clock</alias>
+					<alias>digital clock</alias>
+				</aliases>
+			</simple_object>
+			<simple_object>
+				<name>Nightstand</name>
+				<description>The wooden nightstand sits next to your bed. On top is a LCD clock</description>
+				<aliases>
+					<alias>endtable</alias>
+					<alias>end table</alias>
+					<alias>night stand</alias>
+					<alias>bedside table</alias>
+					<alias>bed side table</alias>
+				</aliases>
 			</simple_object>
 			<simple_object>
 				<name>Bed</name>
-				<description>A full sized bed is put in the corner. The sheets are unmade</description>
+				<description>Your twin size rocket themed bed sits in the corner. The sheets are disturbed from climbing out
+The warmness tempts you, but you have been waiting all year for this night</description>
 			</simple_object>
 			<simple_object>
 				<name>Poster</name>
@@ -36,7 +82,6 @@
 							<action type="out">You have a feeling you will tear it if you take it down</action>
 						</actions>
 					</request>
-				
 				</requests>
 				<aliases>
 					<alias>Posters</alias>
@@ -47,23 +92,20 @@
 		<exits>
 			<exit>
 				<name>Bedroom Door</name>
-				<description>A simple white door with a silver knob</description>
+				<aliases>
+					<alias>Door</alias>
+					<alias>Hallway door</alias>
+					<alias>Doorway</alias>
+				</aliases>
+				<description>The simple white door stands ajar, and leads out to the hallway</description>
 				<entranceTo>2</entranceTo>
 				<requests>
 					<request>
-						<input type="exact">go to sleep</input>
-						<actions>
-							<action type="out">Sleep is for the weak</action>
-						</actions>
-					</request>
-					<request>
 						<input type="verb">use</input>
 						<actions>
-							<action type="out">You turn the knob and leave the bedroom</action>
+							<action type="out">You tiptoe across the room to the door, and enter the hallway</action>
 						</actions>
-					
 					</request>
-				
 				</requests>
 			</exit>
 		</exits>
@@ -72,23 +114,44 @@
 	<room id="2">
 		<name>Hallway</name>
 		<description>The second floor hallway leads to three doors: your parents' bedroom, your bedroom, and the bathroom
-Picture frames line the wall. A stairwell descends to the main level</description>
-		<objects>
-			<simple_object>
-				<name>Picture Frames</name>
-				<description>Picture frames line the walls</description>
-			</simple_object>
-		</objects>
+A stairwell descends to the main level. You have to be very quiet</description>
+		
+		<!-- There are no objects in the hallway -->
+		
 		<exits>
 			<exit>
 				<name>stairs</name>
 				<description>The carpeted stairs reach a small landing, turn 90 degrees, and then exit on the main level</description>
 				<entranceTo>3</entranceTo>
+				<aliases>
+					<alias>stairwell</alias>
+				</aliases>
 			</exit>
 			<exit>
 				<name>Bedroom Door</name>
 				<description>A simple white door with a silver knob</description>
 				<entranceTo>1</entranceTo>
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You reenter your bedroom</action>
+						</actions>
+					</request>
+				</requests>
+			</exit>
+			<exit>
+				<name>Bathroom Door</name>
+				<description>Another white door, this one leads to the upstairs bathroom</description>
+				<entranceTo>0</entranceTo> <!-- 0 means it leads to nowhere -->
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You do not have to use the bathroom right now.</action>
+						</actions>
+					</request>
+				</requests>
 			</exit>
 		</exits>
 
@@ -110,6 +173,5 @@ Picture frames line the wall. A stairwell descends to the main level</descriptio
 			</exit>
 		</exits>
 	</room>
-
 
 </level>
