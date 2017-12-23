@@ -8,6 +8,14 @@ public class CommandInterpreter
 		//change to lower case
 		commandString = commandString.toLowerCase();
 		
+		//remove "the"
+		if(commandString.contains(" the "))
+		{
+			//System.out.println("COMMAND INTERPRETER: removing 'the' from: " + commandString);
+			commandString = commandString.replace(" the ", " ");
+			//System.out.println("COMMAND INTERPRETER: string is now: " + commandString);
+		}
+		
 		//split string into words
 		String[] inputs = commandString.split("\\s");
 		
