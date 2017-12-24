@@ -34,33 +34,42 @@ public class LevelConstructorXMLParser
     static final String INTERACTIVE = "interactive";
 	 */
 
+	static final String LEVEL = "level";
 	static final String PROLOG = "prolog";
 	
-	static final String SIMPLE_OBJECT = "simple_object";
+	static final String ID = "id";
 	static final String NAME = "name";
 	static final String DESCRIPTION = "description";
+	static final String OBJECTS = "objects";
+	static final String ALIASES = "aliases";
+	static final String ALIAS = "alias";
+	
 	static final String ROOM = "room";
+	
+	static final String SIMPLE_OBJECT = "simple_object";
+	
 	static final String EXIT = "exit";
 	static final String EXITS = "exits";
 	static final String ENTRANCE_TO = "entranceTo";
-	static final String OBJECTS = "objects";
-	static final String LEVEL = "level";
 	
-	static final String ALIASES = "aliases";
-	static final String ALIAS = "alias";
-
 	static final String REQUESTS = "requests";
 	static final String REQUEST = "request";
 	static final String ACTIONS = "actions";
 	static final String ACTION = "action";
 	
 	static final String INPUT = "input";
+	
 	static final String TYPE = "type";
 	static final String OUT = "out";
+	static final String PROPERTY_CHANGE = "property_change";
+	
+	static final String TARGET = "target";
+	static final String PROPERTY_NAME = "property_name";
+	
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = false;
+	boolean debugMode = true;
 	
 	Game _game;
 	
@@ -136,7 +145,7 @@ public class LevelConstructorXMLParser
 							debugLog("CURRENT ATTRIBUTE: " + attribute.getName().getLocalPart());
 
 							//check for the attributes we are looking for and set them
-							if(attribute.getName().getLocalPart().toString().equals("id"))
+							if(attribute.getName().getLocalPart().toString().equals(ID))
 							{
 								debugLog("VALUE: " + attribute.getValue());
 								try
@@ -266,6 +275,7 @@ public class LevelConstructorXMLParser
 		return rooms;
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<SceneObject> readObjects()
 	{
 		//create a list of objects that will be outputed at the end
@@ -289,7 +299,7 @@ public class LevelConstructorXMLParser
 					//returns the generalized event as a starting event
 					//this is done because the XMLEvent type is a interface
 					//needed only if attributes need to be read
-					//StartElement startElement = event.asStartElement();
+					StartElement startElement = event.asStartElement();
 
 					String elementName = getStartElementName();
 
@@ -306,7 +316,7 @@ public class LevelConstructorXMLParser
 						sceneObject = new SimpleObject();
 
 						//this code will set attributes (the data in the start of the element ex: <room id="1">)
-						/*
+						
 						//get all the attributes in the element
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
@@ -316,14 +326,18 @@ public class LevelConstructorXMLParser
 							//create variable for the individual attribute
 							Attribute attribute = attributes.next();
 
+							debugLog("VALUE: " + attribute.getValue());
+							
 							//check for the attributes we are looking for and set them
-							if(attribute.getName().getLocalPart().toString().equals("attribute name"))
+							try
 							{
-								simpleObject.setAttribute(attribute.getValue());
+								sceneObject.setID(Integer.parseInt(attribute.getValue()));
+							}
+							catch (NumberFormatException e)
+							{
+								System.err.println("SCENE_OBJECT: ERROR: non-int value as ID attribute");
 							}
 						}
-
-						 */
 
 						//go to next iteration
 						continue;
@@ -413,6 +427,7 @@ public class LevelConstructorXMLParser
 		return objects;
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<Exit> readExits()
 	{
 		//create a list of exits that will be outputed at the end
@@ -436,7 +451,7 @@ public class LevelConstructorXMLParser
 					//returns the generalized event as a starting event
 					//this is done because the XMLEvent type is a interface
 					//only needed if reading attributes
-					//StartElement startElement = event.asStartElement();
+					StartElement startElement = event.asStartElement();
 
 					String startElementName = getStartElementName();
 
@@ -446,13 +461,37 @@ public class LevelConstructorXMLParser
 					//if the starting element is a simpleObject, we can create it
 					if(startElementName.equals(EXIT))
 					{
-						debugLog("OPENED EXIT");
+						debugLog("OPENED NEW EXIT");
 
 						//using the default constructor so that we can add new fields in as
 						//they get iterated over
 						//This will be done with the getter/setter methods
 						exit = new Exit();
 
+						//this code will set attributes (the data in the start of the element ex: <room id="1">)
+						
+						//get all the attributes in the element
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							debugLog("VALUE: " + attribute.getValue());
+							
+							//check for the attributes we are looking for and set them
+							try
+							{
+								exit.setID(Integer.parseInt(attribute.getValue()));
+							}
+							catch (NumberFormatException e)
+							{
+								System.err.println("EXIT: ERROR: non-int value as ID attribute");
+							}
+						}
+						
 						//go to next iteration
 						continue;
 					}
@@ -793,28 +832,52 @@ public class LevelConstructorXMLParser
 					{
 						debugLog("CREATING NEW ACTION");
 
-						//create a new request to reset
+						//create a new action to reset
 						action = new Action();
 
 						//get attributes of actions
 						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
-
+						
 						//while the iterator has more attributes to go over
 						while(attributes.hasNext())
 						{
 							//create variable for the individual attribute
 							Attribute attribute = attributes.next();
 
-							debugLog("CURRENT ATTRIBUTE: " + attribute.getName().getLocalPart());
+							String attributeName = attribute.getName().getLocalPart();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
 
+							String attributeValue = attribute.getValue();
+							
+							debugLog("VALUE: " + attributeValue);
+							
 							//check for the attributes we are looking for and set them
-							if(attribute.getName().getLocalPart().toString().equals(TYPE))
+							if(attributeName.equals(TYPE))
 							{
-								debugLog("VALUE: " + attribute.getValue());
-								
-								action.setActionType(attribute.getValue());
+								action.setActionType(attributeValue);
 							}
+							
+							//used for type CHANGE_PROPERTY
+							else if(attributeName.equals(TARGET))
+							{
+								try
+								{
+									action.setActionTarget(Integer.parseInt(attribute.getValue()));
+								}
+								catch (NumberFormatException e)
+								{
+									System.err.println("EXIT: ERROR: non-int value as target ID attribute");
+								}
+							}
+							
+							//used for type CHANGE_PROPERTY
+							else if(attributeName.equals(PROPERTY_NAME))
+							{
+								action.setPropertyName(attributeValue);
+							}
+							
 						}
 						
 						//set the value of the action

@@ -90,7 +90,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 			</simple_object>
 		</objects>
 		<exits>
-			<exit>
+			<exit id="6">
 				<name>Bedroom Door</name>
 				<aliases>
 					<alias>Door</alias>
@@ -104,6 +104,13 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 						<input type="verb">use</input>
 						<actions>
 							<action type="out">You tiptoe across the room to the door, and enter the hallway</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">close</input>
+						<actions>
+							<action type="out">You silently close the door. The light from the hall fades</action>
+							<action type="property_change" property_name="open" target="6">0</action>
 						</actions>
 					</request>
 				</requests>

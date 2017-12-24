@@ -1,5 +1,6 @@
 package sceneObjects;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import gamelogic.Command;
@@ -27,6 +28,12 @@ public class Exit implements SceneObject
 	
 	//reference to game so it can change rooms
 	Game game;
+	
+	//properties of the object (HashMap), name int pairs
+	HashMap<String, Integer> properties = new HashMap<String, Integer>();
+	
+	//id of the object
+	int ID;
 	
 	//full constructor
 	public Exit(String name, String description, Room entranceTo, Game game)
@@ -137,6 +144,94 @@ public class Exit implements SceneObject
 		
 	}
 	
+	//property related methods
+	@Override
+	public void changeProperty(String propName, int value)
+	{
+		if(!properties.containsKey(propName))
+		{
+			System.out.println(name.toUpperCase() + ": does not contain property " + propName + ", creating it with default value...");
+			addProperty(propName);
+		}
+		System.out.println(name.toUpperCase() + ": property " + propName + " changed from " + properties.get(propName) + " to " + value);
+		properties.put(propName, value);
+	}
+
+	@Override
+	public int getProperty(String propName)
+	{
+		int value = properties.get(propName);
+		return value;
+	}
+
+	@Override
+	public boolean checkProperty(String propName, String operator, int value)
+	{
+		int propValue = properties.get(propName);
+
+		if(operator == null)
+		{
+			System.out.println(name.toUpperCase() + " ERROR: null operator");
+			return false;
+		}
+
+		if(operator.equals(SceneObject.greaterThan))
+		{
+			//check if the property is greater than value
+			if(propValue > value)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(operator.equals(SceneObject.lessThan))
+		{
+			//check if the property is less than value
+			if(propValue < value)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(operator.equals(SceneObject.equalTo))
+		{
+			//checkk if the property is equal to the value
+			if(propValue == value)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			System.out.println(name.toUpperCase() + " ERROR: operator " + operator + " not supported");
+			return false;
+		}
+
+	}
+
+	@Override
+	public void addProperty(String propName, int initValue)
+	{
+		properties.put(propName, initValue);
+	}
+
+	@Override
+	public void addProperty(String propName)
+	{
+		addProperty(propName, SceneObject.defaultValue);
+	}
+	
+	//exit related methods
 	public void setEntranceTo(int id)
 	{
 		entranceToID = id;
@@ -156,6 +251,19 @@ public class Exit implements SceneObject
 		//System.out.println("Init: looking for room with ID: " + entranceToID);
 		//System.out.println("Linking " + name + " to " + game.level.FindRoomWithID(entranceToID).getName());
 		entranceTo = game.level.FindRoomWithID(entranceToID);
+	}
+	
+	//non-exit methods
+	@Override
+	public int getID()
+	{
+		return ID;
+	}
+	
+	@Override
+	public void setID(int ID)
+	{
+		this.ID = ID;
 	}
 	
 	@Override
@@ -205,7 +313,7 @@ public class Exit implements SceneObject
 	@Override
 	public void addAlias(String alias)
 	{
-		System.out.println("Add alias: " + alias + " to " + name);
+		//System.out.println("Add alias: " + alias + " to " + name);
 		aliases.add(alias);
 	}
 
