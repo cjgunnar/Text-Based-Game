@@ -181,6 +181,15 @@ public class Game
 		
 		//TODO improve feedback error
 		
+		System.out.println("GAME: COMMAND: " + command.getTypeOfCommand() + " \"" + command.getBaseObject() + "\"");
+		
+		//known verb but unknown noun
+		if(command.getBaseObject() != null && command.getTypeOfCommand() != null)
+		{
+			sendErrorMessage("There is no " + command.getBaseObject() + " in the " + manager.getRoom().getName());
+			return;
+		}
+		
 		//otherwise say it didn't understand
 		sendErrorMessage("I do not understand that");
 	}
