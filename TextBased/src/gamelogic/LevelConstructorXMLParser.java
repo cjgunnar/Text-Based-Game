@@ -1,7 +1,5 @@
 package gamelogic;
 
-import sceneObjects.*;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -16,6 +14,11 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import sceneObjects.Exit;
+import sceneObjects.Room;
+import sceneObjects.SceneObject;
+import sceneObjects.SimpleObject;
 
 //@SuppressWarnings("unused")
 /**
@@ -43,6 +46,8 @@ public class LevelConstructorXMLParser
 	static final String OBJECTS = "objects";
 	static final String ALIASES = "aliases";
 	static final String ALIAS = "alias";
+	static final String PROPERTIES = "properties";
+	static final String PROPERTY = "property";
 	
 	static final String ROOM = "room";
 	
@@ -54,6 +59,13 @@ public class LevelConstructorXMLParser
 	
 	static final String REQUESTS = "requests";
 	static final String REQUEST = "request";
+	
+	static final String CONDITIONS = "conditions";
+	static final String CONDITION = "condition";
+	static final String PASS = "pass";
+	static final String FAIL = "fail";
+	static final String VALUE = "value";
+	
 	static final String ACTIONS = "actions";
 	static final String ACTION = "action";
 	
@@ -427,7 +439,6 @@ public class LevelConstructorXMLParser
 		return objects;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<Exit> readExits()
 	{
 		//create a list of exits that will be outputed at the end
@@ -471,6 +482,7 @@ public class LevelConstructorXMLParser
 						//this code will set attributes (the data in the start of the element ex: <room id="1">)
 						
 						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
 						//while the iterator has more attributes to go over
@@ -503,6 +515,7 @@ public class LevelConstructorXMLParser
 						continue;
 					}
 
+					//list of aliases
 					else if(startElementName.equals(ALIASES))
 					{
 						List<String> aliases = readAliases();
@@ -522,10 +535,13 @@ public class LevelConstructorXMLParser
 						continue;
 					}
 					
+					//id of the room it is the entrance to
 					else if (startElementName.equals(ENTRANCE_TO))
 					{
 						exit.setEntranceTo(Integer.parseInt(eventData));
 					}
+					
+					//list of requests
 					else if(startElementName.equals(REQUESTS))
 					{
 						List<Request> requests = readRequests();
@@ -536,6 +552,13 @@ public class LevelConstructorXMLParser
 							exit.addRequest(request);
 						}
 					}
+					
+					//HashMap of properties
+					else if(startElementName.equals(PROPERTIES))
+					{
+						setProperties(exit);
+					}
+					
 				}
 
 				//if it is the ending element, ex: </room> or </simple_object>
@@ -753,6 +776,19 @@ public class LevelConstructorXMLParser
 						}
 						
 					}
+					
+					//list of conditions
+					else if(elementName.equals(CONDITIONS))
+					{
+						ArrayList<Condition> conditions = readConditions();
+						
+						//add the conditions to the request
+						for(Condition condition: conditions)
+						{
+							request.addCondition(condition);
+						}
+						
+					}
 				}
 
 				//if it is the ending element, ex: </room> or </simple_object>
@@ -799,6 +835,291 @@ public class LevelConstructorXMLParser
 		return requests;
 	}
 
+	private void setProperties(SceneObject sceneObject)
+	{
+		//HashMap<String, Integer> properties = new HashMap<String, Integer>();
+		
+		//inside the try block incase error occurs
+		try
+		{
+			//begin to read the XML File
+			
+			//create the name and value that will be added as pairs together
+			String property_name = "";
+			
+			int value = SceneObject.defaultValue;
+
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					//if the starting element is a property, read attribute (name)
+					if(elementName.equals(PROPERTY))
+					{
+						debugLog("CREATING NEW PROPERTY");
+
+						//reset the name and value
+						property_name = "";
+						value = SceneObject.defaultValue;
+
+						//get name attribute of the property
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+						
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+
+							String attributeValue = attribute.getValue();
+							
+							debugLog("VALUE: " + attributeValue);
+							
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(NAME))
+							{
+								property_name = attributeValue;
+							}
+							
+							else
+							{
+								System.err.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
+							}
+							
+						}
+						
+						//if the value of the property is specified, use it
+						//otherwise, use default value
+						if(eventData != null)
+						{
+							try
+							{
+								value = Integer.parseInt(eventData);
+							}
+							catch (NumberFormatException e)
+							{
+								System.err.println("LEVEL READER ERROR: property value is not an integer");
+							}
+							
+						}
+						else
+						{
+							value = SceneObject.defaultValue;
+						}
+						
+						//go to next iteration
+						continue;
+					}
+
+					else
+					{
+						System.err.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
+					}
+
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				//this is where the property will be set and added
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					debugLog("CLOSING PROPERTY ELEMENT: " + endElementName);
+
+					//if it is the end of this action
+					if(endElementName.equalsIgnoreCase(PROPERTY))
+					{
+						//add the name and value pair to the HashMap
+						if(property_name != null)
+							sceneObject.addProperty(property_name, value);
+						else
+							System.err.println("LEVEL READER ERROR: null property name");
+					}
+
+					//if it is the end of the entire list
+					else if(endElementName.equalsIgnoreCase(PROPERTIES))
+					{
+						debugLog("CLOSED PROPERTIES ELEMENT (HASHMAP)");
+						return;
+					}
+				}
+			}
+
+
+		} 
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		System.err.println("LEVEL READER ERROR: properties reader reached end of document");
+	}
+	
+	private ArrayList<Condition> readConditions()
+	{
+		//Create a list of conditions that will be outputed at the end
+		ArrayList<Condition> conditions = new ArrayList<Condition>();
+		
+		debugLog("OPENING CONDITIONS");
+		
+		//inside the try block incase error occurs
+		try
+		{
+			//begin to read the XML File
+			Condition condition = new Condition();
+
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					//StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					//if the starting element is a condition, create a new one to reset
+					if(elementName.equals(CONDITION))
+					{
+						debugLog("CREATING NEW CONDITION");
+
+						//create a new condition to reset the current one, added to list at closing
+						condition = new Condition();
+
+						//go to next iteration
+						continue;
+					}
+					
+					//conditions have <type>, <target>, <property_name>, <value>, <pass> (group), <fail> (group)
+					
+					//type is "=", "<", ">"
+					else if(elementName.equals(TYPE))
+					{
+						condition.setOperator(eventData);
+					}
+					
+					else if(elementName.equals(TARGET))
+					{
+						condition.setTarget(eventData);
+					}
+					
+					//property_name
+					else if(elementName.equals(PROPERTY_NAME))
+					{
+						condition.setProperty_name(eventData);
+					}
+					
+					else if(elementName.equals(VALUE))
+					{
+						condition.setValue(eventData);
+					}
+					
+					else if(elementName.equals(PASS))
+					{
+						ArrayList<Action> passActions = (ArrayList<Action>) readActions();
+						
+						//add actions into condition's pass list
+						for(Action action: passActions)
+						{
+							condition.addPassAction(action);
+						}
+					}
+					
+					else if(elementName.equals(FAIL))
+					{
+						List<Action> failActions = readActions();
+						
+						//add actions into condition's fail list
+						for(Action action: failActions)
+						{
+							condition.addFailAction(action);
+						}
+					}
+					
+					else
+					{
+						System.err.println("CONDITIONS: ERROR: unrecongized element: " + elementName);
+					}
+					
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					debugLog("CLOSING CONDITIONS ELEMENT: " + endElementName);
+
+					//if it is the end of this action
+					if(endElementName.equalsIgnoreCase(CONDITION))
+					{
+						conditions.add(condition);
+					}
+
+					//if it is the end of the entire list
+					else if(endElementName.equalsIgnoreCase(CONDITIONS))
+					{
+						debugLog("CLOSED CONDITIONS ELEMENT");
+
+						return conditions;
+					}
+				}
+			}
+
+
+		} 
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		System.err.println("LEVEL READER ERROR: conditions reader reached end of document");
+		return conditions;
+	}
+	
 	private List<Action> readActions()
 	{
 		//create a list of string aliases that will be outputed at the end
@@ -945,7 +1266,7 @@ public class LevelConstructorXMLParser
 		//QName.getLocalPart() returns the "local part" of the QName
 		//toString converts it to a string
 		//I think that the toString() part isn't neccessary because getLocalPart() returns
-		//type string
+		//type string anyways
 		String startElementName = startElement.getName().getLocalPart().toString();
 
 		//move to next event [for reasons I don't understand]

@@ -83,10 +83,12 @@ public class Exit implements SceneObject
 					System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
 					request.ExecuteActions(game);
 				}
+				/*
 				else
 				{
 					System.out.println(name.toUpperCase() + ": current request does not have verb");
 				}
+				*/
 			}
 		}
 		
@@ -167,6 +169,12 @@ public class Exit implements SceneObject
 	@Override
 	public boolean checkProperty(String propName, String operator, int value)
 	{
+		if(!properties.containsKey(propName))
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: can not check property \"" + propName + "\", as it does not exist");
+			return false;
+		}
+		
 		int propValue = properties.get(propName);
 
 		if(operator == null)
@@ -243,7 +251,7 @@ public class Exit implements SceneObject
 		//System.out.println("Initializing exit " + name);
 		if(entranceToID == 0)
 		{
-			System.err.println("ERROR: UNSET ID FOR " + name);
+			System.err.println(name.toUpperCase() + ": WARNING: UNSET ID FOR " + name + ", this exit leads nowhere");
 			return;
 		}
 		if(game == null || game.level == null)

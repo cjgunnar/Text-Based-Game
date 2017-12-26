@@ -40,6 +40,10 @@ public class CommandInterpreter
 		{
 			command = InterpretVerbName(command, inputs, "close");
 		}
+		else if (inputs[0].equals("open"))
+		{
+			command = InterpretVerbName(command, inputs, "open");
+		}
 		else if (inputs[0].equals("grab"))
 		{
 			command = InterpretVerbName(command, inputs, "grab");

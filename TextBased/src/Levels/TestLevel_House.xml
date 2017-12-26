@@ -99,6 +99,10 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 				</aliases>
 				<description>The simple white door stands ajar, and leads out to the hallway</description>
 				<entranceTo>2</entranceTo>
+				<properties>
+					<property name="open">1</property>
+					<property name="lock">0</property>
+				</properties>
 				<requests>
 					<request>
 						<input type="verb">use</input>
@@ -107,11 +111,48 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 						</actions>
 					</request>
 					<request>
+						<input type="verb">open</input>
+						<conditions>
+							<condition>
+								<property_name>open</property_name>
+								<target>6</target>
+								<type>=</type>
+								<value>1</value>
+								<pass>
+									<actions>
+										<action type="out">The door is already open</action>
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">You open the door</action>
+										<action type="property_change" property_name="open" target="6">1</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
 						<input type="verb">close</input>
-						<actions>
-							<action type="out">You silently close the door. The light from the hall fades</action>
-							<action type="property_change" property_name="open" target="6">0</action>
-						</actions>
+						<conditions>
+							<condition>
+								<type>=</type>
+								<target>6</target>
+								<property_name>open</property_name>
+								<value>0</value>
+								<pass>
+									<actions>
+										<action type="out">The door is already closed</action>
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">You silently close the door</action>
+										<action type="property_change" property_name="open" target="6">0</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
 					</request>
 				</requests>
 			</exit>
