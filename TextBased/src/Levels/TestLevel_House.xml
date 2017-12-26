@@ -90,6 +90,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 			</simple_object>
 		</objects>
 		<exits>
+			
 			<exit id="6">
 				<name>Bedroom Door</name>
 				<aliases>
@@ -106,9 +107,25 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 				<requests>
 					<request>
 						<input type="verb">use</input>
-						<actions>
-							<action type="out">You tiptoe across the room to the door, and enter the hallway</action>
-						</actions>
+						<conditions>
+							<condition>
+								<target>6</target>
+								<type>=</type>
+								<property_name>open</property_name>
+								<value>1</value>
+								<pass>
+									<actions>
+										<action type="out">You tiptoe across the room to the door, slip through, and enter the hallway</action>
+						 				<!--<action type="change-room">2</action>-->
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">You open up the door and slip through</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
 					</request>
 					<request>
 						<input type="verb">open</input>
@@ -127,6 +144,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 									<actions>
 										<action type="out">You open the door</action>
 										<action type="property_change" property_name="open" target="6">1</action>
+										<action type="property_change" property_name="destination" target="6">3</action>
 									</actions>
 								</fail>
 							</condition>
@@ -148,7 +166,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 								<fail>
 									<actions>
 										<action type="out">You silently close the door</action>
-										<action type="property_change" property_name="open" target="6">0</action>
+										<action type="property_change" property_name="open">0</action>
 									</actions>
 								</fail>
 							</condition>

@@ -6,7 +6,7 @@ import sceneObjects.SceneObject;
 
 /**
  * Will do pass or fail actions based on a property condition
- * @author Caden
+ * @author cjgunnar
  *
  */
 public class Condition
@@ -40,6 +40,11 @@ public class Condition
 	 * actions to execute if action fails
 	 */
 	ArrayList<Action> fail = new ArrayList<Action>();
+	
+	/**
+	 * reference to the parent object of this condition
+	 */
+	SceneObject parentObject;
 	
 	/**
 	 * reference to game
@@ -95,28 +100,34 @@ public class Condition
 			System.err.println("CONDITION: ERROR: null operator");
 			return false;
 		}
-		else if(target == 0)
-		{
-			System.err.println("CONDITION: ERROR: target is 0");
-			return false;
-		}
 		else if(property_name == null)
 		{
 			System.err.println("CONDITION: ERROR: property_name is null");
 			return false;
 		}
 		
-		//find the target object
-		SceneObject targetObject = _game.manager.getRoom().FindObjectByID(target);
+		//find the target object, if target is 0 use parent
+		SceneObject targetObject;
+		if(target != 0)
+		{
+			targetObject = _game.manager.getRoom().FindObjectByID(target);
+		}
+		else
+		{
+			targetObject = parentObject;
+		}
+		
 		
 		if(targetObject != null)
 		{
 			if(targetObject.checkProperty(property_name, operator, value))
 			{
+				System.out.println("CONDITION: PASSED: " + property_name + " is " + operator + " " + value);
 				return true;
 			}
 			else
 			{
+				System.out.println("CONDITION: FAILED: " + property_name + " is NOT " + operator + " " + value);
 				return false;
 			}
 		}
@@ -135,8 +146,14 @@ public class Condition
 	{
 		for(Action action: fail)
 		{
-			action.setGame(game);
-			action.runAction();
+			if(game != null && parentObject != null)
+			{
+				action.setGame(game);
+				action.setParentSceneObject(parentObject);
+				action.runAction();
+			}
+			else
+				System.err.println("CONDITION: ERROR: null parent object or game reference");
 		}
 	}
 	
@@ -148,8 +165,14 @@ public class Condition
 	{
 		for(Action action: pass)
 		{
-			action.setGame(game);
-			action.runAction();
+			if(game != null && parentObject != null)
+			{
+				action.setGame(game);
+				action.setParentSceneObject(parentObject);
+				action.runAction();
+			}
+			else
+				System.err.println("CONDITION: ERROR: null parent object or game reference");
 		}
 	}
 	
@@ -159,6 +182,15 @@ public class Condition
 	public void setGame(Game game)
 	{
 		this._game = game;
+	}
+
+	/**
+	 * Sets the parent object of the condition
+	 * @param parentObject the parentObject to set
+	 */
+	public void setParentObject(SceneObject parentObject)
+	{
+		this.parentObject = parentObject;
 	}
 
 	/**

@@ -3,7 +3,11 @@ import gamelogic.Command;
 import gamelogic.Game;
 import gamelogic.Request;
 
-//Caden Gunnarson
+/**
+ * Interface for all the objects that can be in the game, including special ones
+ * @author cjgunnar
+ *
+ */
 public interface SceneObject 
 {
 	final static int defaultValue = 0;

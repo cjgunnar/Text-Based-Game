@@ -7,7 +7,11 @@ import gamelogic.Command;
 import gamelogic.Game;
 import gamelogic.Request;
 
-//implementation of SceneObject
+/**
+ * Basic implementation of SceneObject
+ * @author cjgunnar
+ *
+ */
 public class SimpleObject implements SceneObject
 {
 	//ID of the object
@@ -68,13 +72,13 @@ public class SimpleObject implements SceneObject
 			if(request.hasExact(command.getRaw()))
 			{
 				System.out.println(name.toUpperCase() + ": MATCH with raw: " + command.getRaw());
-				request.ExecuteActions(game);
+				request.ExecuteActions(game, this);
 			}
 			
 			if(request.hasVerb(command.getTypeOfCommand()))
 			{
 				System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
-				request.ExecuteActions(game);
+				request.ExecuteActions(game, this);
 			}
 			else
 			{

@@ -3,6 +3,8 @@ package gamelogic;
 import java.util.ArrayList;
 import java.util.List;
 
+import sceneObjects.SceneObject;
+
 public class Request
 {
 	/**
@@ -66,13 +68,15 @@ public class Request
 	/**
 	 * Executes all the actions it has, and process conditionals
 	 * @param game reference to the game
+	 * @param parentObject reference to the owner of this request
 	 */
-	public void ExecuteActions(Game game)
+	public void ExecuteActions(Game game, SceneObject parentObject)
 	{
 		//run default actions
 		for(Action action: actions)
 		{
 			action.setGame(game);
+			action.setParentSceneObject(parentObject);
 			action.runAction();
 		}
 		
@@ -80,6 +84,7 @@ public class Request
 		for(Condition condition: conditions)
 		{
 			condition.setGame(game);
+			condition.setParentObject(parentObject);
 			condition.runCondition();
 		}
 	}

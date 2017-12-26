@@ -207,8 +207,9 @@ public class Game
 		else
 		{
 			System.err.println("ERROR: Frame never created");
-			System.out.println(output);
 		}
+		
+		System.out.println("GAME OUTPUT: " + output);
 	}
 	
 	public void sendErrorMessage(String msg)

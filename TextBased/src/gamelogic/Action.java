@@ -6,11 +6,26 @@ import sceneObjects.SceneObject;
 
 public class Action
 {
+	//types of actions
+	/**
+	 * An action of type out displays its value to the log, basically sends text
+	 */
 	final String OUT = "out";
+	
+	/**
+	 * An action of type property_change changes a property of a target ID to a integer value
+	 */
 	final String PROPERTY_CHANGE = "property_change";
+	
+	final String EXIT_CHANGE_ROOM = "exit:change_room";
 	
 	private String actionType;
 	private String actionValue;
+	
+	/**
+	 * The owner/parent of the action
+	 */
+	private SceneObject parentObject;
 	
 	private int actionTarget;
 	private String propertyName;
@@ -20,7 +35,7 @@ public class Action
 	public void runAction()
 	{
 		//run action...
-		//use game reference to do that
+		//use game reference or parent reference to do that
 		if(actionType == null)
 		{
 			System.err.println("ACTION: ERROR: type is null");
@@ -35,17 +50,40 @@ public class Action
 		{
 			System.out.println("ACTION: changing property " + propertyName + " to " + actionValue);
 			
-			//find the object with the target ID
-			SceneObject targetObj = _game.manager.getRoom().FindObjectByID(actionTarget);
+			SceneObject targetObj;
+			if(actionTarget == 0)
+			{
+				//use parent if target is 0
+				if(parentObject != null)
+					targetObj = parentObject;
+				else
+				{
+					System.err.println("ACTION: ERROR: target is 0 but parent is null");
+					return;
+				}
+			}
+			else
+			{
+				//find the object with the target ID
+				targetObj = _game.manager.getRoom().FindObjectByID(actionTarget);
+			}
 			
-			//change the property
-			targetObj.changeProperty(propertyName, Integer.parseInt(actionValue));
+			if(targetObj != null)
+				//change the property
+				targetObj.changeProperty(propertyName, Integer.parseInt(actionValue));
+			else
+				System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
 		}
 		else
 		{
 			System.err.println("ACTION: ERROR: unrecognized type: " + actionType);
 		}
 		
+	}
+	
+	public void setParentSceneObject(SceneObject parentObject)
+	{
+		this.parentObject = parentObject;
 	}
 	
 	public void setGame(Game game)

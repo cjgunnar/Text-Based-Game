@@ -7,7 +7,11 @@ import gamelogic.Command;
 import gamelogic.Game;
 import gamelogic.Request;
 
-//all the exits to a room
+/**
+ * An exit leads to another room, holds destination in destination property. Has action change_room that will make it change the room
+ * @author cjgunnar
+ *
+ */
 public class Exit implements SceneObject
 {
 	//name and description of the object
@@ -20,7 +24,9 @@ public class Exit implements SceneObject
 	//requests
 	List<Request> requests = new ArrayList<Request>();
 	
-	//what room does this exit lead to
+	/**
+	 * what room this exit leads to
+	 */
 	Room entranceTo;
 	
 	//ID of the room it is the entrance to
@@ -29,13 +35,26 @@ public class Exit implements SceneObject
 	//reference to game so it can change rooms
 	Game game;
 	
-	//properties of the object (HashMap), name int pairs
+	/**
+	 * properties of the object (HashMap), name int pairs. Contains destination of the exit
+	 */
 	HashMap<String, Integer> properties = new HashMap<String, Integer>();
+	
+	/**
+	 * Exit specific property used to tell which room this exit leads to
+	 */
+	private String DESTINATION = "destination";
 	
 	//id of the object
 	int ID;
 	
-	//full constructor
+	/**
+	 * Full constructor for an exit
+	 * @param name name of the exit
+	 * @param description description of the exit
+	 * @param entranceTo room where this exit leads to
+	 * @param game reference to game
+	 */
 	public Exit(String name, String description, Room entranceTo, Game game)
 	{
 		//super(name, description);
@@ -46,8 +65,14 @@ public class Exit implements SceneObject
 		//System.out.println("new exit constructed named " + name);
 	}
 	
-	//default constructor
-	public Exit() {}
+	/**
+	 * default constructor
+	 */
+	public Exit() 
+	{
+		//create exit specific default properties
+		addProperty(DESTINATION);
+	}
 	
 	/*
 	 * @see SceneObject#ExecuteCommand(Command)
@@ -67,21 +92,21 @@ public class Exit implements SceneObject
 		}
 		else
 		{
-			System.out.println(name.toUpperCase() + ": attempting command, raw: " + command.getRaw());
-			System.out.println(name.toUpperCase() + ": looking through " + requests.size() + " requests...");
+			//System.out.println(name.toUpperCase() + ": attempting command, raw: " + command.getRaw());
+			//System.out.println(name.toUpperCase() + ": looking through " + requests.size() + " requests...");
 			
 			for(Request request: requests)
 			{
 				if(request.hasExact(command.getRaw()))
 				{
-					System.out.println(name.toUpperCase() + ": MATCH with raw: " + command.getRaw());
-					request.ExecuteActions(game);
+					//System.out.println(name.toUpperCase() + ": MATCH with raw: " + command.getRaw());
+					request.ExecuteActions(game, this);
 				}
 				
 				if(request.hasVerb(command.getTypeOfCommand()))
 				{
-					System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
-					request.ExecuteActions(game);
+					//System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
+					request.ExecuteActions(game, this);
 				}
 				/*
 				else
@@ -155,8 +180,20 @@ public class Exit implements SceneObject
 			System.out.println(name.toUpperCase() + ": does not contain property " + propName + ", creating it with default value...");
 			addProperty(propName);
 		}
+		
 		System.out.println(name.toUpperCase() + ": property " + propName + " changed from " + properties.get(propName) + " to " + value);
 		properties.put(propName, value);
+	
+		//exit specific property "destination"
+		if(propName.equalsIgnoreCase(DESTINATION))
+		{
+			System.out.println(name.toUpperCase() + ": changing destination to ID " + value);
+			entranceToID = value;
+			if(game != null && game.level != null)
+				InitializeEntranceToByID();
+			else
+				System.err.println(name.toUpperCase() + ": ERROR: null game or level reference");
+		}
 	}
 
 	@Override
@@ -230,6 +267,9 @@ public class Exit implements SceneObject
 	@Override
 	public void addProperty(String propName, int initValue)
 	{
+		//exit specific property "destination"
+		
+		
 		properties.put(propName, initValue);
 	}
 
@@ -243,9 +283,16 @@ public class Exit implements SceneObject
 	public void setEntranceTo(int id)
 	{
 		entranceToID = id;
-		//entranceTo = game.level.FindRoomWithID(id);
+		if(game != null && game.level != null)
+		{
+			//if the game and level have been set up, initialize the new entranceTo reference
+			InitializeEntranceToByID();
+		}
 	}
 	
+	/**
+	 * Using the number ID of the room, find and initialize the Room reference (entranceTo)
+	 */
 	public void InitializeEntranceToByID()
 	{
 		//System.out.println("Initializing exit " + name);
