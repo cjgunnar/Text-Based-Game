@@ -81,7 +81,7 @@ public class LevelConstructorXMLParser
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = true;
+	boolean debugMode = false;
 	
 	Game _game;
 	
@@ -287,7 +287,6 @@ public class LevelConstructorXMLParser
 		return rooms;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<SceneObject> readObjects()
 	{
 		//create a list of objects that will be outputed at the end
@@ -330,6 +329,7 @@ public class LevelConstructorXMLParser
 						//this code will set attributes (the data in the start of the element ex: <room id="1">)
 						
 						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
 						//while the iterator has more attributes to go over

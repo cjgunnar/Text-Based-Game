@@ -1,5 +1,6 @@
 package gamelogic;
 
+import sceneObjects.Exit;
 import sceneObjects.SceneObject;
 
 //actions do things
@@ -46,6 +47,8 @@ public class Action
 		{
 			_game.Output(actionValue);
 		}
+		
+		//property_change action changes properties of target objects
 		else if(actionType.equals(PROPERTY_CHANGE))
 		{
 			System.out.println("ACTION: changing property " + propertyName + " to " + actionValue);
@@ -53,7 +56,7 @@ public class Action
 			SceneObject targetObj;
 			if(actionTarget == 0)
 			{
-				//use parent if target is 0
+				//use parent as default if target is 0
 				if(parentObject != null)
 					targetObj = parentObject;
 				else
@@ -74,6 +77,15 @@ public class Action
 			else
 				System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
 		}
+		
+		//special type for exits only
+		//will "use" the exit and change the room, then output the description of the room just entered
+		else if(actionType.equals(EXIT_CHANGE_ROOM))
+		{
+			Exit parentExit = (Exit)parentObject;
+			parentExit.Built_In_Command_UseDoor();
+		}
+		
 		else
 		{
 			System.err.println("ACTION: ERROR: unrecognized type: " + actionType);

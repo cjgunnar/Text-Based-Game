@@ -117,22 +117,6 @@ public class Exit implements SceneObject
 			}
 		}
 		
-		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("use"))
-		{
-			if(entranceToID == 0)
-			{
-				System.out.println(name.toUpperCase() + " leads to nowhere");
-				
-				//"use" action should be specified, as internal logic will do nothing
-				return;
-			}
-			else
-			{
-				game.manager.ChangeRoom(entranceTo);
-				game.Output(game.manager.getRoom().getDescription());
-			}
-		}
-		
 		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("look at"))
 		{
 			game.Output(description);
@@ -158,6 +142,22 @@ public class Exit implements SceneObject
 			break;
 		}
 		*/
+	}
+	
+	public void Built_In_Command_UseDoor()
+	{
+		if(entranceToID == 0)
+		{
+			System.out.println(name.toUpperCase() + " leads to nowhere");
+
+			//action out should be specified, as internal logic will do nothing
+			return;
+		}
+		else
+		{
+			game.manager.ChangeRoom(entranceTo);
+			game.Output(game.manager.getRoom().getDescription());
+		}
 	}
 	
 	public Room getEntranceTo() 

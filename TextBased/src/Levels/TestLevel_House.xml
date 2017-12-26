@@ -116,12 +116,12 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 								<pass>
 									<actions>
 										<action type="out">You tiptoe across the room to the door, slip through, and enter the hallway</action>
-						 				<!--<action type="change-room">2</action>-->
+						 				<action type="exit:change_room">2</action>
 									</actions>
 								</pass>
 								<fail>
 									<actions>
-										<action type="out">You open up the door and slip through</action>
+										<action type="out">The door is closed</action>
 									</actions>
 								</fail>
 							</condition>
@@ -144,7 +144,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 									<actions>
 										<action type="out">You open the door</action>
 										<action type="property_change" property_name="open" target="6">1</action>
-										<action type="property_change" property_name="destination" target="6">3</action>
+										<!--<action type="property_change" property_name="destination" target="6">3</action>-->
 									</actions>
 								</fail>
 							</condition>
