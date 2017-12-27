@@ -128,4 +128,14 @@ public class Request
 	{
 		exacts.add(exact);
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "Request [actions=" + actions + ", verbs=" + verbs + ", exacts=" + exacts + ", conditions=" + conditions
+				+ "]";
+	}
 }

@@ -81,7 +81,7 @@ public class LevelConstructorXMLParser
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = false;
+	boolean debugMode = true;
 	
 	Game _game;
 	
@@ -136,6 +136,11 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("LEVEL: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("LEVEL: element=" + elementName + ", value=null");
+					
 					//opening <room> element
 					if(elementName.equals(ROOM))
 					{
@@ -166,7 +171,7 @@ public class LevelConstructorXMLParser
 								}
 								catch (NumberFormatException e)
 								{
-									System.err.println("ERROR: non-int value as ID attribute");
+									System.err.println("LEVEL READER ERROR: non-int value as ID attribute");
 								}
 
 							}
@@ -193,6 +198,7 @@ public class LevelConstructorXMLParser
 					//prolog gets outputed at the beginning of the game
 					else if (elementName.equals(PROLOG))
 					{
+						debugLog("add prolog to level: " + eventData);
 						_game.level.setProlog(eventData);
 					}
 					
@@ -207,6 +213,7 @@ public class LevelConstructorXMLParser
 						//add exits to current room
 						for(Exit exit: exits)
 						{
+							//debugLog("add exit " + exit.getName() + " to room");
 							room.addExit(exit);
 						}
 						
@@ -246,12 +253,12 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING ELEMENT: " + endElementName);
+					//debugLog("CLOSING ELEMENT: " + endElementName);
 
 					//if it is the end of the entire room, we can add it to the list
 					if(endElementName.equals(ROOM))
 					{
-						debugLog("CLOSED ROOM NAMED: " + room.getName());
+						debugLog("LEVEL: COMPLETED ROOM: " + room.toString());
 
 						rooms.add(room);
 						continue;
@@ -316,6 +323,11 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("OBJECTS: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("OBJECTS: element=" + elementName + ", value=null");
+					
 					//if the starting element is a simpleObject, we can create it
 					if(elementName.equals(SIMPLE_OBJECT))
 					{
@@ -332,22 +344,35 @@ public class LevelConstructorXMLParser
 						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
+						
+						
 						//while the iterator has more attributes to go over
 						while(attributes.hasNext())
 						{
 							//create variable for the individual attribute
 							Attribute attribute = attributes.next();
 
-							debugLog("VALUE: " + attribute.getValue());
+							String attributeName = attribute.getName().getLocalPart();
+
+							String attributeValue = attribute.getValue();
+
+							debugLog("OBJECTS: NEW OBJECT: CURRENT ATTRIBUTE: name=" + attributeName + ", value=" + attributeValue);
 							
-							//check for the attributes we are looking for and set them
-							try
+							if(attributeName.equals(ID))
 							{
-								sceneObject.setID(Integer.parseInt(attribute.getValue()));
+								//check for the attributes we are looking for and set them
+								try
+								{
+									sceneObject.setID(Integer.parseInt(attribute.getValue()));
+								}
+								catch (NumberFormatException e)
+								{
+									System.err.println("LEVEL READER ERROR: SCENE_OBJECT: non-int value as ID attribute");
+								}
 							}
-							catch (NumberFormatException e)
+							else
 							{
-								System.err.println("SCENE_OBJECT: ERROR: non-int value as ID attribute");
+								System.err.println("OBJECTS: unknown attribute: " + attributeName);
 							}
 						}
 
@@ -376,7 +401,6 @@ public class LevelConstructorXMLParser
 						//add aliases to current object
 						for(String alias : aliases)
 						{
-							debugLog("Setting alias list, current alias: " + alias);
 							sceneObject.addAlias(alias);
 						}
 					}
@@ -390,6 +414,17 @@ public class LevelConstructorXMLParser
 							sceneObject.addRequest(request);
 						}
 					}
+					
+					//HashMap of properties
+					else if(elementName.equals(PROPERTIES))
+					{
+						setProperties(sceneObject);
+					}
+					
+					else
+					{
+						System.err.println("LEVEL READER ERROR: unrecognized object element: " + elementName);
+					}
 				}
 
 				//if it is the ending element, ex: </room> or </simple_object>
@@ -401,12 +436,12 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING OBJECT ELEMENT: " + endElementName);
+					//debugLog("CLOSING OBJECT ELEMENT: " + endElementName + ", value: " + getEventData());
 
 					//if it is the end of the entire object, we can add it to the list
 					if(endElementName.equals(SIMPLE_OBJECT))
 					{
-						debugLog("CLOSED SIMPLE_OBJECT NAMED: " + sceneObject.getName());
+						debugLog("COMPLETE: " + sceneObject.toString());
 
 						objects.add(sceneObject);
 						continue;
@@ -414,7 +449,7 @@ public class LevelConstructorXMLParser
 
 					else if(endElementName.equals(OBJECTS))
 					{
-						debugLog("CLOSED OBJECTS ELEMENT");
+						debugLog("COMPLETE: OBJECTS, len: " + objects.size());
 
 						return objects;
 					}
@@ -469,10 +504,15 @@ public class LevelConstructorXMLParser
 					//the data inside of the event
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("EXITS: element=" + startElementName + ", value=" + eventData);
+					else
+						debugLog("EXITS: element=" + startElementName + ", value=null");
+					
 					//if the starting element is a simpleObject, we can create it
 					if(startElementName.equals(EXIT))
 					{
-						debugLog("OPENED NEW EXIT");
+						debugLog("CREATED NEW EXIT");
 
 						//using the default constructor so that we can add new fields in as
 						//they get iterated over
@@ -523,7 +563,6 @@ public class LevelConstructorXMLParser
 						//add aliases to current object
 						for(String alias : aliases)
 						{
-							debugLog("Setting alias list, current alias: " + alias);
 							exit.addAlias(alias);
 						}
 					}
@@ -559,6 +598,11 @@ public class LevelConstructorXMLParser
 						setProperties(exit);
 					}
 					
+					else
+					{
+						System.err.println("LEVEL READER ERROR: unrecognized exit element: " + startElementName);
+					}
+					
 				}
 
 				//if it is the ending element, ex: </room> or </simple_object>
@@ -570,12 +614,12 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING EXIT ELEMENT: " + endElementName);
+					//debugLog("CLOSING EXIT ELEMENT: " + endElementName + ", value: " + getEventData());
 
 					//if it is the end of the entire object, we can add it to the list
 					if(endElementName.equalsIgnoreCase(EXIT))
 					{
-						debugLog("CLOSED EXIT NAMED: " + exit.getName());
+						debugLog("CREATED EXIT: " + exit.toString());
 
 						exits.add(exit);
 						continue;
@@ -583,7 +627,7 @@ public class LevelConstructorXMLParser
 
 					else if(endElementName.equalsIgnoreCase(EXITS))
 					{
-						debugLog("CLOSED EXITS ELEMENT");
+						debugLog("CREATED EXITS: len: " + exits.size());
 
 						return exits;
 					}
@@ -634,10 +678,15 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("ALIASES: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("ALIASES: element=" + elementName + ", value=null");
+					
 					//if the starting element is a simpleObject, we can create it
 					if(elementName.equals(ALIAS))
 					{
-						debugLog("SETTING ALIAS: " + eventData);
+						debugLog("ADDING ALIAS TO LIST: " + eventData);
 
 						//set the alias to the eventData
 						alias = eventData;
@@ -659,12 +708,12 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING ALIASES ELEMENT: " + endElementName);
+					//debugLog("CLOSING ALIASES ELEMENT: " + endElementName);
 
 					//if it is the end of the entire list
 					if(endElementName.equalsIgnoreCase(ALIASES))
 					{
-						debugLog("CLOSED ALIAS ELEMENT");
+						debugLog("COMPLETED ALIAS LIST: len=" + aliases.size());
 
 						return aliases;
 					}
@@ -717,10 +766,15 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("REQUESTS: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("REQUESTS: element=" + elementName + ", value=null");
+					
 					//if the starting element is a request, read attributes
 					if(elementName.equals(REQUEST))
 					{
-						debugLog("REQUEST");
+						debugLog("NEW REQUEST");
 
 						//create a new request to reset
 						request = new Request();
@@ -735,11 +789,11 @@ public class LevelConstructorXMLParser
 						//read actions
 						List<Action> actions = readActions();
 						
-						debugLog("adding " + actions.size() + " actions to request");
+						debugLog("REQUEST: adding " + actions.size() + " actions to request");
 						
 						for(Action action: actions)
 						{
-							debugLog("adding action to request...");
+							//debugLog("adding action to request...");
 							request.addAction(action);
 						}
 					}
@@ -800,7 +854,7 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING REQUEST ELEMENT: " + endElementName);
+					//debugLog("CLOSING REQUEST ELEMENT: " + endElementName);
 
 					if(endElementName.equalsIgnoreCase(REQUEST))
 					{
@@ -810,7 +864,7 @@ public class LevelConstructorXMLParser
 					//if it is the end of the entire list
 					else if(endElementName.equalsIgnoreCase(REQUESTS))
 					{
-						debugLog("CLOSED REQUESTS ELEMENT");
+						debugLog("FINISHED REQUEST LIST: len=" + requests.size());
 
 						return requests;
 					}
@@ -885,11 +939,11 @@ public class LevelConstructorXMLParser
 
 							String attributeName = attribute.getName().getLocalPart();
 							
-							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+							//debugLog("CURRENT ATTRIBUTE: " + attributeName);
 
 							String attributeValue = attribute.getValue();
 							
-							debugLog("VALUE: " + attributeValue);
+							//debugLog("VALUE: " + attributeValue);
 							
 							//check for the attributes we are looking for and set them
 							if(attributeName.equals(NAME))
@@ -944,14 +998,17 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING PROPERTY ELEMENT: " + endElementName);
+					//debugLog("CLOSING PROPERTY ELEMENT: " + endElementName);
 
 					//if it is the end of this action
 					if(endElementName.equalsIgnoreCase(PROPERTY))
 					{
 						//add the name and value pair to the HashMap
 						if(property_name != null)
+						{
+							debugLog("PROPERTY: adding property: name=" + property_name + ", value=" + value);
 							sceneObject.addProperty(property_name, value);
+						}
 						else
 							System.err.println("LEVEL READER ERROR: null property name");
 					}
@@ -959,7 +1016,7 @@ public class LevelConstructorXMLParser
 					//if it is the end of the entire list
 					else if(endElementName.equalsIgnoreCase(PROPERTIES))
 					{
-						debugLog("CLOSED PROPERTIES ELEMENT (HASHMAP)");
+						debugLog("CLOSED PROPERTIES LIST (HASHMAP)");
 						return;
 					}
 				}
@@ -1010,6 +1067,11 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("CONDITIONS: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("CONDITIONS: element=" + elementName + ", value=null");
+					
 					//if the starting element is a condition, create a new one to reset
 					if(elementName.equals(CONDITION))
 					{
@@ -1048,27 +1110,12 @@ public class LevelConstructorXMLParser
 					
 					else if(elementName.equals(PASS))
 					{
-						ArrayList<Action> passActions = (ArrayList<Action>) readActions();
-						
-						//add actions into condition's pass list
-						for(Action action: passActions)
-						{
-							condition.addPassAction(action);
-						}
-						
-						//read nested conditions
-						//TODO add nested condition support
+						setPassGroup(condition);
 					}
 					
 					else if(elementName.equals(FAIL))
 					{
-						List<Action> failActions = readActions();
-						
-						//add actions into condition's fail list
-						for(Action action: failActions)
-						{
-							condition.addFailAction(action);
-						}
+						setFailGroup(condition);
 					}
 					
 					else
@@ -1087,7 +1134,7 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING CONDITIONS ELEMENT: " + endElementName);
+					//debugLog("CLOSING CONDITIONS ELEMENT: " + endElementName);
 
 					//if it is the end of this action
 					if(endElementName.equalsIgnoreCase(CONDITION))
@@ -1098,7 +1145,7 @@ public class LevelConstructorXMLParser
 					//if it is the end of the entire list
 					else if(endElementName.equalsIgnoreCase(CONDITIONS))
 					{
-						debugLog("CLOSED CONDITIONS ELEMENT");
+						debugLog("CONDITIONS: FINSIHED CONDITIONS LIST, len=" + conditions.size());
 
 						return conditions;
 					}
@@ -1121,6 +1168,220 @@ public class LevelConstructorXMLParser
 
 		System.err.println("LEVEL READER ERROR: conditions reader reached end of document");
 		return conditions;
+	}
+	
+	private void setPassGroup(Condition condition)
+	{
+		debugLog("SETTING PASS GROUP");
+
+		//inside the try block incase error occurs
+		try
+		{
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					//StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("PASS GROUP: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("PASS GROUP: element=" + elementName + ", value=null");
+
+					if(eventData == null)
+					{
+						debugLog("no event data, using default 0");
+						eventData = SceneObject.defaultValue + "";
+					}
+
+					//if the starting element is a group of actions, add them
+					if(elementName.equals(ACTIONS))
+					{
+						debugLog("PASS GROUP: READING ACTIONS GROUP");
+
+						ArrayList<Action> actions = (ArrayList<Action>)readActions();
+						
+						//add pass actions to the conditional
+						for(Action action: actions)
+						{
+							condition.addPassAction(action);
+						}
+					}
+					
+					//if it is a nested conditions
+					else if(elementName.equals(CONDITIONS))
+					{
+						debugLog("PASS GROUP: READING NESTED CONDITIONS");
+						
+						ArrayList<Condition> conditions = readConditions();
+						
+						//add pass nested conditions to the conditional
+						for(Condition currentCondition: conditions)
+						{
+							condition.addPassNestedCondition(currentCondition);
+						}
+					}
+					else
+					{
+						System.err.println("PASS GROUP: ERROR: unknown starting element: " + elementName);
+					}
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//if it is the end of the entire list
+					if(endElementName.equalsIgnoreCase(PASS))
+					{
+						debugLog("FINISHED SETTING PASS GROUP");
+						
+						//stop reading
+						return;
+					}
+					else
+					{
+						System.err.println("PASS GROUP: ERROR: unknown ending element: " + endElementName);
+					}
+				}
+			}
+
+
+		} 
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		System.err.println("LEVEL READER ERROR: pass group reader reached end of document");
+	}
+	
+	private void setFailGroup(Condition condition)
+	{
+		debugLog("SETTING FAIL GROUP");
+
+		//inside the try block incase error occurs
+		try
+		{
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					//StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("FAIL GROUP: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("FAIL GROUP: element=" + elementName + ", value=null");
+
+					if(eventData == null)
+					{
+						debugLog("no event data, using default 0");
+						eventData = SceneObject.defaultValue + "";
+					}
+
+					//if the starting element is a group of actions, add them
+					if(elementName.equals(ACTIONS))
+					{
+						debugLog("FAIL GROUP: READING ACTIONS GROUP");
+
+						ArrayList<Action> actions = (ArrayList<Action>)readActions();
+						
+						//add fail actions to the conditional
+						for(Action action: actions)
+						{
+							condition.addFailAction(action);
+						}
+					}
+					
+					//if it is a nested conditions
+					else if(elementName.equals(CONDITIONS))
+					{
+						debugLog("FAIL GROUP: READING NESTED CONDITIONS GROUP");
+						
+						ArrayList<Condition> conditions = readConditions();
+						
+						//add fail nested conditions to the conditional
+						for(Condition currentCondition: conditions)
+						{
+							condition.addFailNestedCondition(currentCondition);
+						}
+					}
+					else
+					{
+						System.err.println("FAIL GROUP: ERROR: unknown starting element: " + elementName);
+					}
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//if it is the end of the entire list
+					if(endElementName.equalsIgnoreCase(FAIL))
+					{
+						debugLog("FINISHED SETTING FAIL GROUP");
+						
+						//stop reading
+						return;
+					}
+					else
+					{
+						System.err.println("FAIL GROUP: ERROR: unknown ending element: " + endElementName);
+					}
+				}
+			}
+
+
+		} 
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		System.err.println("LEVEL READER ERROR: fail group reader reached end of document");
 	}
 	
 	private List<Action> readActions()
@@ -1151,6 +1412,11 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData != null)
+						debugLog("ACTIONS: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("ACTIONS: element=" + elementName + ", value=null");
+					
 					if(eventData == null)
 					{
 						debugLog("no event data, using default 0");
@@ -1227,7 +1493,7 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					debugLog("CLOSING ACTION ELEMENT: " + endElementName);
+					//debugLog("CLOSING ACTION ELEMENT: " + endElementName);
 
 					//if it is the end of this action
 					if(endElementName.equalsIgnoreCase(ACTION))
