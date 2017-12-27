@@ -19,7 +19,7 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 				<description>A simple wooden desk. It is full of junk</description>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<actions>
 						
 							<!-- A known bug: the value description is not neccessary nor does it do anything, but without it the level reader crashes -->
@@ -42,6 +42,7 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 					<alias>night-light</alias>
 					<alias>santa night light</alias>
 					<alias>santa night-light</alias>
+					<alias>santa clause night light</alias>
 					<alias>glowing red santa light</alias>
 					<alias>glowing-red night light</alias>
 					<alias>glowing red santa night light</alias>
@@ -49,7 +50,7 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 				</aliases>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<actions>
 							<action type="out:description">description</action>
 						</actions>
@@ -62,7 +63,7 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 The street is dusted with a fresh layer of white snow</description>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<input type="verb">look through</input>
 						<actions>
 							<action type="out:description">description</action>
@@ -81,7 +82,7 @@ The street is dusted with a fresh layer of white snow</description>
 				</aliases>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<actions>
 							<action type="out:description">description</action>
 						</actions>
@@ -109,7 +110,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 				<description>A poster of space hangs above the desk</description>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<actions>
 							<action type="out:description">description</action>
 						</actions>
@@ -144,7 +145,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 				</properties>
 				<requests>
 					<request>
-						<input type="verb">look at</input>
+						<input type="verb">examine</input>
 						<conditions>
 							<condition>
 								<property_name>open</property_name>
