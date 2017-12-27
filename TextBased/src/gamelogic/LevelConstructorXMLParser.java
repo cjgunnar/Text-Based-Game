@@ -81,7 +81,7 @@ public class LevelConstructorXMLParser
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = false;
+	boolean debugMode = true;
 	
 	Game _game;
 	
@@ -1148,6 +1148,12 @@ public class LevelConstructorXMLParser
 
 					String eventData = getEventData();
 
+					if(eventData == null)
+					{
+						debugLog("no event data, using default 0");
+						eventData = SceneObject.defaultValue + "";
+					}
+					
 					//if the starting element is a action, read attributes
 					if(elementName.equals(ACTION))
 					{
@@ -1282,10 +1288,14 @@ public class LevelConstructorXMLParser
 		return startElementName;
 	}
 	
+	/**
+	 * Reads the value of the element, returns null and a ClassCastException if none
+	 * @return the value of the element
+	 */
 	private String getEventData()
 	{
 		//the data inside of the event
-		String eventData = "NO DATA";
+		String eventData = null;
 		try
 		{
 			eventData = event.asCharacters().getData();
@@ -1293,7 +1303,8 @@ public class LevelConstructorXMLParser
 		catch (ClassCastException e)
 		{
 			System.err.println("LEVEL READER ERROR: Could not cast event to character data");
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.err.println(e.toString());
 		}
 		
 		return eventData;

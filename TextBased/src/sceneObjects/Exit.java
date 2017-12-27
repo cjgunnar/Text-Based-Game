@@ -116,12 +116,7 @@ public class Exit implements SceneObject
 				*/
 			}
 		}
-		
-		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equalsIgnoreCase("look at"))
-		{
-			game.Output(description);
-		}
-		
+				
 		/*
 		switch (command.getTypeOfCommand())
 		{
@@ -142,6 +137,12 @@ public class Exit implements SceneObject
 			break;
 		}
 		*/
+	}
+	
+	public void Built_In_Command_OutputDescription()
+	{
+		if(description != null)
+			game.Output(description);
 	}
 	
 	public void Built_In_Command_UseDoor()

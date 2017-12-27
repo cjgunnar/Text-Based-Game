@@ -145,83 +145,7 @@ public class Room implements SceneObject
 		addProperty(propName, SceneObject.defaultValue);
 	}
 	
-	public String getDescription() 
-	{
-		return description;
-	}
-	
-	public void addObject (SceneObject object)
-	{
-		if(object == null)
-		{
-			System.err.println(name.toUpperCase() + ": ERROR: attempt to add null object");
-		}
-		else
-		{
-			//System.out.println(name.toUpperCase() + ": Added object: " + object.getName() + " to " + this.name);
-			objects.add(object);
-		}
-	}
-	
-	public SceneObject[] getObjects()
-	{
-		SceneObject[] sceneObjectsArray = new SceneObject[objects.size()];
-		for (int i = 0; i < objects.size(); i++)
-		{
-			sceneObjectsArray[i] = objects.get(i);
-		}
-		return sceneObjectsArray;
-	}
-	
-	public void addExit (Exit exit)
-	{
-		exits.add(exit);
-	}
-	
-	public void setID(int id)
-	{
-		//System.out.println("ID set to: " + id);
-		this.ID = id;
-	}
-	
-	public int getID()
-	{
-		
-		return ID;
-	}
-	
-	public String getName()
-	{
-		return name;
-	}
-	
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	
-	public void setAllObjectsGame(Game game)
-	{
-		for(int i = 0; i < objects.size(); i++)
-		{
-			objects.get(i).setGame(game);
-		}
-	}
-	
-	public void setAllExitsGame(Game game)
-	{
-		if(game == null)
-		{
-			System.err.println("ERROR: Null reference for game trying to be set in setAllExitsGame for room " + name);
-			return;
-		}
-		
-		for(int i = 0; i < exits.size(); i++)
-		{
-			exits.get(i).setGame(game);
-		}
-	}
-	
+	//initialize exits
 	public void InitializeAllExits()
 	{
 		for(int i = 0; i < exits.size(); i++)
@@ -230,6 +154,7 @@ public class Room implements SceneObject
 		}
 	}
 	
+	//room related finding SceneObjects and exits
 	public Exit FindExitByDestination(Room destination)
 	{
 		for(Exit exit: exits)
@@ -354,13 +279,100 @@ public class Room implements SceneObject
 		return null;
 	}
 
+	
+	//command related
 	@Override
 	public void ExecuteCommand(Command command)
 	{
-		System.out.println("ERROR: unsupported execute command on room");
+		System.out.println("ERROR: unsupported: execute command on room");
 		
 	}
 
+	public void Built_In_Command_OutputDescription()
+	{
+		if(description != null)
+			game.Output(description);
+	}
+	
+	//getters and setters
+	public String getDescription() 
+	{
+		return description;
+	}
+	
+	public void addObject (SceneObject object)
+	{
+		if(object == null)
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: attempt to add null object");
+		}
+		else
+		{
+			//System.out.println(name.toUpperCase() + ": Added object: " + object.getName() + " to " + this.name);
+			objects.add(object);
+		}
+	}
+	
+	public SceneObject[] getObjects()
+	{
+		SceneObject[] sceneObjectsArray = new SceneObject[objects.size()];
+		for (int i = 0; i < objects.size(); i++)
+		{
+			sceneObjectsArray[i] = objects.get(i);
+		}
+		return sceneObjectsArray;
+	}
+	
+	public void addExit (Exit exit)
+	{
+		exits.add(exit);
+	}
+	
+	public void setID(int id)
+	{
+		//System.out.println("ID set to: " + id);
+		this.ID = id;
+	}
+	
+	public int getID()
+	{
+		
+		return ID;
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	
+	public void setAllObjectsGame(Game game)
+	{
+		for(int i = 0; i < objects.size(); i++)
+		{
+			objects.get(i).setGame(game);
+		}
+	}
+	
+	public void setAllExitsGame(Game game)
+	{
+		if(game == null)
+		{
+			System.err.println("ERROR: Null reference for game trying to be set in setAllExitsGame for room " + name);
+			return;
+		}
+		
+		for(int i = 0; i < exits.size(); i++)
+		{
+			exits.get(i).setGame(game);
+		}
+	}
+	
 	@Override
 	public void setDescription(String description)
 	{

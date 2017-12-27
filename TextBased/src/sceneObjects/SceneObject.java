@@ -10,6 +10,7 @@ import gamelogic.Request;
  */
 public interface SceneObject 
 {
+	//default value of properties
 	final static int defaultValue = 0;
 	
 	//operators
@@ -53,11 +54,18 @@ public interface SceneObject
 	 */
 	public abstract boolean checkProperty(String propName, String operator, int value);
 	
+	//commands
 	/**
 	 * used to execute and output code when given an output
 	 * @param command the command to execute
 	 */
 	public abstract void ExecuteCommand (Command command);
+	
+	//built in commands
+	/**
+	 * Outputs the description of the object to the game
+	 */
+	public abstract void Built_In_Command_OutputDescription();
 	
 	//getter and setter methods:
 	

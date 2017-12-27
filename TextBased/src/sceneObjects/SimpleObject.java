@@ -80,15 +80,12 @@ public class SimpleObject implements SceneObject
 				System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
 				request.ExecuteActions(game, this);
 			}
+			/*
 			else
 			{
 				System.out.println(name.toUpperCase() + ": current request does not have verb");
 			}
-		}
-		
-		if(command.getTypeOfCommand() != null && command.getTypeOfCommand().equals("look at"))
-		{
-			game.Output(description);
+			*/
 		}
 		
 		/*
@@ -108,6 +105,12 @@ public class SimpleObject implements SceneObject
 		}
 		
 		*/
+	}
+	
+	public void Built_In_Command_OutputDescription()
+	{
+		if(description != null)
+			game.Output(description);
 	}
 	
 	//property related methods

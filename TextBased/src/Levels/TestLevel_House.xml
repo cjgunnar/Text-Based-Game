@@ -7,16 +7,23 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 	<room id="1">
 		<name>Bedroom</name>
 		<description>Your bedroom is cool, but not completely dark. A santa clause night light lays in the corner under a desk.
-A glowing green LCD clock sits on your nightstand. The bedroom door leads out to the hallway, and is opposite the window.</description>
+A glowing red LED clock sits on your nightstand. The bedroom door leads out to the hallway, and is opposite the window.</description>
 		<aliases>
 			<alias>My room</alias>
 			<alias>My bedroom</alias>
+			<alias>bedroom</alias>
 		</aliases>
 		<objects>
 			<simple_object>
 				<name>Desk</name>
 				<description>A simple wooden desk. It is full of junk</description>
 				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
 					<request>
 						<input type="verb">sit at</input>
 						<actions>
@@ -33,26 +40,55 @@ A glowing green LCD clock sits on your nightstand. The bedroom door leads out to
 					<alias>night-light</alias>
 					<alias>santa night light</alias>
 					<alias>santa night-light</alias>
+					<alias>glowing red santa light</alias>
+					<alias>glowing-red night light</alias>
+					<alias>glowing red santa night light</alias>
+					<alias>glowing-red santa night-light</alias>
 				</aliases>
+				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+				</requests>
 			</simple_object>
 			<simple_object>
 				<name>Window</name>
 				<description>The window looks out into the dark street
 The street is dusted with a fresh layer of white snow</description>
+				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<input type="verb">look through</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+				</requests>
 			</simple_object>
 			<simple_object>
 				<name>Clock</name>
-				<description>The clock glows green with the time 11:50 PM</description>
+				<description>The clock glows red with the time 11:50 PM</description>
 				<aliases>
-					<alias>LCD Clock</alias>
+					<alias>LED Clock</alias>
 					<alias>alarmclock</alias>
 					<alias>alarm clock</alias>
 					<alias>digital clock</alias>
 				</aliases>
+				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+				</requests>
 			</simple_object>
 			<simple_object>
 				<name>Nightstand</name>
-				<description>The wooden nightstand sits next to your bed. On top is a LCD clock</description>
+				<description>The wooden nightstand sits next to your bed. On top is a LED clock</description>
 				<aliases>
 					<alias>endtable</alias>
 					<alias>end table</alias>

@@ -13,11 +13,16 @@ public class Action
 	 */
 	final String OUT = "out";
 	
+	final String OUT_DESCRIPTION = "out:description";
+	
 	/**
 	 * An action of type property_change changes a property of a target ID to a integer value
 	 */
 	final String PROPERTY_CHANGE = "property_change";
 	
+	/**
+	 * Can only be used with exits. "uses" the exit to enter destination room and then outputs description of room
+	 */
 	final String EXIT_CHANGE_ROOM = "exit:change_room";
 	
 	private String actionType;
@@ -40,10 +45,10 @@ public class Action
 		if(actionType == null)
 		{
 			System.err.println("ACTION: ERROR: type is null");
-			return;
 		}
 		
-		if(actionType.equals(OUT))
+		//outputs value to game output (console)
+		else if(actionType.equals(OUT))
 		{
 			_game.Output(actionValue);
 		}
@@ -76,6 +81,13 @@ public class Action
 				targetObj.changeProperty(propertyName, Integer.parseInt(actionValue));
 			else
 				System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
+		}
+		
+		//outputs description
+		else if(actionType.equals(OUT_DESCRIPTION))
+		{
+			System.out.println("ACTION: outputting parent description: " + parentObject.getName());
+			_game.Output(parentObject.getDescription());
 		}
 		
 		//special type for exits only

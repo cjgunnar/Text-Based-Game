@@ -72,6 +72,8 @@ public class Request
 	 */
 	public void ExecuteActions(Game game, SceneObject parentObject)
 	{
+		System.out.println("REQUEST: running " + actions.size() + " actions unconditionally");
+		
 		//run default actions
 		for(Action action: actions)
 		{
@@ -79,6 +81,8 @@ public class Request
 			action.setParentSceneObject(parentObject);
 			action.runAction();
 		}
+		
+		System.out.println("REQUEST: running " + conditions.size() + " conditions");
 		
 		//run conditionals
 		for(Condition condition: conditions)
