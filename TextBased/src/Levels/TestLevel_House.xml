@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
 
-	<prolog>You slip out of bed. Your bare feet touch the cool carpet floor. The room is illuminated by the digital LCD clock on your
+	<prolog>You slip out of bed. Your bare feet touch the cool carpet floor. The room is illuminated by the digital LED clock on your
 nightstand, the light streaming in from the window, and the glowing-red santa night-light. Your bedroom door is slightly ajar, allowing you to see into the hall.</prolog>
 	
 	<room id="1">
@@ -21,6 +21,8 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 					<request>
 						<input type="verb">look at</input>
 						<actions>
+						
+							<!-- A known bug: the value description is not neccessary nor does it do anything, but without it the level reader crashes -->
 							<action type="out:description">description</action>
 						</actions>
 					</request>
@@ -109,7 +111,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 					<request>
 						<input type="verb">look at</input>
 						<actions>
-							<action type="out">You look at the poster. It is a space poster with some sort of nebula on it</action>
+							<action type="out:description">description</action>
 						</actions>
 					</request>
 					<request>
@@ -141,6 +143,27 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 					<property name="lock">0</property>
 				</properties>
 				<requests>
+					<request>
+						<input type="verb">look at</input>
+						<conditions>
+							<condition>
+								<property_name>open</property_name>
+								<target>0</target>
+								<type>=</type>
+								<value>0</value>
+								<pass>
+									<actions>
+										<action type="out">The door is closed, but you can see some light from underneath it</action>	
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">The simple white door is open, allowing light into your room from the hall</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
 					<request>
 						<input type="verb">use</input>
 						<conditions>

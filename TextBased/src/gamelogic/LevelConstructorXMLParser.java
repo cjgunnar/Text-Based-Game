@@ -81,7 +81,7 @@ public class LevelConstructorXMLParser
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = true;
+	boolean debugMode = false;
 	
 	Game _game;
 	
