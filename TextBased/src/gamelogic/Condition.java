@@ -42,6 +42,18 @@ public class Condition
 	ArrayList<Action> fail = new ArrayList<Action>();
 	
 	/**
+	 * Allow conditions to have conditions (nested conditions) for AND operations.
+	 * This list executed if the condition passes
+	 */
+	ArrayList<Condition> nestedPassConditions = new ArrayList<Condition>();
+	
+	/**
+	 * Allow conditions to have conditions (nested conditions) for AND operations.
+	 * This list executed if the condition fails
+	 */
+	ArrayList<Condition> nestedFailConditions = new ArrayList<Condition>();
+	
+	/**
 	 * reference to the parent object of this condition
 	 */
 	SceneObject parentObject;
@@ -70,6 +82,24 @@ public class Condition
 	public void addFailAction(Action action)
 	{
 		fail.add(action);
+	}
+	
+	/**
+	 * Add a nested condition to execute on condition pass
+	 * @param condition nested condition to add
+	 */
+	public void addPassNestedCondition(Condition condition)
+	{
+		nestedPassConditions.add(condition);
+	}
+	
+	/**
+	 * Add a nested condition to execute on condition fail
+	 * @param condition nested condition to add
+	 */
+	public void addFailNestedCondition(Condition condition)
+	{
+		nestedFailConditions.add(condition);
 	}
 	
 	/**
@@ -139,11 +169,12 @@ public class Condition
 	}
 	
 	/**
-	 * Runs all actions that are set in the fail group
+	 * Runs all actions and nested conditions that are set in the fail group or nestedFailConditinos group
 	 * @param game reference to game
 	 */
 	private void executeFail(Game game)
 	{
+		//execute fail actions
 		for(Action action: fail)
 		{
 			if(game != null && parentObject != null)
@@ -155,10 +186,18 @@ public class Condition
 			else
 				System.err.println("CONDITION: ERROR: null parent object or game reference");
 		}
+		
+		//execute fail nested conditions
+		for(Condition condition: nestedFailConditions)
+		{
+			condition.setGame(game);
+			condition.setParentObject(parentObject);
+			condition.runCondition();
+		}
 	}
 	
 	/**
-	 * Runs all actions that are set in the pass group
+	 * Runs all actions and nested conditions that are set in the pass group or nestedPassConditions group
 	 * @param game reference to game
 	 */
 	private void executePass(Game game)
@@ -173,6 +212,14 @@ public class Condition
 			}
 			else
 				System.err.println("CONDITION: ERROR: null parent object or game reference");
+		}
+		
+		//execute pass nested conditions
+		for(Condition condition: nestedPassConditions)
+		{
+			condition.setGame(game);
+			condition.setParentObject(parentObject);
+			condition.runCondition();
 		}
 	}
 	

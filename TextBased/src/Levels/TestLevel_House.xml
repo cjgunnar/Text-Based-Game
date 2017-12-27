@@ -239,6 +239,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 
 	<room id="2">
 		<name>Hallway</name>
+		
 		<description>The second floor hallway leads to three doors: your parents' bedroom, your bedroom, and the bathroom
 A stairwell descends to the main level. You have to be very quiet</description>
 		
@@ -251,6 +252,8 @@ A stairwell descends to the main level. You have to be very quiet</description>
 				<entranceTo>3</entranceTo>
 				<aliases>
 					<alias>stairwell</alias>
+					<alias>staircase</alias>
+					<alias>downstairs</alias>
 				</aliases>
 			</exit>
 			<exit>
@@ -268,6 +271,9 @@ A stairwell descends to the main level. You have to be very quiet</description>
 			</exit>
 			<exit>
 				<name>Bathroom Door</name>
+				<aliases>
+					<alias>bathroom</alias>
+				</aliases>
 				<description>Another white door, this one leads to the upstairs bathroom</description>
 				<entranceTo>0</entranceTo> <!-- 0 means it leads to nowhere -->
 				<requests>

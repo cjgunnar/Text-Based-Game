@@ -1055,6 +1055,9 @@ public class LevelConstructorXMLParser
 						{
 							condition.addPassAction(action);
 						}
+						
+						//read nested conditions
+						//TODO add nested condition support
 					}
 					
 					else if(elementName.equals(FAIL))

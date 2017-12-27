@@ -9,7 +9,7 @@ public class CommandInterpreter
 {
 	//all the verbs the game recognizes you can do, and their synonyms
 	
-	static String[] examine = {"examine", "look at", "see", "observe", "watch", "examine"};
+	static String[] examine = {"examine", "look at", "see", "observe", "watch"};
 	
 	static String[] eat = {"eat", "consume", "swallow", "drink", "ingest", "bite"};
 	
