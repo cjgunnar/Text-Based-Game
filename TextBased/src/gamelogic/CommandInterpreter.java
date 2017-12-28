@@ -19,7 +19,9 @@ public class CommandInterpreter
 	
 	static String[] sell = {"sell", "barter", "trade"};
 	
-	static String[] cover = {"cover", "cover up", "conceal", "hide", "protect"};
+	static String[] cover = {"cover", "cover up", "conceal", "hide", "protect", "hide behind"};
+	
+	static String[] uncover = {"uncover", "show", "get out from behind"};
 	
 	static String[] search = {"search", "go through", "look through", "search through"};
 	
@@ -29,11 +31,15 @@ public class CommandInterpreter
 	
 	static String[] equip = {"equip", "put on", "hold"};
 	
+	static String[] unequip = {"unequip", "take off", "put down", "put away"};
+	
 	static String[] talk = {"talk", "talk to", "interrogate", "chat with", "talk with"};
 	
 	static String[] disconnect = {"disconnect", "unplug"};
 	
-	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, search, use, enter, equip, talk, disconnect};
+	static String[] connect = {"connect", "plug in", "hook up"};
+	
+	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, uncover, search, use, enter, equip, unequip, talk, disconnect};
 	
 	/**
 	 * Attempts to parse String input as a verb and an object
