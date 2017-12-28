@@ -56,31 +56,7 @@ public class Action
 		//property_change action changes properties of target objects
 		else if(actionType.equals(PROPERTY_CHANGE))
 		{
-			System.out.println("ACTION: changing property " + propertyName + " to " + actionValue);
-			
-			SceneObject targetObj;
-			if(actionTarget == 0)
-			{
-				//use parent as default if target is 0
-				if(parentObject != null)
-					targetObj = parentObject;
-				else
-				{
-					System.err.println("ACTION: ERROR: target is 0 but parent is null");
-					return;
-				}
-			}
-			else
-			{
-				//find the object with the target ID
-				targetObj = _game.manager.getRoom().FindObjectByID(actionTarget);
-			}
-			
-			if(targetObj != null)
-				//change the property
-				targetObj.changeProperty(propertyName, Integer.parseInt(actionValue));
-			else
-				System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
+			runPropertyChange();
 		}
 		
 		//outputs description
@@ -103,6 +79,35 @@ public class Action
 			System.err.println("ACTION: ERROR: unrecognized type: " + actionType);
 		}
 		
+	}
+	
+	private void runPropertyChange()
+	{
+		System.out.println("ACTION: changing property " + propertyName + " to " + actionValue);
+		
+		SceneObject targetObj;
+		if(actionTarget == 0)
+		{
+			//use parent as default if target is 0
+			if(parentObject != null)
+				targetObj = parentObject;
+			else
+			{
+				System.err.println("ACTION: ERROR: target is 0 but parent is null");
+				return;
+			}
+		}
+		else
+		{
+			//find the object with the target ID
+			targetObj = _game.level.FindObjectWithID(actionTarget);
+		}
+		
+		if(targetObj != null)
+			//change the property
+			targetObj.changeProperty(propertyName, Integer.parseInt(actionValue));
+		else
+			System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
 	}
 	
 	public void setParentSceneObject(SceneObject parentObject)
