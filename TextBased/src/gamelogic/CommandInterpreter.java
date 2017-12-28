@@ -39,7 +39,11 @@ public class CommandInterpreter
 	
 	static String[] connect = {"connect", "plug in", "hook up"};
 	
-	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, uncover, search, use, enter, equip, unequip, talk, disconnect};
+	static String[] lock = {"lock", "latch", "bolt", "seal", "secure"};
+	
+	static String[] unlock = {"unlock", "unlatch", "unbolt", "unseal"};
+	
+	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, uncover, search, use, enter, equip, unequip, talk, disconnect, connect, lock, unlock};
 	
 	/**
 	 * Attempts to parse String input as a verb and an object
