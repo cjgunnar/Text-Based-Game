@@ -68,6 +68,14 @@ public class CommandInterpreter
 		
 		String actualVerb = null;
 		
+		//if it is only one word, that word is likely a verb
+		//ex "run" is likely, while "chair" is not
+		if(inputs.length == 1)
+		{
+			command.setTypeOfCommand(inputs[0]);
+			return command;
+		}
+		
 		//check if it is a known verb
 		for(String[] verbList : allVerbs)
 		{
@@ -82,8 +90,8 @@ public class CommandInterpreter
 					System.out.println("COMMAND INTERPRETER: recognized verb: " + verb + ", actual: " + actualVerb);
 				}
 				
-				//try two word match
-				else
+				//try two word match (must be at least 3 words)
+				else if(inputs.length >= 3)
 				{
 					String twoWord = inputs[0] + " " + inputs[1];
 					if(twoWord.equalsIgnoreCase(verb))
