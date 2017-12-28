@@ -171,6 +171,11 @@ public class Room implements SceneObject
 	
 	public SceneObject FindObjectByID(int id)
 	{
+		if(id == 0)
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: cannot find anything with special ID 0");
+		}
+		
 		//check objects
 		for(SceneObject object: objects)
 		{
@@ -193,6 +198,8 @@ public class Room implements SceneObject
 			}
 		}
 		
+		System.err.println(name.toUpperCase() + ": ERROR: no objects/exits found with ID: " + id);
+		
 		//default
 		return null;
 	}
@@ -201,13 +208,13 @@ public class Room implements SceneObject
 	{
 		if (name == null || name.equals("") || name.equals(" "))
 		{
-			System.out.println("ERROR: null name entered");
+			System.out.println(name.toUpperCase() + ": ERROR: null name entered");
 			return null;
 		}
 		
 		if (objects.isEmpty() && exits.isEmpty())
 		{
-			System.out.println("ERROR: no objects or exits in room");
+			System.out.println(name.toUpperCase() + ": ERROR: no objects or exits in room");
 			return null;
 		}
 		
@@ -228,7 +235,7 @@ public class Room implements SceneObject
 			{
 				if(alias == null)
 				{
-					System.out.println("ERROR: null alias");
+					System.out.println(name.toUpperCase() + ": ERROR: null alias");
 				}
 				
 				//System.out.println("Current search alias: " + alias);
@@ -275,7 +282,7 @@ public class Room implements SceneObject
 		
 		//if no object found
 		game.sendErrorMessage("There is no " + name + " in the current room: " + this.name);
-		System.out.println("ERROR: did not find a " + name + " in the current room: " + this.name);
+		System.out.println(name.toUpperCase() + ": ERROR: did not find a " + name + " in the current room: " + this.name);
 		return null;
 	}
 
@@ -313,6 +320,10 @@ public class Room implements SceneObject
 		}
 	}
 	
+	/**
+	 * Gets array of all the objects in the room, has to convert from list to array
+	 * @return array of all the objects in the room
+	 */
 	public SceneObject[] getObjects()
 	{
 		SceneObject[] sceneObjectsArray = new SceneObject[objects.size()];
@@ -321,6 +332,20 @@ public class Room implements SceneObject
 			sceneObjectsArray[i] = objects.get(i);
 		}
 		return sceneObjectsArray;
+	}
+	
+	/**
+	 * Gets array of all the exits in the room, has to convert from list to array
+	 * @return array of all the exits in the room
+	 */
+	public Exit[] getExits()
+	{
+		Exit[] exitsArray = new Exit[exits.size()];
+		for(int i = 0; i < exits.size(); i++)
+		{
+			exitsArray[i] = exits.get(i);
+		}
+		return exitsArray;
 	}
 	
 	public void addExit (Exit exit)
@@ -410,6 +435,57 @@ public class Room implements SceneObject
 	{
 		// TODO Auto-generated method stub
 		System.err.println("ERROR: not yet implemented requests in ROOMS");
+	}
+	
+	//toString override
+	@Override
+	public String toString()
+	{
+		final int MAX_DESCRIPTION_LENGTH = 10;
+		
+		String objectsStr = "";
+		if(objects.size() == 0)
+		{
+			objectsStr = "none";
+		}
+		else
+		{
+			for(int i = 0; i < objects.size(); i++)
+			{
+				objectsStr += objects.get(i).getName();
+				if(i < objects.size() - 1)
+				{
+					objectsStr += ", ";
+				}
+			}
+		}
+		
+		String exitsStr = "";
+		if(exits.size() == 0)
+		{
+			exitsStr = "none";
+		}
+		else
+		{
+			for(int i = 0; i < exits.size(); i++)
+			{
+				exitsStr += exits.get(i).getName();
+				if(i < exits.size() - 1)
+				{
+					exitsStr += ", ";
+				}
+			}
+		}
+		
+		String modifiedDescription = description;
+		if(description.length() > MAX_DESCRIPTION_LENGTH)
+		{
+			modifiedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + "...";
+		}
+		
+		String output = "ROOM: [ID: {" + ID + "}, name: {" + name + "}, description: {" + modifiedDescription + "}, objects: {" + objectsStr + "}, exits: {" + exitsStr + "}]";
+		
+		return output;
 	}
 	
 }

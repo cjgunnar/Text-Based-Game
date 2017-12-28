@@ -3,7 +3,9 @@ package gamelogic;
 import java.util.ArrayList;
 import java.util.List;
 
+import sceneObjects.Exit;
 import sceneObjects.Room;
+import sceneObjects.SceneObject;
 //import sceneObjects.SceneObject;
 
 /**
@@ -110,7 +112,7 @@ public class Level
 	
 	private void outputLevelSummaryData()
 	{
-    	System.out.println("LOADED LEVEL SUMMARY DATA");
+    	System.out.println("\nLOADED LEVEL SUMMARY DATA");
     	System.out.println("-----------------");
 		
     	if(rooms.size() == 0)
@@ -121,9 +123,23 @@ public class Level
 		for(Room room: rooms)
 		{
     		System.out.println("ID: " + room.getID());
-    		System.out.println("NAME: " + room.getName());
-    		System.out.println("DESCRIPTION: " + room.getDescription());
-    		System.out.print("\n");
+    		
+    		System.out.println(room.toString());
+    		
+    		System.out.println("OBJECTS:");
+    		SceneObject[] objects = room.getObjects();
+    		for(SceneObject object: objects)
+    		{
+    			System.out.println("\t" + object.toString());
+    		}
+    		
+    		System.out.println("EXITS:");
+    		Exit[] exits = room.getExits();
+    		for(Exit exit: exits)
+    		{
+    			System.out.println("\t" + exit.toString());
+    		}
+    		
 		}
 		
     	System.out.println("# OF ROOMS LOADED: " + rooms.size());

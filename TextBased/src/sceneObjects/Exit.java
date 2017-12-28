@@ -378,5 +378,24 @@ public class Exit implements SceneObject
 	{
 		requests.add(request);
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		final int MAX_DESCRIPTION_LENGTH = 10;
+		
+		String modifiedDescription = description;
+		if(description.length() > MAX_DESCRIPTION_LENGTH)
+		{
+			modifiedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + "...";
+		}
+		
+		return "Exit [ID=" + ID + ", name=" + name + ", description=" + modifiedDescription + ", aliases=" + aliases + ", requests=" + requests
+				+ ", entranceTo=" + entranceTo + ", entranceToID=" + entranceToID + ", properties="
+				+ properties + "]";
+	}
 	
 }

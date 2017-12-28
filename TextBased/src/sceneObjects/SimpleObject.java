@@ -130,7 +130,34 @@ public class SimpleObject implements SceneObject
 	@Override
 	public boolean checkProperty(String propName, String operator, int value)
 	{
-		int propValue = properties.get(propName);
+		if(propName == null)
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: can't check null property name as input");
+			return false;
+		}
+		
+		if(properties == null)
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: properties is null");
+			return false;
+		}
+		
+		if(!properties.containsKey(propName))
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: can not check property " + propName + ", as it does not exist");
+			return false;
+		}
+		
+		int propValue;
+		if(properties.get(propName) != null)
+		{
+			propValue = properties.get(propName);
+		}
+		else
+		{
+			System.err.println(name.toUpperCase() + ": ERROR: value of property: " + propName + " is null");
+			return false;
+		}
 		
 		if(operator == null)
 		{
@@ -258,6 +285,24 @@ public class SimpleObject implements SceneObject
 	public void addRequest(Request request)
 	{
 		requests.add(request);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		final int MAX_DESCRIPTION_LENGTH = 10;
+		
+		String modifiedDescription = description;
+		if(description.length() > MAX_DESCRIPTION_LENGTH)
+		{
+			modifiedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + "...";
+		}
+		
+		return "SimpleObject [ID=" + ID + ", name=" + name + ", description=" + modifiedDescription + ", aliases=" 
+		+ aliases.toString() + ", requests=" + requests + ", properties=" + properties.toString() + "]";
 	}
 
 }
