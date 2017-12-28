@@ -5,11 +5,11 @@ package gamelogic;
  * @author cjgunnar
  *
  */
-public class CommandInterpreter 
+public class CommandInterpreter
 {
 	//all the verbs the game recognizes you can do, and their synonyms
 	
-	static String[] examine = {"examine", "look at", "see", "observe", "watch"};
+	static String[] examine = {"examine", "look", "see", "observe", "watch", "look at"};
 	
 	static String[] eat = {"eat", "consume", "swallow", "drink", "ingest", "bite"};
 	
@@ -25,11 +25,13 @@ public class CommandInterpreter
 	
 	static String[] search = {"search", "go through", "look through", "search through"};
 	
-	static String[] use = {"use"};
+	static String[] use = {"use", "go out"};
 	
-	static String[] enter = {"enter", "walk through"};
+	static String[] enter = {"enter", "go", "walk through", "walk into", "go to", "walk into", "go into", "walk to"};
 	
-	static String[] equip = {"equip", "put on", "hold"};
+	static String[] exit = {"exit", "leave", "go out", "go out of", "get out of"};
+	
+	static String[] equip = {"equip", "put on", "hold", "wear"};
 	
 	static String[] unequip = {"unequip", "take off", "put down", "put away"};
 	
@@ -43,7 +45,8 @@ public class CommandInterpreter
 	
 	static String[] unlock = {"unlock", "unlatch", "unbolt", "unseal"};
 	
-	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, uncover, search, use, enter, equip, unequip, talk, disconnect, connect, lock, unlock};
+	static String[][] allVerbs = {examine, eat, take, attack, sell, cover, uncover, 
+			search, use, enter, exit, equip, unequip, talk, disconnect, connect, lock, unlock};
 	
 	/**
 	 * Attempts to parse String input as a verb and an object
@@ -85,6 +88,33 @@ public class CommandInterpreter
 		{
 			for(String verb : verbList)
 			{
+				int verbWordCount = countWords(verb);
+				
+				//System.out.println("COMMAND INTERPRETER: current verb=" + verb + ", word count=" + verbWordCount);
+				
+				if(inputs.length > verbWordCount)
+				{
+					String constructVerb = "";
+					for(int i = 0; i < verbWordCount; i++)
+					{
+						constructVerb += inputs[i];
+						if(i < verbWordCount - 1)
+						{
+							constructVerb += " ";
+						}
+					}
+					
+					//System.out.println("COMMAND INTERPRETER: constructVerb=" + constructVerb);
+					
+					if(constructVerb.equals(verb))
+					{
+						identifiedVerb = verbList[0];
+						actualVerb = verb;
+						System.out.println("COMMAND INTERPRETER: recognized verb: " + verb + ", actual: " + actualVerb);
+					}
+				}
+				
+				/*
 				//try one word match
 				if(inputs[0].equalsIgnoreCase(verb))
 				{
@@ -105,27 +135,14 @@ public class CommandInterpreter
 						System.out.println("COMMAND INTERPRETER: recognized verb: " + identifiedVerb + ", actual: " + actualVerb);
 					}
 				}
+				*/
 			}
 		}
 		
 		if(identifiedVerb != null)
 		{
 			//find out how many words the verb is, ex: "look at" is 2 and "observe" is 1
-			int actualVerbLen = 0;
-			
-			//count the words by counting the spaces
-			for(int i = 0; i < actualVerb.length(); i++)
-			{
-				char currentCharacter = actualVerb.charAt(i);
-				
-				if(currentCharacter == ' ')
-				{
-					actualVerbLen++;
-				}
-			}
-			
-			//number of spaces + 1 to get words
-			actualVerbLen++;
+			int actualVerbLen = countWords(actualVerb);
 			
 			System.out.println("COMMAND INTERPRETER: actual verb has a word length of " + actualVerbLen);
 			
@@ -222,7 +239,26 @@ public class CommandInterpreter
 		//System.out.print("\"" + inputs[1] + "\"");
 	}
 	
-	
+	private static int countWords(String input)
+	{
+		int count = 0;
+		
+		//count the words by counting the spaces
+		for(int i = 0; i < input.length(); i++)
+		{
+			char currentCharacter = input.charAt(i);
+			
+			if(currentCharacter == ' ')
+			{
+				count++;
+			}
+		}
+		
+		//number of spaces + 1 to get words
+		count++;
+		
+		return count;
+	}
 	
 	//parse verb-name command
 	/*private static Command InterpretVerbName(Command command, String[] inputs, String commandType)
