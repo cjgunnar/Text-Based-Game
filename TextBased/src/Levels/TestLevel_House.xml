@@ -102,7 +102,19 @@ The street is dusted with a fresh layer of white snow</description>
 			</simple_object>
 			<simple_object>
 				<name>Bed</name>
-				<description>Your twin size rocket themed bed sits in the corner. The sheets are disturbed from climbing out
+				<aliases>
+					<alias>twin bed</alias>
+					<alias>your bed</alias>
+					<alias>your twin bed</alias>
+					<alias>my bed</alias>
+					<alias>my twin bed</alias>
+					<alias>my rocket themed bed</alias>
+					<alias>rocket themed bed</alias>
+					<alias>rocket themed twin bed</alias>
+					<alias>my twin size rocket themed bed</alias>
+					<alias>twin sized rocket themed bed</alias>
+				</aliases>
+				<description>Your twin sized rocket themed bed sits in the corner. The sheets are disturbed from climbing out
 The warmness tempts you, but you have been waiting all year for this night</description>
 			</simple_object>
 			<simple_object>
@@ -130,7 +142,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 		</objects>
 		<exits>
 			
-			<exit id="6">
+			<exit id="101"> <!-- nearly 200 lines of XML for a door that can open, close, and lock. MAXIMUM EFFICIENCY! -->
 				<name>Bedroom Door</name>
 				<aliases>
 					<alias>Door</alias>
@@ -152,12 +164,12 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 								<target>0</target>
 								<type>=</type>
 								<value>0</value>
-								<pass>
+								<pass> <!-- is closed -->
 									<actions>
 										<action type="out">The door is closed, but you can see some light from underneath it</action>	
 									</actions>
 								</pass>
-								<fail>
+								<fail> <!-- is open -->
 									<actions>
 										<action type="out">The simple white door is open, allowing light into your room from the hall</action>
 									</actions>
@@ -169,20 +181,35 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 						<input type="verb">use</input>
 						<conditions>
 							<condition>
-								<target>6</target>
+								<target>101</target>
 								<type>=</type>
 								<property_name>open</property_name>
 								<value>1</value>
-								<pass>
+								<pass> <!-- if open -->
 									<actions>
 										<action type="out">You tiptoe across the room to the door, slip through, and enter the hallway</action>
 						 				<action type="exit:change_room">2</action>
 									</actions>
 								</pass>
-								<fail>
-									<actions>
-										<action type="out">The door is closed</action>
-									</actions>
+								<fail> <!-- if closed -->
+									<conditions>
+										<condition>
+											<property_name>lock</property_name>
+											<type>=</type>
+											<value>1</value>
+											<pass> <!-- if closed and locked -->
+												<actions>
+													<action type="out">The door is closed and locked</action>
+												</actions>
+											</pass>
+											<fail> <!-- if closed but unlocked -->
+												<actions>
+													<action type="out">The door is closed, but unlocked</action>
+												</actions>
+											</fail>	
+										</condition>
+									</conditions>
+									
 								</fail>
 							</condition>
 						</conditions>
@@ -192,20 +219,33 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 						<conditions>
 							<condition>
 								<property_name>open</property_name>
-								<target>6</target>
+								<target>101</target>
 								<type>=</type>
 								<value>1</value>
-								<pass>
+								<pass> <!-- the door is open -->
 									<actions>
 										<action type="out">The door is already open</action>
 									</actions>
 								</pass>
-								<fail>
-									<actions>
-										<action type="out">You open the door</action>
-										<action type="property_change" property_name="open" target="6">1</action>
-										<!--<action type="property_change" property_name="destination" target="6">3</action>-->
-									</actions>
+								<fail> <!-- the door is closed -->
+									<conditions>
+										<condition>
+											<property_name>lock</property_name>
+											<type>=</type>
+											<value>1</value>
+											<pass> <!-- the door is locked and closed -->
+												<actions>
+													<action type="out">The door is locked</action>
+												</actions>
+											</pass> 
+											<fail> <!-- the door is unlocked, but closed -->
+												<actions>
+													<action type="out">You open the door</action>
+													<action type="property_change" property_name="open">1</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
 								</fail>
 							</condition>
 						</conditions>
@@ -215,7 +255,7 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 						<conditions>
 							<condition>
 								<type>=</type>
-								<target>6</target>
+								<target>101</target>
 								<property_name>open</property_name>
 								<value>0</value>
 								<pass>
@@ -232,6 +272,76 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 							</condition>
 						</conditions>
 					</request>
+					<request>
+						<input type="verb">lock</input>
+						<conditions>
+							<condition>
+								<property_name>open</property_name>
+								<type>=</type>
+								<value>1</value>
+								<pass> <!-- the door is open -->
+									<actions>
+										<action type="out">The door is open, you can't lock it</action>
+									</actions>
+								</pass>
+								<fail> <!-- the door is closed -->
+									<conditions>
+										<condition>
+											<property_name>lock</property_name>
+											<type>=</type>
+											<value>0</value>
+											<pass> <!-- the door is unlocked -->
+												<actions>
+													<action type="out">You push the privacy lock in on the doorknob, locking the door</action>
+													<action type="property_change" property_name="lock">1</action>
+												</actions>
+											</pass>
+											<fail> <!-- the door is already locked -->
+												<actions>
+													<action type="out">You jiggle the doorknob: the door is already locked</action>												
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
+						<input type="verb">unlock</input>
+						<conditions>
+							<condition>
+								<property_name>open</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- the door is closed -->
+									<conditions>
+										<condition>
+											<property_name>lock</property_name>
+											<type>=</type>
+											<value>1</value>
+											<pass> <!-- the door is closed and locked -->
+												<actions>
+													<action type="out">You twist the knob slightly, and the privacy lock on the door pops out</action>
+													<action type="property_change" property_name="lock">0</action>
+												</actions>
+											</pass>
+											<fail> <!-- the door is closed but already unlocked -->
+												<actions>
+													<action type="out">The door is already unlocked</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</pass>
+								<fail> <!-- the door is open -->
+									<actions>
+										<action type="out">The door is open, you do not need to unlock it</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
 				</requests>
 			</exit>
 		</exits>
@@ -239,11 +349,36 @@ The warmness tempts you, but you have been waiting all year for this night</desc
 
 	<room id="2">
 		<name>Hallway</name>
+		<aliases>
+			<alias>hall</alias>
+		</aliases>
 		
 		<description>The second floor hallway leads to three doors: your parents' bedroom, your bedroom, and the bathroom
-A stairwell descends to the main level. You have to be very quiet</description>
+A stairwell descends to the main level. In the darkness, you can make out cards hanging on the wall</description>
 		
-		<!-- There are no objects in the hallway -->
+		<!-- The cards are the only object in the hallway -->
+		<objects>
+			<simple_object>
+				<name>cards</name>
+				<description>Christmas cards from distant family you faintly remember hang scattered on the wall</description>
+				<aliases>
+					<alias>christmas cards</alias>
+					<alias>christmas card</alias>
+					<alias>card</alias>
+					<alias>cards on the wall</alias>
+					<alias>card on the wall</alias>
+					<alias>wall</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+				</requests>
+			</simple_object>
+		</objects>
 		
 		<exits>
 			<exit>
@@ -254,17 +389,39 @@ A stairwell descends to the main level. You have to be very quiet</description>
 					<alias>stairwell</alias>
 					<alias>staircase</alias>
 					<alias>downstairs</alias>
+					<alias>stair well</alias>
 				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You carefully descend the steps, trying to make them not squeak too much</action>
+							<action type="out">You feel the temperature drop as you descend the stairs, and you shiver in your christmas pajamas</action>
+							<action type="exit:change_room">3</action>
+						</actions>
+					</request>
+				</requests>
 			</exit>
 			<exit>
 				<name>Bedroom Door</name>
 				<description>A simple white door with a silver knob</description>
+				<aliases>
+					<alias>my bedroom door</alias>
+					<alias>your bedroom door</alias>
+				</aliases>
 				<entranceTo>1</entranceTo>
 				<requests>
 					<request>
 						<input type="verb">use</input>
 						<actions>
-							<action type="out">You reenter your bedroom</action>
+							<action type="out">You return to your bedroom</action>
+							<action type="exit:change_room">1</action>
 						</actions>
 					</request>
 				</requests>
@@ -285,25 +442,591 @@ A stairwell descends to the main level. You have to be very quiet</description>
 					</request>
 				</requests>
 			</exit>
+			<exit>
+				<name>Parent's door</name>
+				<description>Your parent's bedroom door is right across the hall from your doorway</description>
+				<aliases>
+					<alias>your parent's door</alias>
+					<alias>your parents door</alias>
+					<alias>your parent's bedroom door</alias>
+					<alias>my parent's door</alias>
+					<alias>my parents door</alias>
+					<alias>my parent's bedroom door</alias>
+					<alias>parent's bedroom door</alias>
+					<alias>parents bedroom door</alias>
+					<alias>parent's door</alias>
+					<alias>parents door</alias>
+					<alias>parents</alias>
+					<alias>parents bedroom</alias>
+					<alias>parents' room</alias>
+					<alias>parents room</alias>
+				</aliases>
+				<entranceTo>0</entranceTo> <!-- 0 means it leads to nowhere, you can't actually enter their room -->
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">enter</input>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You can't enter your parent's bedroom, you are sneaking around after bedtime. You are being very naughty, but you hope Santa won't know</action>
+						</actions>
+					</request>
+				</requests>
+			</exit>
 		</exits>
-
 	</room>
+	
 	<room id="3">
 		<name>Family Room</name>
-		<description>The family room</description>
+		<description>The family room is cold. You see the Christmas tree glowing in the corner next to the window. You spot the old couch in the corner. That would be the perfect spot to wait for St. Nick. In front of the couch is a small table with cookies and milk</description>
+		<aliases>
+			<alias>main level</alias>
+			<alias>main floor</alias>
+			<alias>family's room</alias>
+			<alias>ground floor</alias>
+			<alias>ground level</alias>
+		</aliases>
+		
+		<!-- 
+		Objects with IDs:
+		301: couch
+		302: christmas tree
+		303: basement door
+		304: cookies
+		305: milk
+		 -->
+		
 		<objects>
+			<simple_object id="302"> <!-- also includes presents under the tree -->
+				<name>Christmas Tree</name>
+				<description>The christmas tree has all the lights turned on</description>
+				<aliases>
+					<alias>tree</alias>
+					<alias>presents</alias>
+					<alias>gifts</alias>
+					<alias>gift</alias>
+					<alias>present</alias>
+				</aliases>
+				<properties>
+					<property name="noticed-gifts">0</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition> <!-- If not behind couch, notice extra presents -->
+								<property_name>hiding-behind</property_name>
+								<type>=</type>
+								<target>301</target>
+								<value>0</value>
+								<pass>
+									<actions>
+										<action type="out">The tree is all lit up, lighting the room with a multitude of colors</action>
+										<action type="out">You take a step closer and look at the presents piled up underneath the tree</action>
+										<action type="out">You notice that there are a lot more than when you went to bed. Looking closer, you see that some of them are sent from Santa!</action>
+										<action type="out">Your 6 year old mind still figures out that this is impossible, it is not midnight yet!</action>
+										<action type="out">Confused, you wonder if Santa showed up early and you missed him.</action>
+										<action type="out">You wonder if it is worth staying up if you might of missed him anyways. You have to decide whether to go back to bed or to hide and wait it out until midnight</action>
+										<action type="property_change" property_name="noticed-gifts">1</action>
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">From behind the couch, you gaze at the colorful christmas tree</action>
+										<action type="out">It is all lit up, and a bunch of presents are lined up, but you can't make them out clearly from here</action>	
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
 			<simple_object>
+				<name>table</name>
+				<description>A small table has a plate of cookies and a glass of milk layed out on it</description>
+				<aliases>
+					<alias>small table</alias>
+					<alias>small table with cookies and milk</alias>
+					<alias>small table with cookies and milk on it</alias>
+					<alias>small table with cookies and a glass of milk on it</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition>
+								<property_name>eaten</property_name>
+								<target>304</target>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- cookie is uneaten -->
+									<conditions>
+										<condition>
+											<property_name>drank</property_name>
+											<target>305</target>
+											<type>=</type>
+											<value>0</value>
+											<pass> <!-- milk not drank -->
+												<actions>
+													<action type="out:description">description</action>
+												</actions>
+											</pass>
+											<fail> <!-- cookies, but no milk -->
+												<actions>
+													<action type="out">The plate of cookies and your empty milk glass remain on the table</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</pass>
+								<fail> <!-- cookie is eaten -->
+									<conditions>
+										<condition>
+											<property_name>drank</property_name>
+											<target>305</target>
+											<type>=</type>
+											<value>0</value>
+											<pass> <!-- no cookie, but milk remains -->
+												<actions>
+													<action type="out">All that's left of the cookies are crumbs, but the milk glass is still there on the table</action>
+												</actions>
+											</pass>
+											<fail> <!-- no cookie or milk -->
+												<actions>
+													<action type="out">You have ate the cookies and drank the milk, all that remains on the table are the plate with crumbs and the empty glass</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object id="304">
+				<name>cookies</name>
+				<description>Chocolate chip cookies lie on the white plate</description>
+				<aliases>
+					<alias>cookie</alias>
+				</aliases>
+				<properties>
+					<property name="eaten">0</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition> <!-- if the cookie hasn't been eaten, output description. Otherwise, output something about crumbs -->
+								<property_name>eaten</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- cookie is uneaten -->
+									<actions>
+										<action type="out:description">description</action>
+									</actions>
+								</pass>
+								<fail> <!-- cookie is eaten -->
+									<actions>
+										<action type="out">Only crumbs remain of the cookie</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
+						<input type="verb">eat</input>
+						<conditions>
+							<condition>
+								<property_name>eaten</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- if cookie is not eaten -->
+									<conditions>
+										<condition>
+											<property_name>drank</property_name>
+											<target>305</target>
+											<type>=</type>
+											<value>0</value>
+											<pass> <!-- milk not drank -->
+												<conditions>
+													<condition>
+														<property_name>noticed-gifts</property_name>
+														<target>302</target>
+														<type>=</type>
+														<value>0</value>
+														<pass> <!-- didn't notice gifts -->
+															<actions>
+																<action type="out">Those cookies look really good. You take a bite out of one. It's not hot out of the oven, but it is good</action>
+																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies in one day fades from your mind</action>
+																<action type="property_change" property_name="eaten">1</action>
+															</actions>
+														</pass>
+														<fail> <!-- noticed gifts -->
+															<actions>
+																<action type="out">Now that you know Santa has came and gone without eating your cookies, you gobble them up in a heartbeat</action>
+																<action type="property_change" property_name="eaten">1</action>
+															</actions>
+														</fail>
+													</condition>
+												</conditions>
+											</pass>
+											<fail> <!-- milk already drank -->
+												<conditions>
+													<condition>
+														<property_name>noticed-gifts</property_name>
+														<target>302</target>
+														<type>=</type>
+														<value>0</value>
+														<pass> <!-- didn't notice gifts -->
+															<actions>
+																<action type="out">Those chocolate chip cookies look really good, especially with the taste of milk in your mouth</action>
+																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies in one day fades from your mind</action>
+																<action type="property_change" property_name="eaten">1</action>
+															</actions>
+														</pass>
+														<fail> <!-- noticed gifts -->
+															<actions>
+																<action type="out">Santa didn't want your cookies or the milk. More for you</action>
+																<action type="out">The chocolate chips and the milk taste like heaven in your mouth</action>
+																<action type="property_change" property_name="eaten">1</action>
+															</actions>
+														</fail>
+													</condition>
+												</conditions>
+											</fail>
+										</condition>
+									</conditions>
+								</pass>
+								<fail> <!-- if cookie is eaten -->
+									<actions>
+										<action type="out">All that's rest are crumbs. And you regret nothing</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object id="305">
+				<name>Glass of Milk</name>
+				<description>A half-full glass of milk sits on the table, next to the plate of cookies</description>
+				<aliases>
+					<alias>milk</alias>
+					<alias>glass with milk</alias>
+				</aliases>
+				<properties>
+					<property name="drank">0</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="verb">eat</input>
+						<conditions>
+							<condition>
+								<property_name>drank</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- milk has not been drunk -->
+									<conditions>
+										<condition>
+											<property_name>noticed-gifts</property_name>
+											<target>302</target>
+											<type>=</type>
+											<value>0</value>
+											<pass> <!-- didn't notice gifts -->
+												<actions>
+													<action type="out">You are really thirsty, and that milk looks really good...</action>
+													<action type="out">Before you know it, you have drank all of Santa's milk</action>
+													<action type="property_change" property_name="drank">1</action>
+												</actions>
+											</pass>
+											<fail> <!-- did notice gifts -->
+												<actions>
+													<action type="out">If Santa has already left, he won't be needing the milk</action>
+													<action type="out">You down it in a single chug</action>
+													<action type="property_change" property_name="drank">1</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</pass>
+								<fail> <!-- milk has already been drunk -->
+									<actions>
+										<action type="out">You already drank the milk, but you are still thirsty. Oh well</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition>
+								<property_name>drank</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- milk is full -->
+									<actions>
+										<action type="out:description">description</action>
+									</actions>
+								</pass>
+								<fail> <!-- milk is empty -->
+									<conditions>
+										<condition>
+											<property_name>noticed-gifts</property_name>
+											<target>302</target>
+											<type>=</type>
+											<value>1</value>
+											<pass> <!-- milk is drank, noticed gifts -->
+												<actions>
+													<action type="out">You don't regret drinking the milk. Santa seemed to have left it behind</action>
+												</actions>
+											</pass>
+											<fail> <!-- milk is drank, didn't notice gifts (no suspicion) -->
+												<actions>
+													<action type="out">You hope Santa doesn't get mad at you for drinking his milk. You were just really thirsty</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object id="301">
 				<name>Couch</name>
-				<description>An old couch</description>
+				<description>The beat up couch came with the house. It has plenty of stains on it from old popcorn and family movies. Now it sits in the corner, and you know it is the perfect hiding place</description>
+				<aliases>
+					<alias>old couch</alias>
+					<alias>beat up couch</alias>
+					<alias>couch in the corner</alias>
+					<alias>old couch in the corner</alias>
+					<alias>back of couch</alias>
+				</aliases>
+				<properties>
+					<property name="hiding-behind">0</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You could take a seat on the couch, but that is in plain sight. You want to instead hide behind it...</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition> <!-- output different descriptions depending on if you are hiding behind it -->
+								<property_name>hiding-behind</property_name>
+								<type>=</type>
+								<target>0</target>
+								<value>0</value>
+								<pass> <!-- If not hiding, output desciption -->
+									<actions>
+										<action type="out:description">description</action>
+									</actions>
+								</pass>
+								<fail> <!-- If hiding, output this: -->
+									<actions>
+										<action type="out">The back of the couch is even more beat up than the front, but it provides you good cover and a great view of the tree and the fireplace</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
+						<input type="verb">cover</input> <!-- hide behind -->
+						<conditions>
+							<condition> <!-- If already hiding behind, say that; otherwise, hide behind -->
+								<property_name>hiding-behind</property_name>
+								<target>0</target>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- If not hiding behind couch... -->
+									<actions>
+										<action type="property_change" property_name="hiding-behind">1</action>
+									</actions>
+									<conditions>
+										<condition>
+											<property_name>noticed-gifts</property_name>
+											<target>302</target>
+											<type>=</type>
+											<value>1</value>
+											<pass> <!-- not hiding behind couch, noticed presents -->
+												<actions>
+													<action type="out">You mope over to behind the old couch. It is really dusty</action>
+													<action type="out">You decide to wait incase Santa Clause returns, although you are confused and skeptical</action>
+													<action type="out">A few minutes into your waiting, you notice where the cold is coming from: the door leading downstairs to the basement</action>
+													<action type="out">You also notice a slight frigid breeze coming from down there...</action>
+													<action type="out">You admit you probably missed Santa, so you don't see why you couldn't explore a bit. Then again, you could go back to bed...</action>
+												</actions>
+											</pass>
+											<fail> <!-- not hiding behind couch, didn't notice presents -->
+												<actions>
+													<action type="out">You excitedly duck behind the old couch</action>
+													<action type="out">You can't wait to meet Santa Clause. You have so much to tell him that you couldn't fit in at the mall</action>
+													<action type="out">A few minutes into your waiting, you notice where the cold is coming from: the door leading downstairs to the basement</action>
+													<action type="out">You also notice a slight frigid breeze coming from down there...</action>
+												</actions>
+											</fail>
+										</condition>
+									</conditions>
+								</pass>
+								<fail> <!-- already hiding behind couch -->
+									<actions>
+										<action type="out">You are already hiding behind the couch</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request> <!-- unhide from behind the couch -->
+						<input type="verb">uncover</input>
+						<conditions>
+							<condition>
+								<property_name>hiding-behind</property_name>
+								<type>=</type>
+								<value>1</value>
+								<target>0</target>
+								<pass> <!-- if you are hiding -->
+									<actions>
+										<action type="out">You crawl out from the dusty corner behind the couch</action>
+										<action type="property_change" property_name="hiding-behind">0</action>
+									</actions>
+								</pass>
+								<fail>
+									<actions>
+										<action type="out">You are not hiding behind the couch right now</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object>
+				<name>Fireplace</name>
+				<description>You gaze expectantly at the fireplace. You know it has to be any minute now</description>
+				<aliases>
+					<alias>fire</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition>
+								<property_name>noticed-gifts</property_name>
+								<target>302</target>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- hasn't noticed gifts -->
+									<actions>
+										<action type="out:description"></action>
+									</actions>
+								</pass>
+								<fail> <!-- has noticed gifts -->
+									<actions>
+										<action type="out">You were so excited to see him come down the chimmney, but now you don't know what to expect</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+				</requests>
 			</simple_object>
 		</objects>
 		<exits>
 			<exit>
 				<name>stairs</name>
 				<description>The stairs lead back up to the second floor hallway</description>
+				<aliases>
+					<alias>staircase</alias>
+					<alias>stairwell</alias>
+					<alias>second story stairs</alias>
+					<alias>stairs leading up</alias>
+					<alias>stairs leading upstairs</alias>
+				</aliases>
 				<entranceTo>2</entranceTo>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You climb back up the stairs, flinching at every creak and groan they make</action>
+							<action type="exit:change_room">2</action>
+						</actions>
+					</request>
+				</requests>
+			</exit>
+			<exit id="303">
+				<name>Basement Door</name>
+				<description>You know the cold breeze is coming up from the open basement door. All you see down there is darkness</description>
+				<entranceTo>4</entranceTo>
+				<aliases>
+					<alias>downstairs door</alias>
+					<alias>downstairs</alias>
+					<alias>basement</alias>
+				</aliases>
+				<properties>
+					<property name="open">1</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<conditions>
+							<condition> <!-- if door is open, output description, if not: output something else -->
+								<property_name>open</property_name>
+								<type>=</type>
+								<value>1</value>
+								<pass> <!-- door is open -->
+									<actions>
+										<action type="out:description"></action>
+									</actions>
+								</pass>
+								<fail> <!-- door is closed -->
+									<actions>
+										<action type="out">Even with the door closed, you feel the cold air from under the door</action>
+									</actions>			
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
 			</exit>
 		</exits>
 	</room>
+
+	<room id="4">
+		<name>Basement</name>
+		<description>You hate going down to the basement, especially when it is this freezing</description>
+		
+		<aliases>
+			<alias>downstairs</alias>
+		</aliases>
+		
+		<objects>
+		
+		</objects>
+		
+		<exits>
+		
+		</exits>
+	</room>
+
 
 </level>
