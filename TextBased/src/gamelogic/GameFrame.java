@@ -22,7 +22,7 @@ public class GameFrame extends JFrame
 {
 	private List<String> entries = new ArrayList<String>();
 	
-	final int MAX_ENTRIES = 10;
+	final int MAX_ENTRIES = 20;
 	
 	private JTextField inputText;
 	private JButton button;
