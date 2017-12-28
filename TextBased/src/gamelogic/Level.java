@@ -92,6 +92,32 @@ public class Level
 		return null;
 	}
 	
+	public SceneObject FindObjectWithID(int ID)
+	{		
+		for(Room room: rooms)
+		{
+			//check if the room itself is the object
+			if(room.getID() == ID)
+			{
+				return room;
+			}
+			
+			SceneObject objectForRoom = room.FindObjectByID(ID);
+			if(objectForRoom != null)
+			{
+				return objectForRoom;
+			}
+			else
+			{
+				//go to next room
+				continue;
+			}
+		}
+		
+		//default
+		return null;
+	}
+	
 	public Room FindRoomWithID(int ID)
 	{
 		//System.out.println("Looking in " + rooms.size() + " rooms");

@@ -159,7 +159,17 @@ public class Room implements SceneObject
 	{
 		for(Exit exit: exits)
 		{
-			if(exit.getEntranceTo().getName().equals(destination.getName()))
+			if(exit.getEntranceTo() == null)
+				//door leads nowhere
+				continue;
+			
+			String exitDestinationName = exit.getEntranceTo().getName();
+			
+			if(exitDestinationName == null)
+				//door leads to a nameless room
+				continue;
+			
+			if(exitDestinationName.equals(destination.getName()))
 			{
 				return exit;
 			}
@@ -169,6 +179,11 @@ public class Room implements SceneObject
 		return null;
 	}
 	
+	/**
+	 * Searches through exits and objects, find the SceneObject with the ID or returns null
+	 * @param id ID to search fcr
+	 * @return the SceneObject or null if nothing found
+	 */
 	public SceneObject FindObjectByID(int id)
 	{
 		if(id == 0)

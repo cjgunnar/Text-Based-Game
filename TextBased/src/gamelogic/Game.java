@@ -159,12 +159,17 @@ public class Game
 			//find exit and execute "use" command
 			Exit exit = manager.getRoom().FindExitByDestination(destination);
 			
-			Command exitCommand = new Command("use", exit.getName(), "use " + exit.getName());
+			if(exit != null)
+			{
+				Command exitCommand = new Command("use", exit.getName(), "use " + exit.getName());
+				
+				exit.ExecuteCommand(exitCommand);
+				
+				//end
+				return;
+			}
 			
-			exit.ExecuteCommand(exitCommand);
-			
-			//end
-			return;
+			//otherwise no exit leading to that room was found
 		}
 		
 		//known verb-noun pair
