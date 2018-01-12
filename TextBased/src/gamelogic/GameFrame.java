@@ -4,14 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+//import java.awt.event.ActionListener;
 //import java.awt.event.KeyEvent;
 //import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
+//import javax.swing.JButton;
 import javax.swing.JFrame;
 //import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +20,7 @@ import javax.swing.JScrollPane;
 //import javax.swing.KeyStroke;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 @SuppressWarnings("serial") //note: learn what that does
 public class GameFrame extends JFrame 
@@ -28,7 +30,6 @@ public class GameFrame extends JFrame
 	int MAX_ENTRIES = 0;
 	
 	private JTextField inputText;
-	private JButton button;
 	private JTextArea logText;
 	private JScrollPane logScroll;
 	private JTextArea errText;
@@ -58,18 +59,6 @@ public class GameFrame extends JFrame
 		setMinimumSize(new Dimension(900, 500));
 		setTitle("Text Based Game by Caden Gunnarson");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-	
-	class ClickListener implements ActionListener
-	{
-
-		@Override
-		public void actionPerformed(ActionEvent arg0)
-		{
-			TextEntered();
-			
-		}
-
 	}
 
 	private void TextEntered ()
@@ -145,18 +134,8 @@ public class GameFrame extends JFrame
 		
 		//The nested panels go like this:
 		//panel is the main panel
-		//input panel contains the button, textbox, and error message
+		//input panel contains the textbox and error message
 		//outerInputPanel is used so inputPanel's components don't stretch with the window
-		
-		//simple go button, replace with enter key eventually
-		button = new JButton("Go");
-
-		//add listener to button
-		ClickListener listener = new ClickListener();
-		button.addActionListener(listener);
-		//KeyListener listener = new EnterListener();
-		//this.addKeyListener(listener);
-		//setFocusable(true);
 
 		//error text
 		errText = new JTextArea(1, 10);
@@ -171,6 +150,17 @@ public class GameFrame extends JFrame
 		Font inputTextFont = new Font("Arial", Font.PLAIN, 24);
 		inputText = new JTextField(20);
 		inputText.setFont(inputTextFont);
+		
+		AbstractAction pressEnter = new AbstractAction() {
+		    public void actionPerformed(ActionEvent e) {
+		        TextEntered();
+		    }
+		};
+		
+		inputText.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),
+				"pressEnter");
+		inputText.getActionMap().put("pressEnter",
+				pressEnter);
 		
 		//log text
 		Font logTextFont = new Font("Arial", Font.PLAIN, 24);
@@ -198,7 +188,6 @@ public class GameFrame extends JFrame
 		panel.setLayout(new BorderLayout());
 		inputPanel.setLayout(new BorderLayout());
 		
-		inputPanel.add(button, BorderLayout.WEST);
 		inputPanel.add(inputText, BorderLayout.CENTER);
 		inputPanel.add(errText, BorderLayout.NORTH);
 		
