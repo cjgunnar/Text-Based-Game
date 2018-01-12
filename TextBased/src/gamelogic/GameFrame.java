@@ -1,6 +1,7 @@
 package gamelogic;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,24 +10,27 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 //import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JScrollPane;
 //import javax.swing.KeyStroke;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 @SuppressWarnings("serial") //note: learn what that does
 public class GameFrame extends JFrame 
 {
 	private List<String> entries = new ArrayList<String>();
 	
-	final int MAX_ENTRIES = 20;
+	int MAX_ENTRIES = 0;
 	
 	private JTextField inputText;
 	private JButton button;
 	private JTextArea logText;
+	private JScrollPane logScroll;
 	private JTextArea errText;
 	
 	private Game game;
@@ -51,6 +55,7 @@ public class GameFrame extends JFrame
 			setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		}
 		
+		setMinimumSize(new Dimension(900, 500));
 		setTitle("Text Based Game by Caden Gunnarson");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -91,14 +96,21 @@ public class GameFrame extends JFrame
 	{
 		String display = "";
 		
-		if(entries.size() > MAX_ENTRIES)
+		if(MAX_ENTRIES == 0) //infinite setting
+		{
+			for (String entry : entries)
+			{
+				display += entry + "\n";
+			}
+		}
+		else if(entries.size() > MAX_ENTRIES) //display last elements of list
 		{
 			for (int i = entries.size() - MAX_ENTRIES; i < entries.size(); i++) //display last entries according to MAX_ENTRIES
 			{
 				display += entries.get(i) + "\n";
 			}
 		}
-		else
+		else //display entire list
 		{
 			for (String entry : entries)
 			{
@@ -108,6 +120,9 @@ public class GameFrame extends JFrame
 		
 		logText.setText(display);
 		ClearErrorMessage();
+		
+		//update the scrollbars
+		logScroll.revalidate();
 	}
 	
 	public void setErrorMessage(String msg)
@@ -123,7 +138,7 @@ public class GameFrame extends JFrame
 	private void CreateComponents ()
 	{
 		//The UI goes like this:
-		//At the top/center, there is the logText, which is basically the output
+		//At the top/center, there is the logText, which is basically the output and it has a scrollbar
 		//Then there is the input area
 		//The input area has a button, a textbox, and a camoflauged error message
 		//If bad input is entered, the error message space can be used
@@ -167,6 +182,14 @@ public class GameFrame extends JFrame
 		logText.setForeground(Color.white);
 		logText.setLineWrap(true);
 		
+		JPanel logPanel = new JPanel(new BorderLayout());
+		logPanel.add(logText);
+		
+		//add scrollbar
+		logScroll = new JScrollPane(logPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		logScroll.setForeground(Color.black);
+		logScroll.setBorder(BorderFactory.createEmptyBorder());
+		
 		//panels and nested panels (see above)
 		JPanel panel = new JPanel();
 		JPanel inputPanel = new JPanel();
@@ -181,12 +204,13 @@ public class GameFrame extends JFrame
 		
 		outerInputPanel.add(inputPanel, BorderLayout.CENTER);
 		
-		panel.add(logText, BorderLayout.NORTH);
+		panel.add(logScroll, BorderLayout.CENTER);
 		panel.setBackground(Color.black);
 		
 		panel.add(outerInputPanel, BorderLayout.SOUTH);
 		
 		//finally add the main panel
 		add(panel);
+		setBackground(Color.black);
 	}
 }
