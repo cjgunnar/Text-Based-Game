@@ -13,9 +13,11 @@ import sceneObjects.SceneObject;
 import sceneObjects.SimpleObject;
 */
 
-//Caden Gunnarson
-//Handles the game
-
+/**
+ * Handles game logic and I/O
+ * @author cjgunnar
+ *
+ */
 @SuppressWarnings("unused")
 public class Game
 {
@@ -23,6 +25,8 @@ public class Game
 	private GameFrame frame;
 	final int STARTING_ROOM_ID = 1;
 	public Level level;
+	
+	//TODO make method sequence more sensible and controlled from Runner
 	
 	public void Start()
 	{
@@ -145,6 +149,13 @@ public class Game
 			frame.dispose();
 		}
 		
+		//try scenario exact phrase matching
+		if(level.scenario.hasRequest(command.getRaw()))
+		{
+			//if it did, stop searching
+			return;
+		}
+		
 		//System.out.println(level.hasRoom("DEBUG: " + level.hasRoom(command.getBaseObject())));
 		
 		//TODO update enter command for multiple exits to the same room
@@ -169,7 +180,7 @@ public class Game
 				return;
 			}
 			
-			//otherwise no exit leading to that room was found
+			//otherwise no exit leading to that room was found, so continue
 		}
 		
 		//known verb-noun pair
@@ -192,6 +203,13 @@ public class Game
 		if(command.getBaseObject() != null && command.getTypeOfCommand() != null)
 		{
 			sendErrorMessage("There is no " + command.getBaseObject() + " in the " + manager.getRoom().getName());
+			return;
+		}
+		
+		//known verb but unknown verb
+		if(command.getBaseObject() != null && manager.getRoom().FindObjectByName(command.getBaseObject()) != null)
+		{
+			sendErrorMessage("What would you like to do with " + command.getBaseObject() + "?");
 			return;
 		}
 		
@@ -222,10 +240,18 @@ public class Game
 		frame.setErrorMessage(msg);
 	}
 	
+	/**
+	 * called from LevelSelectionWindow
+	 * @param levelName XML file in src/Levels/ to load
+	 */
 	public void LoadLevel(String levelName)
 	{
 		level = new Level();
 		level.LoadLevel("src/Levels/" + levelName, this);
+
+		//set manager scenario
+		//used to change "current-room" property when updated
+		manager.scenario = level.scenario;
 		
 		manager.ChangeRoom(level.FindRoomWithID(STARTING_ROOM_ID));
 		

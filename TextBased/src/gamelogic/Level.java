@@ -10,7 +10,7 @@ import sceneObjects.SceneObject;
 
 /**
  * Creates and stores all the rooms in the level
- * @author Caden
+ * @author cjgunnar
  *
  */
 public class Level
@@ -18,6 +18,10 @@ public class Level
 	List<Room> rooms = new ArrayList<Room>();
 	
 	String _prolog;
+	
+	Scenario scenario;
+	
+	public static final int SCENARIO_ID = 100000;
 	
 	public void setProlog(String prolog)
 	{
@@ -44,6 +48,7 @@ public class Level
     	//now that we know everything is loaded
     	for (Room room : rooms)
     	{
+    		//probably could of been done at time of construction
     		room.setGame(game);
     		room.setAllObjectsGame(game);
     		room.setAllExitsGame(game);
@@ -52,6 +57,37 @@ public class Level
     	}
     	
     	outputLevelSummaryData();
+	}
+	
+	/**
+	 * Setter for scenario
+	 * @param scenario Finished Scenario to set
+	 */
+	public void setScenario(Scenario scenario)
+	{
+		this.scenario = scenario;
+	}
+	
+	/**
+	 * Change scenario property
+	 * @param name Name of property to change
+	 * @param value Value to change property to
+	 */
+	public void changeScenarioProperty(String name, int value)
+	{
+		scenario.changeProperty(name, value);
+	}
+	
+	/**
+	 * Checks the scenario property using input
+	 * @param name Name of the property to compare
+	 * @param operator How to compare (=, >, <)
+	 * @param value Value to compare against
+	 * @return true or false
+	 */
+	public boolean checkScenarioProperty(String name, String operator, int value)
+	{
+		return scenario.checkProperty(name, operator, value);
 	}
 	
 	public boolean hasRoom(String roomName)

@@ -138,15 +138,26 @@ public class Condition
 		
 		//find the target object, if target is 0 use parent
 		SceneObject targetObject;
-		if(target != 0)
+		if(target == 0) //parent object
+		{
+			//safety null check
+			if(parentObject == null)
+			{
+				System.err.println("CONDITION: ERROR: target is 0 but parent is null");
+				return false;
+			}
+			
+			targetObject = parentObject;
+		}
+		else if(target == Level.SCENARIO_ID) //special case scenario property
+		{
+			//return the scenario check
+			return _game.level.checkScenarioProperty(property_name, operator, value);
+		}
+		else //find object
 		{
 			targetObject = _game.manager.getRoom().FindObjectByID(target);
 		}
-		else
-		{
-			targetObject = parentObject;
-		}
-		
 		
 		if(targetObject != null)
 		{
@@ -157,7 +168,7 @@ public class Condition
 			}
 			else
 			{
-				System.out.println("CONDITION: FAILED: " + property_name + " is NOT " + operator + " " + value);
+				System.out.println("CONDITION: FAILED: " + property_name + " is NOT " + operator + " " + value + ", target is " + target);
 				return false;
 			}
 		}

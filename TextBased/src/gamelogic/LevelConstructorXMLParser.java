@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class LevelConstructorXMLParser
 
 	static final String LEVEL = "level";
 	static final String PROLOG = "prolog";
+	static final String SCENARIO = "scenario";
 	
 	static final String ID = "id";
 	static final String NAME = "name";
@@ -202,6 +204,13 @@ public class LevelConstructorXMLParser
 						_game.level.setProlog(eventData);
 					}
 					
+					//read scenario (global property and command storage)
+					else if(elementName.equals(SCENARIO))
+					{
+						//read scenario
+						readScenario();
+					}
+					
 					//exits
 					else if (elementName.equals(EXITS))
 					{
@@ -294,6 +303,87 @@ public class LevelConstructorXMLParser
 		return rooms;
 	}
 
+	private void readScenario()
+	{
+		Scenario scenario = new Scenario(_game);
+		
+		try
+		{
+			while(eventReader.hasNext())
+			{
+				event = eventReader.nextEvent();
+
+				if(event.isStartElement())
+				{
+					//StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("LEVEL: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("LEVEL: element=" + elementName + ", value=null");
+					
+					if(elementName.equals(PROPERTIES))
+					{
+						HashMap<String, Integer> properties = readProperties();
+						
+						if(properties != null)
+						{
+							scenario.setProperties(properties);
+						}
+						else
+						{
+							System.err.println("LEVEL READER ERROR: SCENARIO: properties HashMap is null");
+						}
+					}
+					else if(elementName.equals(REQUESTS))
+					{
+						List<Request> requests = readRequests();
+						
+						for(Request request: requests)
+						{
+							scenario.addRequest(request);
+						}
+					}
+					else
+					{
+						debugLog("SCENARIO: ERROR: unknown ending element: " + elementName);
+					}
+					
+				}
+				else if(event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+					
+					if(endElementName.equals(SCENARIO))
+					{
+						_game.level.setScenario(scenario);
+						return;
+					}
+					
+				}
+			}
+		}
+		catch (XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		System.err.println("ERROR: scenario reader reached end of document");
+		
+	}
+	
 	private List<SceneObject> readObjects()
 	{
 		//create a list of objects that will be outputed at the end
@@ -1036,7 +1126,158 @@ public class LevelConstructorXMLParser
 			e.printStackTrace();
 		}
 
+		System.err.println("LEVEL READER ERROR: properties setter reached end of document");
+	}
+	
+	private HashMap<String, Integer> readProperties()
+	{
+		HashMap<String, Integer> properties = new HashMap<String, Integer>();
+
+		//inside the try block incase error occurs
+		try
+		{
+			//begin to read the XML File
+
+			//create the name and value that will be added as pairs together
+			String property_name = "";
+
+			int value = SceneObject.defaultValue;
+
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					//if the starting element is a property, read attribute (name)
+					if(elementName.equals(PROPERTY))
+					{
+						debugLog("CREATING NEW PROPERTY");
+
+						//reset the name and value
+						property_name = "";
+						value = SceneObject.defaultValue;
+
+						//get name attribute of the property
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+
+							//debugLog("CURRENT ATTRIBUTE: " + attributeName);
+
+							String attributeValue = attribute.getValue();
+
+							//debugLog("VALUE: " + attributeValue);
+
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(NAME))
+							{
+								property_name = attributeValue;
+							}
+
+							else
+							{
+								System.err.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
+							}
+
+						}
+
+						//if the value of the property is specified, use it
+						//otherwise, use default value
+						if(eventData != null)
+						{
+							try
+							{
+								value = Integer.parseInt(eventData);
+							}
+							catch (NumberFormatException e)
+							{
+								System.err.println("LEVEL READER ERROR: property value is not an integer");
+							}
+
+						}
+						else
+						{
+							value = SceneObject.defaultValue;
+						}
+
+						//go to next iteration
+						continue;
+					}
+
+					else
+					{
+						System.err.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
+					}
+
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				//this is where the property will be set and added
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//debugLog("CLOSING PROPERTY ELEMENT: " + endElementName);
+
+					//if it is the end of this action
+					if(endElementName.equalsIgnoreCase(PROPERTY))
+					{
+						//add the name and value pair to the HashMap
+						if(property_name != null)
+						{
+							debugLog("PROPERTY: adding property: name=" + property_name + ", value=" + value);
+							properties.put(property_name, value);
+						}
+						else
+							System.err.println("LEVEL READER ERROR: null property name");
+					}
+
+					//if it is the end of the entire list
+					else if(endElementName.equalsIgnoreCase(PROPERTIES))
+					{
+						debugLog("CLOSED PROPERTIES LIST (HASHMAP)");
+						return properties;
+					}
+				}
+			}
+
+
+		} 
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
 		System.err.println("LEVEL READER ERROR: properties reader reached end of document");
+		return properties;
 	}
 	
 	private ArrayList<Condition> readConditions()
@@ -1094,7 +1335,14 @@ public class LevelConstructorXMLParser
 					
 					else if(elementName.equals(TARGET))
 					{
-						condition.setTarget(eventData);
+						if(eventData.equalsIgnoreCase(SCENARIO))
+						{
+							condition.setTarget(Level.SCENARIO_ID);
+						}
+						else
+						{
+							condition.setTarget(eventData);
+						}
 					}
 					
 					//property_name
@@ -1460,7 +1708,21 @@ public class LevelConstructorXMLParser
 							{
 								try
 								{
-									action.setActionTarget(Integer.parseInt(attribute.getValue()));
+									if(attributeValue.equalsIgnoreCase(SCENARIO))
+									{
+										action.setActionTarget(Level.SCENARIO_ID);
+									}
+									else
+									{
+										int target = Integer.parseInt(attributeValue);
+										
+										if(target == Level.SCENARIO_ID)
+										{
+											System.err.println("LEVEL READER ERROR: specified non scenario ID manually");
+										}
+										
+										action.setActionTarget(target);
+									}
 								}
 								catch (NumberFormatException e)
 								{

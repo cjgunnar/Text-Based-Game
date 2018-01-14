@@ -86,7 +86,7 @@ public class Action
 		System.out.println("ACTION: changing property " + propertyName + " to " + actionValue);
 		
 		SceneObject targetObj;
-		if(actionTarget == 0)
+		if(actionTarget == 0) //parent
 		{
 			//use parent as default if target is 0
 			if(parentObject != null)
@@ -97,7 +97,13 @@ public class Action
 				return;
 			}
 		}
-		else
+		else if(actionTarget == Level.SCENARIO_ID) //scenario
+		{
+			//if it is changing a scenario property, change it then exit method
+			_game.level.changeScenarioProperty(propertyName, Integer.parseInt(actionValue));
+			return;
+		}
+		else //find the target
 		{
 			//find the object with the target ID
 			targetObj = _game.level.FindObjectWithID(actionTarget);
