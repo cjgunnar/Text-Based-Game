@@ -293,6 +293,9 @@ public class SimpleObject implements SceneObject
 	@Override
 	public String toString()
 	{
+		return name;
+		
+		/*
 		final int MAX_DESCRIPTION_LENGTH = 10;
 		
 		String modifiedDescription = description;
@@ -303,6 +306,7 @@ public class SimpleObject implements SceneObject
 		
 		return "SimpleObject [ID=" + ID + ", name=" + name + ", description=" + modifiedDescription + ", aliases=" 
 		+ aliases.toString() + ", requests=" + requests + ", properties=" + properties.toString() + "]";
+		*/
 	}
 
 }

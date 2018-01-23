@@ -1,8 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
 
+	<!-- Sent out at beginning of game -->
 	<prolog>You slip out of bed. Your bare feet touch the cool carpet floor. The room is illuminated by the digital LED clock on your
 nightstand, the light streaming in from the window, and the glowing-red santa night-light. Your bedroom door is slightly ajar, allowing you to see into the hall.</prolog>
+	
+	<!-- Properties and commands that can be acessed from any room, globals -->
+	<scenario>
+		<properties>
+			<!-- default system properties, updated automatically -->
+			<property name="current-room">1</property>
+			
+			<!-- custom properties -->
+			<property name="current-room">1</property>
+			<property name="hiding">1</property>
+			<property name="skepticism">0</property>
+			<property name="santa-location">0</property>
+			<property name="time">0</property>
+		</properties>
+		<requests>
+			<request>
+				<input type="exact">use bed</input>
+				<input type="exact">sleep</input>
+				<input type="exact">go to bed</input>
+				<input type="exact">go to sleep</input>
+				<input type="exact">go back to bed</input>
+				<input type="exact">go back to sleep</input>
+				<input type="exact">return to bed</input>
+				<input type="exact">crawl into bed</input>
+				<input type="exact">climb into bed</input>
+				<input type="exact">climb back into bed</input>
+				<conditions>
+					<condition>
+						<property_name>current-room</property_name>
+						<target>scenario</target>
+						<type>=</type>
+						<value>2</value>
+						<pass> <!-- in hallway -->
+							<actions>
+								<action type="out">You are in the hallway trying to sleep</action>
+							</actions>
+						</pass>
+						<fail> <!-- not in hallway -->
+							<actions>
+								<action type="out">You are not in the hallway and executed sleep</action>
+							</actions>							
+						</fail>
+					</condition>
+				</conditions>
+			</request>
+		</requests>
+	</scenario>
 	
 	<room id="1">
 		<name>Bedroom</name>
@@ -36,7 +84,7 @@ A glowing red LED clock sits on your nightstand. The bedroom door leads out to t
 			</simple_object>
 			<simple_object>
 				<name>Nightlight</name>
-				<description>Mommy gave you the santa night-light. It glows red and is glows from underneath the desk</description>
+				<description>Mommy gave you the santa night-light. Its bulb shines through santa's red coat, lighting up the area underneath the desk</description>
 				<aliases>
 					<alias>night light</alias>
 					<alias>night-light</alias>
@@ -116,6 +164,22 @@ The street is dusted with a fresh layer of white snow</description>
 				</aliases>
 				<description>Your twin sized rocket themed bed sits in the corner. The sheets are disturbed from climbing out
 The warmness tempts you, but you have been waiting all year for this night</description>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">description</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">enter</input>
+						<input type="verb">climb</input>
+						<input type="exact">go to sleep</input>
+						<actions>
+							<action type="out">You have been dreaming of this night since Thanksgiving. There's no way you are missing it</action>
+						</actions>
+					</request>
+				</requests>
 			</simple_object>
 			<simple_object>
 				<name>Poster</name>
@@ -436,6 +500,7 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 				<requests>
 					<request>
 						<input type="verb">use</input>
+						<input type="verb">enter</input>
 						<actions>
 							<action type="out">You do not have to use the bathroom right now.</action>
 						</actions>
@@ -490,6 +555,9 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 			<alias>family's room</alias>
 			<alias>ground floor</alias>
 			<alias>ground level</alias>
+			<alias>downstairs</alias>
+			<alias>down stairs</alias>
+			<alias>down stair</alias>
 		</aliases>
 		
 		<!-- 
@@ -663,7 +731,7 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 														<pass> <!-- didn't notice gifts -->
 															<actions>
 																<action type="out">Those cookies look really good. You take a bite out of one. It's not hot out of the oven, but it is good</action>
-																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies in one day fades from your mind</action>
+																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies in one night quickly fades from your mind</action>
 																<action type="property_change" property_name="eaten">1</action>
 															</actions>
 														</pass>
@@ -686,7 +754,7 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 														<pass> <!-- didn't notice gifts -->
 															<actions>
 																<action type="out">Those chocolate chip cookies look really good, especially with the taste of milk in your mouth</action>
-																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies in one day fades from your mind</action>
+																<action type="out">You hope Santa doesn't mind. He gets millions of cookies anyway! The thought of how someone eats millions of cookies and drinks millions of sips of milk in one night quickly fades from your mind</action>
 																<action type="property_change" property_name="eaten">1</action>
 															</actions>
 														</pass>
@@ -739,11 +807,30 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 											<type>=</type>
 											<value>0</value>
 											<pass> <!-- didn't notice gifts -->
-												<actions>
-													<action type="out">You are really thirsty, and that milk looks really good...</action>
-													<action type="out">Before you know it, you have drank all of Santa's milk</action>
-													<action type="property_change" property_name="drank">1</action>
-												</actions>
+												<conditions>
+													<condition>
+														<property_name>eaten</property_name>
+														<target>304</target> <!-- cookie -->
+														<type>=</type>
+														<value>0</value>
+														<pass> <!-- cookies are eaten -->
+															<actions>
+																<action type="out">You are really thirsty, and that milk looks really good...</action>
+																<action type="out">Before you know it, you have drank all of Santa's milk</action>
+																<action type="out">The milk washes down the chocolate cookies, and your mouth is very happy</action>
+																<action type="property_change" property_name="drank">1</action>
+															</actions>
+														</pass>
+														<fail> <!-- cookies are not eaten -->
+															<actions>
+																<action type="out">You are really thirsty, and that milk looks really good...</action>
+																<action type="out">Before you know it, you have drank all of Santa's milk</action>
+																<action type="out">You notice the cookies. Those look really good...</action>
+																<action type="property_change" property_name="drank">1</action>
+															</actions>
+														</fail> 
+													</condition>
+												</conditions>
 											</pass>
 											<fail> <!-- did notice gifts -->
 												<actions>
@@ -751,6 +838,19 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 													<action type="out">You down it in a single chug</action>
 													<action type="property_change" property_name="drank">1</action>
 												</actions>
+												<conditions>
+													<condition>
+														<property_name>eaten</property_name>
+														<target>304</target> <!-- the cookies -->
+														<type>=</type>
+														<value>1</value>
+														<pass> <!-- cookies already eaten -->
+															<actions>
+																<action type="out">The milk and cookie taste lingers in your mouth. You don't know why Santa left them</action>
+															</actions>
+														</pass>
+													</condition>
+												</conditions>
 											</fail>
 										</condition>
 									</conditions>
@@ -1006,6 +1106,13 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 							</condition>
 						</conditions>
 					</request>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You climb down the stairs into the darkness</action>
+							<action type="exit:change_room">4</action>
+						</actions>
+					</request>
 				</requests>
 			</exit>
 		</exits>
@@ -1013,19 +1120,40 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 
 	<room id="4">
 		<name>Basement</name>
-		<description>You hate going down to the basement, especially when it is this freezing</description>
+		<description>You hate going down to the basement, especially when it is this freezing. THIS IS THE END OF THE DEMO</description>
 		
 		<aliases>
 			<alias>downstairs</alias>
 		</aliases>
 		
-		<objects>
-		
-		</objects>
-		
 		<exits>
-		
+			<exit>
+				<name>laundry room door</name>
+				<aliases>
+					<alias>laundry door</alias>
+					<alias>laundry room</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<actions>
+							<action type="out">You cross the dark basement, making your way over to the laundry room</action>
+							<action type="exit:change_room">5</action>
+						</actions>
+					</request>
+				</requests>
+			</exit>
 		</exits>
+	</room>
+
+	<room id="5">
+		<name>Laundry Room</name>
+		<description>The laundry room</description>
+	</room>
+	
+	<room id="6">
+		<name>Backyard</name>
+		<description>The backyard is dark, but covered in snow</description>
 	</room>
 
 

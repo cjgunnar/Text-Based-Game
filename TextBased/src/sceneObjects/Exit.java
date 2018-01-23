@@ -387,7 +387,8 @@ public class Exit implements SceneObject
 	{
 		final int MAX_DESCRIPTION_LENGTH = 10;
 		
-		String modifiedDescription = description;
+		//couldn't help myself had to use a ternary operator
+		String modifiedDescription = description != null ? description : "NULL";
 		if(description.length() > MAX_DESCRIPTION_LENGTH)
 		{
 			modifiedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + "...";

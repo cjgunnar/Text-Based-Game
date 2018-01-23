@@ -456,6 +456,10 @@ public class Room implements SceneObject
 	@Override
 	public String toString()
 	{
+		String output = name != null ? name : "UNNAMED ROOM";
+		return output;
+		
+		/*
 		final int MAX_DESCRIPTION_LENGTH = 10;
 		
 		String objectsStr = "";
@@ -501,6 +505,7 @@ public class Room implements SceneObject
 		String output = "ROOM: [ID: {" + ID + "}, name: {" + name + "}, description: {" + modifiedDescription + "}, objects: {" + objectsStr + "}, exits: {" + exitsStr + "}]";
 		
 		return output;
+		*/
 	}
 	
 }
