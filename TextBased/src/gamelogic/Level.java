@@ -15,11 +15,15 @@ import sceneObjects.SceneObject;
  */
 public class Level
 {
+	/** List of rooms in the level */
 	List<Room> rooms = new ArrayList<Room>();
 	
 	String _prolog;
 	
 	Scenario scenario;
+	
+	/** Endings of the game that can be triggered by Actions */
+	ArrayList<EndState> endings = new ArrayList<EndState>();
 	
 	public static final int SCENARIO_ID = 100000;
 	
@@ -33,30 +37,47 @@ public class Level
 		return this._prolog;
 	}
 	
-	public void LoadLevel(String levelFile, Game game)
-	{		
-    	//maybe that name can be shortened
-    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser(game);
-    	
-    	//create the list from the XML file
-    	List<Room> rooms = reader.readLevel(levelFile);
-    	
-    	//set own list to this
-    	this.rooms = rooms;
-    	
-    	//set references for all rooms, objects, and exits
-    	//now that we know everything is loaded
-    	for (Room room : rooms)
-    	{
-    		//probably could of been done at time of construction
-    		room.setGame(game);
-    		room.setAllObjectsGame(game);
-    		room.setAllExitsGame(game);
-    		
-    		room.InitializeAllExits();
-    	}
-    	
-    	outputLevelSummaryData();
+	/**
+	 * Add a room to the level
+	 * @param room The new room to add
+	 */
+	public void addRoom(Room room)
+	{
+		if(room == null)
+			System.out.println("LEVEL: ERROR: trying to add null room");
+		rooms.add(room);
+	}
+	
+	public void InitializeRooms(Game game)
+	{
+		for(Room room: rooms)
+		{
+			//probably could of been done at time of construction
+			room.setGame(game);
+			room.setAllObjectsGame(game);
+			room.setAllExitsGame(game);
+			
+			room.InitializeAllExits();
+		}
+	}
+	
+	public void checkEndStates()
+	{
+		for(EndState ending: endings)
+		{
+			ending.checkEndState();
+		}
+	}
+	
+	/**
+	 * Add an ending to the level
+	 * @param ending The EndState ending to add
+	 */
+	public void addEndState(EndState ending)
+	{
+		if(ending == null)
+			System.out.println("LEVEL: ERROR: trying to add null ending");
+		endings.add(ending);
 	}
 	
 	/**
@@ -172,7 +193,7 @@ public class Level
 		return null;
 	}
 	
-	private void outputLevelSummaryData()
+	public void outputLevelSummaryData()
 	{
     	System.out.println("\nLOADED LEVEL SUMMARY DATA");
     	System.out.println("-----------------");

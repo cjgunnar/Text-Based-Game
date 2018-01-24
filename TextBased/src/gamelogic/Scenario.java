@@ -12,23 +12,23 @@ import sceneObjects.SceneObject;
  */
 public class Scenario
 {
-	//just for the error messages
-	String name = "SCENARIO";
+	/** For the error messages */
+	private static final String name = "SCENARIO";
 	
-	//reference to game
+	/** reference to the logic so it can check properties */
 	Game _game;
 	
-	//list of properties it has
-	//properties of the object (HashMap), name int pairs
+	/**
+	 * HashMap of global properites,
+	 * In String name, Integer value pairs
+	 */
 	HashMap<String, Integer> properties = new HashMap<String, Integer>();
 
-	//list of requests it has
+	/** List of gloabl requests */
 	ArrayList<Request> requests = new ArrayList<Request>();
 
-	public Scenario(Game game)
-	{
-		this._game = game;
-	}
+	/** Default constructor */
+	public Scenario() {}
 		
 	/**
 	 * Can only use exact phrases to match since it has no name/place
@@ -165,6 +165,12 @@ public class Scenario
 	public void addRequest(Request request)
 	{
 		requests.add(request);
+	}
+	
+	/** Sets the game reference */
+	public void setGame(Game game)
+	{
+		this._game = game;
 	}
 
 }

@@ -4,6 +4,66 @@
 	<prolog>You slip out of bed. Your bare feet touch the cool carpet floor. The room is illuminated by the digital LED clock on your
 nightstand, the light streaming in from the window, and the glowing-red santa night-light. Your bedroom door is slightly ajar, allowing you to see into the hall.</prolog>
 	
+	<!-- Properties and commands that can be acessed from any room, globals -->
+	<scenario>
+		<properties>
+			<!-- default system properties, updated automatically -->
+			<property name="current-room">1</property>
+			
+			<!-- custom properties -->
+			<property name="current-room">1</property>
+			<property name="hiding">1</property>
+			<property name="skepticism">0</property>
+			<property name="santa-location">0</property>
+			<property name="time">0</property>
+		</properties>
+		<requests>
+			<request>
+				<input type="exact">use bed</input>
+				<input type="exact">sleep</input>
+				<input type="exact">go to bed</input>
+				<input type="exact">go to sleep</input>
+				<input type="exact">go back to bed</input>
+				<input type="exact">go back to sleep</input>
+				<input type="exact">return to bed</input>
+				<input type="exact">crawl into bed</input>
+				<input type="exact">climb into bed</input>
+				<input type="exact">climb back into bed</input>
+				<conditions>
+					<condition>
+						<property_name>current-room</property_name>
+						<target>scenario</target>
+						<type>=</type>
+						<value>2</value>
+						<pass> <!-- in hallway -->
+							<actions>
+								<action type="out">You are in the hallway trying to sleep</action>
+							</actions>
+						</pass>
+						<fail> <!-- not in hallway -->
+							<actions>
+								<action type="out">You are not in the hallway and executed sleep</action>
+							</actions>							
+						</fail>
+					</condition>
+				</conditions>
+			</request>
+		</requests>
+	</scenario>
+	
+	<!-- endings of the game -->
+	<!-- 
+	<end-states>
+		<end-state> 
+			<trigger type="property" property_name="time" target="scenario">10</trigger>
+			<conditions>
+			
+			</conditions>
+		</end-state>
+	</end-states>
+	-->
+	
+	<!-- rooms in the level -->
 	<room id="1">
 		<name>Bedroom</name>
 		<description>Your bedroom is cool, but not completely dark. A santa clause night light lays in the corner under a desk.
@@ -928,7 +988,7 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 								<value>0</value>
 								<pass> <!-- hasn't noticed gifts -->
 									<actions>
-										<action type="out:description"></action>
+										<action type="out:description">description</action>
 									</actions>
 								</pass>
 								<fail> <!-- has noticed gifts -->
@@ -938,9 +998,6 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 								</fail>
 							</condition>
 						</conditions>
-						<actions>
-							<action type="out:description">description</action>
-						</actions>
 					</request>
 				</requests>
 			</simple_object>
@@ -1011,6 +1068,7 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 		</exits>
 	</room>
 
+
 	<room id="4">
 		<name>Basement</name>
 		<description>You hate going down to the basement, especially when it is this freezing</description>
@@ -1027,6 +1085,6 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 		
 		</exits>
 	</room>
-
+ 
 
 </level>

@@ -20,12 +20,8 @@ public class LevelSelectionWindow extends JFrame
 	final static int MAX_HEIGHT = 400;
 	final static int MAX_WIDTH = 400;
 	
-	private Game game;
-	
-	public LevelSelectionWindow(Game game)
+	public LevelSelectionWindow()
 	{
-		this.game = game;
-		
 		setSize(MAX_HEIGHT, MAX_WIDTH);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Level Selection Panel");
@@ -68,7 +64,7 @@ public class LevelSelectionWindow extends JFrame
 			//action to performed when clicked
 			JButton button = (JButton) x.getSource();
 			String levelSelected = button.getText();
-			game.LoadLevel(levelSelected);
+			Runner.PlayLevel(levelSelected);
 			closeWindow();
 		}
 
