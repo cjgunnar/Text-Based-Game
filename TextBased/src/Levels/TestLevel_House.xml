@@ -44,6 +44,7 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 						<fail> <!-- not in hallway -->
 							<actions>
 								<action type="out">You are not in the hallway and executed sleep</action>
+								<action type="trigger-ending">2</action>
 							</actions>							
 						</fail>
 					</condition>
@@ -54,8 +55,16 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 	
 	<!-- endings of the game -->
 	<end-states>
-		<end-state> 
+		<end-state id="1"> 
 			<trigger type="property" property_name="time" target="scenario" operator=">">10</trigger>
+			<actions>
+				<action type="out">Well, that's all folks</action>
+			</actions>
+		</end-state>
+		<end-state id="2">
+			<actions>
+				<action type="out">It always has to be done the manual way</action>
+			</actions>
 		</end-state>
 	</end-states>
 	

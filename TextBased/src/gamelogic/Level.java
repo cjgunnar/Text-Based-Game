@@ -103,6 +103,24 @@ public class Level
 	}
 	
 	/**
+	 * Find and trigger ending with ID
+	 * @param ID the ID of the EndState to trigger
+	 */
+	public void TriggerEndState(int ID)
+	{
+		for(EndState ending: endings)
+		{
+			if(ending.getID() == ID)
+			{
+				ending.TriggerEndState();
+				return;
+			}
+		}
+		
+		System.out.println("LEVEL: ERROR: no ending with ID " + ID);
+	}
+	
+	/**
 	 * Add an ending to the level
 	 * @param ending The EndState ending to add
 	 */

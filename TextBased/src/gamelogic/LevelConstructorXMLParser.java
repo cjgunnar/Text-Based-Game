@@ -544,6 +544,40 @@ public class LevelConstructorXMLParser
 					if(elementName.equals(END_STATE))
 					{
 						endState = new EndState();
+						
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							
+							String attributeValue = attribute.getValue();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+							debugLog("VALUE: " + attributeValue);
+							
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(ID))
+							{
+								int id = 0;
+								try
+								{
+									id = Integer.parseInt(attributeValue);
+								}
+								catch(NumberFormatException e)
+								{
+									System.out.println("LEVEL READER ERROR: END STATE: non-int id");
+								}
+								
+								endState.setID(id);
+							}
+						}
 					}
 					
 					//if it hits a trigger, add to new EndState

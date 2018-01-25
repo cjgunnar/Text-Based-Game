@@ -5,6 +5,9 @@ import java.util.ArrayList;
 /** Can trigger the end of the game */
 public class EndState
 {
+	/** ID used to specify this ending (EndState) */
+	int ID;
+	
 	/** List of triggers that can activate this end state */
 	ArrayList<EndStateTrigger> triggers = new ArrayList<EndStateTrigger>();
 	
@@ -102,6 +105,20 @@ public class EndState
 	public void addCondition(Condition condition)
 	{
 		conditions.add(condition);
+	}
+	
+	public int getID()
+	{
+		return ID;
+	}
+	
+	/**
+	 * Set the ID of this ending
+	 * @param id The id to set
+	 */
+	public void setID(int id)
+	{
+		ID = id;
 	}
 	
 	/**

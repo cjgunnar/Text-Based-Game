@@ -25,6 +25,9 @@ public class Action
 	 */
 	final String EXIT_CHANGE_ROOM = "exit:change_room";
 	
+	/** Triggers an ending */
+	final String TRIGGER_ENDING = "trigger-ending";
+	
 	private String actionType;
 	private String actionValue;
 	
@@ -54,13 +57,13 @@ public class Action
 		}
 		
 		//property_change action changes properties of target objects
-		else if(actionType.equals(PROPERTY_CHANGE))
+		else if(actionType.equalsIgnoreCase(PROPERTY_CHANGE))
 		{
 			runPropertyChange();
 		}
 		
 		//outputs description
-		else if(actionType.equals(OUT_DESCRIPTION))
+		else if(actionType.equalsIgnoreCase(OUT_DESCRIPTION))
 		{
 			System.out.println("ACTION: outputting parent description: " + parentObject.getName());
 			_game.Output(parentObject.getDescription());
@@ -68,17 +71,39 @@ public class Action
 		
 		//special type for exits only
 		//will "use" the exit and change the room, then output the description of the room just entered
-		else if(actionType.equals(EXIT_CHANGE_ROOM))
+		else if(actionType.equalsIgnoreCase(EXIT_CHANGE_ROOM))
 		{
 			Exit parentExit = (Exit)parentObject;
 			parentExit.Built_In_Command_UseDoor();
 		}
 		
+		else if(actionType.equalsIgnoreCase(TRIGGER_ENDING))
+		{
+			TriggerEnding();
+		}
+			
 		else
 		{
 			System.err.println("ACTION: ERROR: unrecognized type: " + actionType);
 		}
 		
+	}
+	
+	/** Triggers the target ending */
+	private void TriggerEnding()
+	{	
+		System.out.println("ACTION: triggering ending: " + actionValue);
+		int endingID = 0;
+		try
+		{
+			endingID = Integer.parseInt(actionValue);
+		}
+		catch(NumberFormatException e)
+		{
+			System.out.println("ACTION: ERROR: value of id of ending to trigger is not an int");
+		}
+		
+		_game.level.TriggerEndState(endingID);
 	}
 	
 	private void runPropertyChange()
