@@ -35,7 +35,7 @@ public class EndState
 		}
 	}
 	
-	/** runs actions/conditions under it and brings up game over screen */
+	/** runs actions, then conditions under it and brings up game over screen */
 	public void TriggerEndState()
 	{
 		//run all default actions
@@ -51,14 +51,54 @@ public class EndState
 		}
 		
 		//TODO stop input from player, show EXIT button
-		
+		System.out.println("END STATE: triggered!");
+		_game.Output("GAME OVER");
 	}
 	
+	/**
+	 * Initializes Triggers, Conditions, and Actions with a game reference
+	 * @param game The game reference to set
+	 */
+	public void Initialize(Game game)
+	{
+		for(EndStateTrigger trigger: triggers)
+		{
+			trigger.set_game(game);
+		}
+		
+		for(Action action: actions)
+		{
+			action.setGame(game);
+		}
+		
+		for(Condition condition: conditions)
+		{
+			condition.setGame(game);
+		}
+	}
+	
+	/**
+	 * Adds a trigger to ending, used by level constructor
+	 * @param trigger
+	 */
+	public void addTrigger(EndStateTrigger trigger)
+	{
+		triggers.add(trigger);
+	}
+	
+	/**
+	 * Adds action to this ending to be executed automatically
+	 * @param action The Action to add
+	 */
 	public void addAction(Action action)
 	{
 		actions.add(action);
 	}
 	
+	/**
+	 * Adds condition to be added to this ending
+	 * @param condition The Condition to add
+	 */
 	public void addCondition(Condition condition)
 	{
 		conditions.add(condition);

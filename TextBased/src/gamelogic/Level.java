@@ -18,20 +18,31 @@ public class Level
 	/** List of rooms in the level */
 	List<Room> rooms = new ArrayList<Room>();
 	
+	/** Text outputted at beginning of game */
 	String _prolog;
 	
+	/** The level's global properties, requests, etc */
 	Scenario scenario;
 	
 	/** Endings of the game that can be triggered by Actions */
 	ArrayList<EndState> endings = new ArrayList<EndState>();
 	
+	/** An int to use to designate that the global/scenario is the target */
 	public static final int SCENARIO_ID = 100000;
 	
+	/**
+	 * Sets the text (prolog) to output at the beginning of the game
+	 * @param prolog The text to use (String)
+	 */
 	public void setProlog(String prolog)
 	{
 		this._prolog = prolog;
 	}
 	
+	/**
+	 * Returns the text (prolog) that is outputeed at start of game
+	 * @return The prolog text
+	 */
 	public String getProlog()
 	{
 		return this._prolog;
@@ -48,7 +59,26 @@ public class Level
 		rooms.add(room);
 	}
 	
-	public void InitializeRooms(Game game)
+	/**
+	 * Sets game references for the level
+	 * @param game The game to set references to
+	 */
+	public void InitializeLevel(Game game)
+	{
+		InitializeRooms(game);
+		
+		for(EndState ending: endings)
+		{
+			ending.set_game(game);
+			ending.Initialize(game);
+		}
+			
+	}
+	
+	/** Sets game references and inits room destinations 
+	 *  @param game The game to set references to
+	 * */
+	private void InitializeRooms(Game game)
 	{
 		for(Room room: rooms)
 		{
@@ -61,6 +91,9 @@ public class Level
 		}
 	}
 	
+	/**
+	 * Checks all the endings and sees if one has activated
+	 */
 	public void checkEndStates()
 	{
 		for(EndState ending: endings)
@@ -111,6 +144,11 @@ public class Level
 		return scenario.checkProperty(name, operator, value);
 	}
 	
+	/**
+	 * Returns true/false if there is a room in the level with that name
+	 * @param roomName The name of the room to search for
+	 * @return true or false if the room was found
+	 */
 	public boolean hasRoom(String roomName)
 	{
 		if(FindRoomWithName(roomName) != null)
@@ -123,6 +161,11 @@ public class Level
 		}
 	}
 	
+	/**
+	 * Returns the Room with the name passed in
+	 * @param roomName The name of the room to look for
+	 * @return the Room reference
+	 */
 	public Room FindRoomWithName(String roomName)
 	{
 		for(Room room: rooms)

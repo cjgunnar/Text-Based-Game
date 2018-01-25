@@ -38,6 +38,7 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 						<pass> <!-- in hallway -->
 							<actions>
 								<action type="out">You are in the hallway trying to sleep</action>
+								<action type="property_change" property_name="time" target="scenario">11</action>
 							</actions>
 						</pass>
 						<fail> <!-- not in hallway -->
@@ -52,16 +53,11 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 	</scenario>
 	
 	<!-- endings of the game -->
-	<!-- 
 	<end-states>
 		<end-state> 
-			<trigger type="property" property_name="time" target="scenario">10</trigger>
-			<conditions>
-			
-			</conditions>
+			<trigger type="property" property_name="time" target="scenario" operator=">">10</trigger>
 		</end-state>
 	</end-states>
-	-->
 	
 	<!-- rooms in the level -->
 	<room id="1">

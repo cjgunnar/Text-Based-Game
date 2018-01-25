@@ -54,7 +54,7 @@ public class Runner
 		//set game level
 		game.setLevel(level);
     	
-    	level.InitializeRooms(game);
+    	level.InitializeLevel(game);
     	
     	return level;
 	}

@@ -42,6 +42,11 @@ public class LevelConstructorXMLParser
 	static final String PROLOG = "prolog";
 	static final String SCENARIO = "scenario";
 	
+	static final String END_STATES = "end-states";
+	static final String END_STATE = "end-state";
+	static final String TRIGGER = "trigger";
+	static final String OPERATOR = "operator";
+	
 	static final String ID = "id";
 	static final String NAME = "name";
 	static final String DESCRIPTION = "description";
@@ -99,7 +104,172 @@ public class LevelConstructorXMLParser
 		this.debugMode = debugMode;
 	}
 	
-	public Room readRoom()
+	/**
+	 * From XML file, returns a Level object that can be played
+	 * @param levelFile Name of the file (including .xml) to read from src/Levels
+	 * @return read Level
+	 */
+	public Level readLevel(String levelFile)
+	{
+		//set the file to load
+		this.levelFile = levelFile;
+	
+		//create a room to act as the placeholder to use setters on
+		Level level = new Level();
+		
+		try
+		{
+			//create the inputfactory to create the event reader
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+	
+			//create the input stream to create the event reader
+			InputStream in = new FileInputStream(levelFile);
+	
+			//finally create the event reader
+			eventReader = inputFactory.createXMLEventReader(in);
+	
+			//begin reading the XML File
+			while(eventReader.hasNext())
+			{	
+				//set the event of the current iteration
+				event = eventReader.nextEvent();
+	
+				//returns true if this is the start of a new element ex: <room>
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+					
+					String elementName = getStartElementName();
+	
+					String eventData = getEventData();
+	
+					if(eventData != null)
+						debugLog("LEVEL: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("LEVEL: element=" + elementName + ", value=null");
+					
+					//opening <room> element
+					if(elementName.equals(ROOM))
+					{
+						debugLog("OPENED ROOM");
+	
+						int id = 0;
+						
+						//this code will set attributes (the data in the start of the element ex: <room id="1">)
+	
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+	
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+	
+							debugLog("CURRENT ATTRIBUTE: " + attribute.getName().getLocalPart());
+	
+							//check for the attributes we are looking for and set them
+							if(attribute.getName().getLocalPart().equalsIgnoreCase(ID))
+							{
+								debugLog("VALUE: " + attribute.getValue());
+								try
+								{
+									id = Integer.parseInt(attribute.getValue());
+								}
+								catch (NumberFormatException e)
+								{
+									System.out.println("LEVEL READER ERROR: ROOM: non-int value as ID attribute");
+								}
+	
+							}
+							else
+							{
+								debugLog("ROOM: WARNING: unrecognized attribute: " + attribute.getName().getLocalPart());
+							}
+						}
+						
+						Room room = readRoom();
+						debugLog("ROOM: id=" + id);
+						room.setID(id);
+						level.addRoom(room);
+					}
+					
+					//prolog gets outputed at the beginning of the game
+					else if (elementName.equals(PROLOG))
+					{
+						debugLog("LEVEL: add prolog: " + eventData);
+						level.setProlog(eventData);
+					}
+					
+					//read scenario (global property and command storage)
+					else if(elementName.equals(SCENARIO))
+					{
+						debugLog("LEVEL: add scenario");
+						//read scenario
+						Scenario scenario = readScenario();
+						level.setScenario(scenario);
+					}
+					
+					//read end-states or endings of the game
+					else if(elementName.equals(END_STATES))
+					{
+						List<EndState> endings = readEndStates();
+						for(EndState ending: endings)
+							level.addEndState(ending);
+					}
+					
+					else if(elementName.equals(LEVEL)) {debugLog("LEVEL STARTING");}
+					else
+					{
+						System.out.println("LEVEL READER ERROR: LEVEL: unknown elementName " + elementName);
+					}
+	
+				}
+	
+				//if this is an ending element ex: </room>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+	
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+	
+					//debugLog("CLOSING ELEMENT: " + endElementName);
+	
+					//closing </level> element at very end of XML document
+					if(endElementName.equals(LEVEL))
+					{
+						//return the rooms
+						return level;
+					}
+				}
+	
+			}
+	
+		}
+		//If file not found, display error message to console
+		catch(FileNotFoundException e)
+		{
+			System.out.println("LEVEL READER ERROR: Did not find file: " + levelFile);
+			return null;
+		}
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
+		}
+	
+		//the rooms should be returned by the ending tag level before this point
+		System.out.println("ERROR: reached end of document without closing level element");
+		return level;
+	}
+
+	private Room readRoom()
 	{
 		//create a room to act as the placeholder to use setters on
 		Room room = new Room();
@@ -265,158 +435,6 @@ public class LevelConstructorXMLParser
 		return room;
 	}
 	
-	public Level readLevel(String levelFile)
-	{
-		//set the file to load
-		this.levelFile = levelFile;
-
-		//create a room to act as the placeholder to use setters on
-		Level level = new Level();
-		
-		debugLog("LEVEL: STARTING");
-		
-		try
-		{
-			//create the inputfactory to create the event reader
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-
-			//create the input stream to create the event reader
-			InputStream in = new FileInputStream(levelFile);
-
-			//finally create the event reader
-			eventReader = inputFactory.createXMLEventReader(in);
-
-			//begin reading the XML File
-			while(eventReader.hasNext())
-			{	
-				//set the event of the current iteration
-				event = eventReader.nextEvent();
-
-				//returns true if this is the start of a new element ex: <room>
-				if(event.isStartElement())
-				{
-					StartElement startElement = event.asStartElement();
-					
-					String elementName = getStartElementName();
-
-					String eventData = getEventData();
-
-					if(eventData != null)
-						debugLog("LEVEL: element=" + elementName + ", value=" + eventData);
-					else
-						debugLog("LEVEL: element=" + elementName + ", value=null");
-					
-					//opening <room> element
-					if(elementName.equals(ROOM))
-					{
-						debugLog("OPENED ROOM");
-
-						int id = 0;
-						
-						//this code will set attributes (the data in the start of the element ex: <room id="1">)
-
-						//get all the attributes in the element
-						@SuppressWarnings("unchecked")
-						Iterator<Attribute> attributes = startElement.getAttributes();
-
-						//while the iterator has more attributes to go over
-						while(attributes.hasNext())
-						{
-							//create variable for the individual attribute
-							Attribute attribute = attributes.next();
-
-							debugLog("CURRENT ATTRIBUTE: " + attribute.getName().getLocalPart());
-
-							//check for the attributes we are looking for and set them
-							if(attribute.getName().getLocalPart().equalsIgnoreCase(ID))
-							{
-								debugLog("VALUE: " + attribute.getValue());
-								try
-								{
-									id = Integer.parseInt(attribute.getValue());
-								}
-								catch (NumberFormatException e)
-								{
-									System.out.println("LEVEL READER ERROR: ROOM: non-int value as ID attribute");
-								}
-
-							}
-							else
-							{
-								debugLog("ROOM: WARNING: unrecognized attribute: " + attribute.getName().getLocalPart());
-							}
-						}
-						
-						Room room = readRoom();
-						debugLog("ROOM: id=" + id);
-						room.setID(id);
-						level.addRoom(room);
-					}
-					
-					//prolog gets outputed at the beginning of the game
-					else if (elementName.equals(PROLOG))
-					{
-						debugLog("LEVEL: add prolog: " + eventData);
-						level.setProlog(eventData);
-					}
-					
-					//read scenario (global property and command storage)
-					else if(elementName.equals(SCENARIO))
-					{
-						debugLog("LEVEL: add scenario");
-						//read scenario
-						Scenario scenario = readScenario();
-						level.setScenario(scenario);
-					}
-					else
-					{
-						System.out.println("LEVEL READER ERROR: LEVEL: unknown elementName " + elementName);
-					}
-
-				}
-
-				//if this is an ending element ex: </room>
-				else if (event.isEndElement())
-				{
-					//create object of type end element
-					EndElement endElement = event.asEndElement();
-
-					//get the name of the ending element as we did before with the start element
-					String endElementName = endElement.getName().getLocalPart().toString();
-
-					//debugLog("CLOSING ELEMENT: " + endElementName);
-
-					//closing </level> element at very end of XML document
-					if(endElementName.equals(LEVEL))
-					{
-						//return the rooms
-						return level;
-					}
-				}
-
-			}
-
-		}
-		//If file not found, display error message to console
-		catch(FileNotFoundException e)
-		{
-			System.out.println("LEVEL READER ERROR: Did not find file: " + levelFile);
-			return null;
-		}
-		catch(XMLStreamException e)
-		{
-			printXMLStreamException(e);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace(System.out);
-		}
-
-		//the rooms should be returned by the ending tag level before this point
-		System.out.println("ERROR: reached end of document without closing level element");
-		return level;
-	}
-
 	private Scenario readScenario()
 	{
 		Scenario scenario = new Scenario();
@@ -495,6 +513,190 @@ public class LevelConstructorXMLParser
 		
 		System.out.println("ERROR: scenario reader reached end of document");
 		return scenario;
+	}
+	
+	private List<EndState> readEndStates()
+	{
+		List<EndState> endStates = new ArrayList<EndState>();
+		
+		try
+		{
+			EndState endState = null;
+			
+			while(eventReader.hasNext())
+			{
+				event = eventReader.nextEvent();
+
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("END STATES: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("END STATES: element=" + elementName + ", value=null");
+
+					//if it is on a new EndState, create one
+					if(elementName.equals(END_STATE))
+					{
+						endState = new EndState();
+					}
+					
+					//if it hits a trigger, add to new EndState
+					else if(elementName.equals(TRIGGER))
+					{
+						EndStateTrigger trigger = new EndStateTrigger();
+						
+						//go through attributes and set them
+						
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							
+							String attributeValue = attribute.getValue();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+							debugLog("VALUE: " + attributeValue);
+							
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(TYPE))
+							{
+								trigger.setType(attributeValue);
+							}
+							else if(attributeName.equals(PROPERTY_NAME))
+							{
+								trigger.setProperty_name(attributeValue);
+							}
+							else if(attributeName.equals(TARGET))
+							{
+								int target;
+								
+								//if the target property is global/in scenario
+								if(attributeValue.equalsIgnoreCase(SCENARIO) || attributeValue.equalsIgnoreCase("GLOBAL")) //TODO update at all target Scenario checks
+								{
+									target = Level.SCENARIO_ID;
+								}
+								else
+								{
+									try
+									{
+										target = Integer.parseInt(attributeValue);
+									}
+									catch(NumberFormatException e)
+									{
+										debugLog("END STATES: ERROR: target is not an int or scenario");
+										target = 0;
+									}
+								}
+								
+								//set the target
+								trigger.setTarget(target);
+							}
+							else if(attributeName.equalsIgnoreCase(OPERATOR))
+							{
+								trigger.setOperator(attributeValue);
+							}
+							else
+							{
+								System.out.println("LEVEL READER ERROR: END STATES: TRIGGER: unknown attribute: " + attributeName);
+							}
+						}
+						
+						//done with attributes, now set value
+						int value;
+						try
+						{
+							value = Integer.parseInt(eventData);
+						}
+						catch(NumberFormatException e)
+						{
+							debugLog("END STATES; ERROR: value of target is not an int");
+							//set to default
+							value = 0;
+						}
+						
+						//set value
+						trigger.setValue(value);
+						
+						//finally, add trigger to end state
+						endState.addTrigger(trigger);
+						
+					}
+					
+					//if hits conditions list
+					else if(elementName.equals(CONDITIONS))
+					{
+						//read conditions
+						List<Condition> conditions = readConditions();
+						
+						//add conditions
+						for(Condition condition: conditions)
+							endState.addCondition(condition);
+					}
+					
+					//if it hits actions list
+					else if(elementName.equals(ACTIONS))
+					{
+						//read actions
+						List<Action> actions = readActions();
+						
+						//add actions
+						for(Action action: actions)
+							endState.addAction(action);
+					}
+					
+					else
+					{
+						debugLog("SCENARIO: ERROR: unknown ending element: " + elementName);
+					}
+
+				}
+				else if(event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//return finished list when ending element reached
+					if(endElementName.equals(END_STATES))
+					{
+						return endStates;
+					}
+					
+					//add current EndState
+					else if(endElementName.equals(END_STATE))
+					{
+						endStates.add(endState);
+					}
+
+				}
+			}
+		}
+		catch (XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
+		}
+
+		System.out.println("ERROR: end-states reader reached end of document");
+		return endStates;
 	}
 	
 	private List<SceneObject> readObjects()

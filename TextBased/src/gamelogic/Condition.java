@@ -136,6 +136,7 @@ public class Condition
 			return false;
 		}
 		
+		
 		//find the target object, if target is 0 use parent
 		SceneObject targetObject;
 		if(target == 0) //parent object
@@ -188,14 +189,21 @@ public class Condition
 		//execute fail actions
 		for(Action action: fail)
 		{
-			if(game != null && parentObject != null)
-			{
+			if(game != null)
 				action.setGame(game);
+			else
+				System.out.println("CONDITION: ERROR: game reference");
+				
+			if(parentObject != null)
+			{
 				action.setParentSceneObject(parentObject);
-				action.runAction();
 			}
 			else
-				System.err.println("CONDITION: ERROR: null parent object or game reference");
+			{
+				System.out.println("CONDITION: WARNING: null parent object");
+			}
+				
+			action.runAction();
 		}
 		
 		//execute fail nested conditions
@@ -215,14 +223,21 @@ public class Condition
 	{
 		for(Action action: pass)
 		{
-			if(game != null && parentObject != null)
-			{
+			if(game != null)
 				action.setGame(game);
+			else
+				System.out.println("CONDITION: ERROR: game reference");
+				
+			if(parentObject != null)
+			{
 				action.setParentSceneObject(parentObject);
-				action.runAction();
 			}
 			else
-				System.err.println("CONDITION: ERROR: null parent object or game reference");
+			{
+				System.out.println("CONDITION: WARNING: null parent object");
+			}
+				
+			action.runAction();
 		}
 		
 		//execute pass nested conditions

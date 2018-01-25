@@ -43,10 +43,17 @@ public class Game
 	{
 		System.out.println("GAME INPUT: " + input);
 		
+		RunInput(input);
+		
+		level.checkEndStates();
+	}
+	
+	public void RunInput(String input)
+	{
 		Command command = CommandInterpreter.InterpretCommand(input);
 		
 		//if the player is trying to quit the game, close the program
-		if(command.getRaw().equalsIgnoreCase("quit") || command.getRaw().equalsIgnoreCase("quit game") || command.getRaw().equals("exit") || command.getRaw().equals("exit game"))
+		if(command.getRaw().equalsIgnoreCase("quit") || command.getRaw().equalsIgnoreCase("quit game") || command.getRaw().equalsIgnoreCase("exit") || command.getRaw().equalsIgnoreCase("exit game"))
 		{
 			frame.dispose();
 		}
