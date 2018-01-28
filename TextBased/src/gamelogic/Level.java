@@ -15,48 +15,120 @@ import sceneObjects.SceneObject;
  */
 public class Level
 {
+	/** List of rooms in the level */
 	List<Room> rooms = new ArrayList<Room>();
 	
+	/** Text outputted at beginning of game */
 	String _prolog;
 	
+	/** The level's global properties, requests, etc */
 	Scenario scenario;
 	
+	/** Endings of the game that can be triggered by Actions */
+	ArrayList<EndState> endings = new ArrayList<EndState>();
+	
+	/** An int to use to designate that the global/scenario is the target */
 	public static final int SCENARIO_ID = 100000;
 	
+	/**
+	 * Sets the text (prolog) to output at the beginning of the game
+	 * @param prolog The text to use (String)
+	 */
 	public void setProlog(String prolog)
 	{
 		this._prolog = prolog;
 	}
 	
+	/**
+	 * Returns the text (prolog) that is outputeed at start of game
+	 * @return The prolog text
+	 */
 	public String getProlog()
 	{
 		return this._prolog;
 	}
 	
-	public void LoadLevel(String levelFile, Game game)
-	{		
-    	//maybe that name can be shortened
-    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser(game);
-    	
-    	//create the list from the XML file
-    	List<Room> rooms = reader.readLevel(levelFile);
-    	
-    	//set own list to this
-    	this.rooms = rooms;
-    	
-    	//set references for all rooms, objects, and exits
-    	//now that we know everything is loaded
-    	for (Room room : rooms)
-    	{
-    		//probably could of been done at time of construction
-    		room.setGame(game);
-    		room.setAllObjectsGame(game);
-    		room.setAllExitsGame(game);
-    		
-    		room.InitializeAllExits();
-    	}
-    	
-    	outputLevelSummaryData();
+	/**
+	 * Add a room to the level
+	 * @param room The new room to add
+	 */
+	public void addRoom(Room room)
+	{
+		if(room == null)
+			System.out.println("LEVEL: ERROR: trying to add null room");
+		rooms.add(room);
+	}
+	
+	/**
+	 * Sets game references for the level
+	 * @param game The game to set references to
+	 */
+	public void InitializeLevel(Game game)
+	{
+		InitializeRooms(game);
+		
+		for(EndState ending: endings)
+		{
+			ending.set_game(game);
+			ending.Initialize(game);
+		}
+			
+	}
+	
+	/** Sets game references and inits room destinations 
+	 *  @param game The game to set references to
+	 * */
+	private void InitializeRooms(Game game)
+	{
+		for(Room room: rooms)
+		{
+			//probably could of been done at time of construction
+			room.setGame(game);
+			room.setAllObjectsGame(game);
+			room.setAllExitsGame(game);
+			
+			room.InitializeAllExits();
+		}
+	}
+	
+	/**
+	 * Checks all the endings and sees if one has activated
+	 */
+	public void checkEndStates()
+	{
+		for(EndState ending: endings)
+		{
+			ending.checkEndState();
+		}
+	}
+	
+	/**
+	 * Find and trigger ending with ID
+	 * @param ID the ID of the EndState to trigger
+	 */
+	public void TriggerEndState(int ID)
+	{
+		for(EndState ending: endings)
+		{
+			if(ending.getID() == ID)
+			{
+				ending.TriggerEndState();
+				return;
+			}
+		}
+		
+		System.out.println("LEVEL: ERROR: no ending with ID " + ID);
+	}
+	
+	/**
+	 * Add an ending to the level
+	 * @param ending The EndState ending to add
+	 */
+	public void addEndState(EndState ending)
+	{
+		if(ending == null)
+			System.out.println("LEVEL: ERROR: trying to add null ending");
+		endings.add(ending);
 	}
 	
 	/**
@@ -90,6 +162,11 @@ public class Level
 		return scenario.checkProperty(name, operator, value);
 	}
 	
+	/**
+	 * Returns true/false if there is a room in the level with that name
+	 * @param roomName The name of the room to search for
+	 * @return true or false if the room was found
+	 */
 	public boolean hasRoom(String roomName)
 	{
 		if(FindRoomWithName(roomName) != null)
@@ -102,6 +179,11 @@ public class Level
 		}
 	}
 	
+	/**
+	 * Returns the Room with the name passed in
+	 * @param roomName The name of the room to look for
+	 * @return the Room reference
+	 */
 	public Room FindRoomWithName(String roomName)
 	{
 		for(Room room: rooms)
@@ -172,7 +254,7 @@ public class Level
 		return null;
 	}
 	
-	private void outputLevelSummaryData()
+	public void outputLevelSummaryData()
 	{
     	System.out.println("\nLOADED LEVEL SUMMARY DATA");
     	System.out.println("-----------------");

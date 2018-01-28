@@ -299,11 +299,11 @@ public class Exit implements SceneObject
 		//System.out.println("Initializing exit " + name);
 		if(entranceToID == 0)
 		{
-			System.err.println(name.toUpperCase() + ": WARNING: UNSET ID FOR " + name + ", this exit leads nowhere");
+			System.out.println(name.toUpperCase() + ": WARNING: UNSET ID FOR " + name + ", this exit leads nowhere");
 			return;
 		}
 		if(game == null || game.level == null)
-			System.err.println("ERROR: null game or game.level reference");
+			System.out.println("ERROR: null game or game.level reference");
 		//System.out.println("Init: looking for room with ID: " + entranceToID);
 		//System.out.println("Linking " + name + " to " + game.level.FindRoomWithID(entranceToID).getName());
 		entranceTo = game.level.FindRoomWithID(entranceToID);
@@ -351,8 +351,9 @@ public class Exit implements SceneObject
 	@Override
 	public void setGame(Game game)
 	{
+		if(game == null)
+			System.out.println(name.toUpperCase() + ": ERROR: trying to set null game reference");
 		this.game = game;
-		
 	}
 
 	@Override

@@ -42,6 +42,11 @@ public class LevelConstructorXMLParser
 	static final String PROLOG = "prolog";
 	static final String SCENARIO = "scenario";
 	
+	static final String END_STATES = "end-states";
+	static final String END_STATE = "end-state";
+	static final String TRIGGER = "trigger";
+	static final String OPERATOR = "operator";
+	
 	static final String ID = "id";
 	static final String NAME = "name";
 	static final String DESCRIPTION = "description";
@@ -85,8 +90,6 @@ public class LevelConstructorXMLParser
 	
 	boolean debugMode = true;
 	
-	Game _game;
-	
 	String levelFile;
 
 	//the iterator
@@ -96,48 +99,50 @@ public class LevelConstructorXMLParser
 	//placed here so helper methods have access
 	XMLEvent event;
 
-	public LevelConstructorXMLParser(Game game)
+	public LevelConstructorXMLParser(boolean debugMode)
 	{
-		this._game = game;
+		this.debugMode = debugMode;
 	}
 	
-	public List<Room> readLevel(String levelFile)
+	/**
+	 * From XML file, returns a Level object that can be played
+	 * @param levelFile Name of the file (including .xml) to read from src/Levels
+	 * @return read Level
+	 */
+	public Level readLevel(String levelFile)
 	{
 		//set the file to load
 		this.levelFile = levelFile;
-
-		//create the list of rooms that will outputed at the end
-		List<Room> rooms = new ArrayList<Room>();
-
+	
+		//create a room to act as the placeholder to use setters on
+		Level level = new Level();
+		
 		try
 		{
 			//create the inputfactory to create the event reader
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-
+	
 			//create the input stream to create the event reader
 			InputStream in = new FileInputStream(levelFile);
-
+	
 			//finally create the event reader
 			eventReader = inputFactory.createXMLEventReader(in);
-
-			//create a room to act as the placeholder to use setters on
-			Room room = null;
-
+	
 			//begin reading the XML File
 			while(eventReader.hasNext())
 			{	
 				//set the event of the current iteration
 				event = eventReader.nextEvent();
-
+	
 				//returns true if this is the start of a new element ex: <room>
 				if(event.isStartElement())
 				{
 					StartElement startElement = event.asStartElement();
 					
 					String elementName = getStartElementName();
-
+	
 					String eventData = getEventData();
-
+	
 					if(eventData != null)
 						debugLog("LEVEL: element=" + elementName + ", value=" + eventData);
 					else
@@ -147,6 +152,151 @@ public class LevelConstructorXMLParser
 					if(elementName.equals(ROOM))
 					{
 						debugLog("OPENED ROOM");
+	
+						int id = 0;
+						
+						//this code will set attributes (the data in the start of the element ex: <room id="1">)
+	
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+	
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+	
+							debugLog("CURRENT ATTRIBUTE: " + attribute.getName().getLocalPart());
+	
+							//check for the attributes we are looking for and set them
+							if(attribute.getName().getLocalPart().equalsIgnoreCase(ID))
+							{
+								debugLog("VALUE: " + attribute.getValue());
+								try
+								{
+									id = Integer.parseInt(attribute.getValue());
+								}
+								catch (NumberFormatException e)
+								{
+									System.out.println("LEVEL READER ERROR: ROOM: non-int value as ID attribute");
+								}
+	
+							}
+							else
+							{
+								debugLog("ROOM: WARNING: unrecognized attribute: " + attribute.getName().getLocalPart());
+							}
+						}
+						
+						Room room = readRoom();
+						debugLog("ROOM: id=" + id);
+						room.setID(id);
+						level.addRoom(room);
+					}
+					
+					//prolog gets outputed at the beginning of the game
+					else if (elementName.equals(PROLOG))
+					{
+						debugLog("LEVEL: add prolog: " + eventData);
+						level.setProlog(eventData);
+					}
+					
+					//read scenario (global property and command storage)
+					else if(elementName.equals(SCENARIO))
+					{
+						debugLog("LEVEL: add scenario");
+						//read scenario
+						Scenario scenario = readScenario();
+						level.setScenario(scenario);
+					}
+					
+					//read end-states or endings of the game
+					else if(elementName.equals(END_STATES))
+					{
+						List<EndState> endings = readEndStates();
+						for(EndState ending: endings)
+							level.addEndState(ending);
+					}
+					
+					else if(elementName.equals(LEVEL)) {debugLog("LEVEL STARTING");}
+					else
+					{
+						System.out.println("LEVEL READER ERROR: LEVEL: unknown elementName " + elementName);
+					}
+	
+				}
+	
+				//if this is an ending element ex: </room>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+	
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+	
+					//debugLog("CLOSING ELEMENT: " + endElementName);
+	
+					//closing </level> element at very end of XML document
+					if(endElementName.equals(LEVEL))
+					{
+						//return the rooms
+						return level;
+					}
+				}
+	
+			}
+	
+		}
+		//If file not found, display error message to console
+		catch(FileNotFoundException e)
+		{
+			System.out.println("LEVEL READER ERROR: Did not find file: " + levelFile);
+			return null;
+		}
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
+		}
+	
+		//the rooms should be returned by the ending tag level before this point
+		System.out.println("ERROR: reached end of document without closing level element");
+		return level;
+	}
+
+	private Room readRoom()
+	{
+		//create a room to act as the placeholder to use setters on
+		Room room = new Room();
+		
+		try
+		{
+			//begin reading the XML File
+			while(eventReader.hasNext())
+			{	
+				//returns true if this is the start of a new element ex: <room>
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+					
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null && !eventData.equals(""))
+						debugLog("ROOM: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("ROOM: element=" + elementName + ", value=null");
+					
+					//opening <room> element
+					if(elementName.equals(ROOM))
+					{
+						debugLog("ROOM: OPENED ROOM");
 						room = new Room();
 
 						//this code will set attributes (the data in the start of the element ex: <room id="1">)
@@ -173,13 +323,13 @@ public class LevelConstructorXMLParser
 								}
 								catch (NumberFormatException e)
 								{
-									System.err.println("LEVEL READER ERROR: non-int value as ID attribute");
+									System.out.println("LEVEL READER ERROR: ROOM: non-int value as ID attribute");
 								}
 
 							}
 						}
 						//go to next iteration
-						continue;
+						//continue;
 					}
 
 					//opening <objects> element
@@ -195,20 +345,6 @@ public class LevelConstructorXMLParser
 						{
 							room.addObject(object);
 						}
-					}
-
-					//prolog gets outputed at the beginning of the game
-					else if (elementName.equals(PROLOG))
-					{
-						debugLog("add prolog to level: " + eventData);
-						_game.level.setProlog(eventData);
-					}
-					
-					//read scenario (global property and command storage)
-					else if(elementName.equals(SCENARIO))
-					{
-						//read scenario
-						readScenario();
 					}
 					
 					//exits
@@ -242,6 +378,8 @@ public class LevelConstructorXMLParser
 					//name
 					else if(elementName.equals(NAME))
 					{
+						debugLog("ROOM: setting name");
+						debugLog("ROOM: setting name to " + eventData);
 						room.setName(eventData);
 					}
 
@@ -267,45 +405,39 @@ public class LevelConstructorXMLParser
 					//if it is the end of the entire room, we can add it to the list
 					if(endElementName.equals(ROOM))
 					{
-						debugLog("LEVEL: COMPLETED ROOM: " + room.toString());
+						debugLog("ROOM: COMPLETED ROOM");
+						debugLog("ROOM: COMPLETED ROOM: " + room.toString());
 
-						rooms.add(room);
-						continue;
-					}
-
-					//closing </level> element at very end of XML document
-					else if(endElementName.equals(LEVEL))
-					{
-						//return the rooms
-						return rooms;
+						return room;
 					}
 				}
+				
+				//set the event to the current iteration
+				event = eventReader.nextEvent();
 
 			}
 
 		}
-		//If file not found, display error message to console
-		catch(FileNotFoundException e)
-		{
-			System.err.println("LEVEL READER ERROR: Did not find file: " + levelFile);
-		}
+
 		catch(XMLStreamException e)
 		{
 			printXMLStreamException(e);
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			System.out.println("LEVEL READER ERROR: ROOM: unknown exception");
+			e.printStackTrace(System.out);
+			e.printStackTrace(System.out);
 		}
 
 		//the rooms should be returned by the ending tag level before this point
-		System.err.println("ERROR: reached end of document without closing level element");
-		return rooms;
+		System.out.println("LEVEL READER ERROR: ROOM: reached end of document without closing room element");
+		return room;
 	}
-
-	private void readScenario()
+	
+	private Scenario readScenario()
 	{
-		Scenario scenario = new Scenario(_game);
+		Scenario scenario = new Scenario();
 		
 		try
 		{
@@ -336,7 +468,7 @@ public class LevelConstructorXMLParser
 						}
 						else
 						{
-							System.err.println("LEVEL READER ERROR: SCENARIO: properties HashMap is null");
+							System.out.println("LEVEL READER ERROR: SCENARIO: properties HashMap is null");
 						}
 					}
 					else if(elementName.equals(REQUESTS))
@@ -364,8 +496,7 @@ public class LevelConstructorXMLParser
 					
 					if(endElementName.equals(SCENARIO))
 					{
-						_game.level.setScenario(scenario);
-						return;
+						return scenario;
 					}
 					
 				}
@@ -377,11 +508,229 @@ public class LevelConstructorXMLParser
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 		
-		System.err.println("ERROR: scenario reader reached end of document");
+		System.out.println("ERROR: scenario reader reached end of document");
+		return scenario;
+	}
+	
+	private List<EndState> readEndStates()
+	{
+		List<EndState> endStates = new ArrayList<EndState>();
 		
+		try
+		{
+			EndState endState = null;
+			
+			while(eventReader.hasNext())
+			{
+				event = eventReader.nextEvent();
+
+				if(event.isStartElement())
+				{
+					StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("END STATES: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("END STATES: element=" + elementName + ", value=null");
+
+					//if it is on a new EndState, create one
+					if(elementName.equals(END_STATE))
+					{
+						endState = new EndState();
+						
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							
+							String attributeValue = attribute.getValue();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+							debugLog("VALUE: " + attributeValue);
+							
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(ID))
+							{
+								int id = 0;
+								try
+								{
+									id = Integer.parseInt(attributeValue);
+								}
+								catch(NumberFormatException e)
+								{
+									System.out.println("LEVEL READER ERROR: END STATE: non-int id");
+								}
+								
+								endState.setID(id);
+							}
+						}
+					}
+					
+					//if it hits a trigger, add to new EndState
+					else if(elementName.equals(TRIGGER))
+					{
+						EndStateTrigger trigger = new EndStateTrigger();
+						
+						//go through attributes and set them
+						
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							
+							String attributeValue = attribute.getValue();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName);
+							debugLog("VALUE: " + attributeValue);
+							
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(TYPE))
+							{
+								trigger.setType(attributeValue);
+							}
+							else if(attributeName.equals(PROPERTY_NAME))
+							{
+								trigger.setProperty_name(attributeValue);
+							}
+							else if(attributeName.equals(TARGET))
+							{
+								int target;
+								
+								//if the target property is global/in scenario
+								if(attributeValue.equalsIgnoreCase(SCENARIO) || attributeValue.equalsIgnoreCase("GLOBAL")) //TODO update at all target Scenario checks
+								{
+									target = Level.SCENARIO_ID;
+								}
+								else
+								{
+									try
+									{
+										target = Integer.parseInt(attributeValue);
+									}
+									catch(NumberFormatException e)
+									{
+										debugLog("END STATES: ERROR: target is not an int or scenario");
+										target = 0;
+									}
+								}
+								
+								//set the target
+								trigger.setTarget(target);
+							}
+							else if(attributeName.equalsIgnoreCase(OPERATOR))
+							{
+								trigger.setOperator(attributeValue);
+							}
+							else
+							{
+								System.out.println("LEVEL READER ERROR: END STATES: TRIGGER: unknown attribute: " + attributeName);
+							}
+						}
+						
+						//done with attributes, now set value
+						int value;
+						try
+						{
+							value = Integer.parseInt(eventData);
+						}
+						catch(NumberFormatException e)
+						{
+							debugLog("END STATES; ERROR: value of target is not an int");
+							//set to default
+							value = 0;
+						}
+						
+						//set value
+						trigger.setValue(value);
+						
+						//finally, add trigger to end state
+						endState.addTrigger(trigger);
+						
+					}
+					
+					//if hits conditions list
+					else if(elementName.equals(CONDITIONS))
+					{
+						//read conditions
+						List<Condition> conditions = readConditions();
+						
+						//add conditions
+						for(Condition condition: conditions)
+							endState.addCondition(condition);
+					}
+					
+					//if it hits actions list
+					else if(elementName.equals(ACTIONS))
+					{
+						//read actions
+						List<Action> actions = readActions();
+						
+						//add actions
+						for(Action action: actions)
+							endState.addAction(action);
+					}
+					
+					else
+					{
+						debugLog("SCENARIO: ERROR: unknown ending element: " + elementName);
+					}
+
+				}
+				else if(event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//return finished list when ending element reached
+					if(endElementName.equals(END_STATES))
+					{
+						return endStates;
+					}
+					
+					//add current EndState
+					else if(endElementName.equals(END_STATE))
+					{
+						endStates.add(endState);
+					}
+
+				}
+			}
+		}
+		catch (XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
+		}
+
+		System.out.println("ERROR: end-states reader reached end of document");
+		return endStates;
 	}
 	
 	private List<SceneObject> readObjects()
@@ -457,12 +806,12 @@ public class LevelConstructorXMLParser
 								}
 								catch (NumberFormatException e)
 								{
-									System.err.println("LEVEL READER ERROR: SCENE_OBJECT: non-int value as ID attribute");
+									System.out.println("LEVEL READER ERROR: SCENE_OBJECT: non-int value as ID attribute");
 								}
 							}
 							else
 							{
-								System.err.println("OBJECTS: unknown attribute: " + attributeName);
+								System.out.println("OBJECTS: unknown attribute: " + attributeName);
 							}
 						}
 
@@ -513,7 +862,7 @@ public class LevelConstructorXMLParser
 					
 					else
 					{
-						System.err.println("LEVEL READER ERROR: unrecognized object element: " + elementName);
+						System.out.println("LEVEL READER ERROR: unrecognized object element: " + elementName);
 					}
 				}
 
@@ -557,10 +906,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("ERROR: object reader reached end of document");
+		System.out.println("ERROR: object reader reached end of document");
 		return objects;
 	}
 
@@ -630,7 +979,7 @@ public class LevelConstructorXMLParser
 							}
 							catch (NumberFormatException e)
 							{
-								System.err.println("EXIT: ERROR: non-int value as ID attribute");
+								System.out.println("EXIT: ERROR: non-int value as ID attribute");
 							}
 						}
 						
@@ -690,7 +1039,7 @@ public class LevelConstructorXMLParser
 					
 					else
 					{
-						System.err.println("LEVEL READER ERROR: unrecognized exit element: " + startElementName);
+						System.out.println("LEVEL READER ERROR: unrecognized exit element: " + startElementName);
 					}
 					
 				}
@@ -735,10 +1084,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: exit reader reached end of document");
+		System.out.println("LEVEL READER ERROR: exit reader reached end of document");
 		return exits;
 	}
 	
@@ -821,10 +1170,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: alias reader reached end of document");
+		System.out.println("LEVEL READER ERROR: alias reader reached end of document");
 		return aliases;
 	}
 	
@@ -972,10 +1321,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: requests reader reached end of document");
+		System.out.println("LEVEL READER ERROR: requests reader reached end of document");
 		return requests;
 	}
 
@@ -1043,7 +1392,7 @@ public class LevelConstructorXMLParser
 							
 							else
 							{
-								System.err.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
+								System.out.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
 							}
 							
 						}
@@ -1058,7 +1407,7 @@ public class LevelConstructorXMLParser
 							}
 							catch (NumberFormatException e)
 							{
-								System.err.println("LEVEL READER ERROR: property value is not an integer");
+								System.out.println("LEVEL READER ERROR: property value is not an integer");
 							}
 							
 						}
@@ -1073,7 +1422,7 @@ public class LevelConstructorXMLParser
 
 					else
 					{
-						System.err.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
+						System.out.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
 					}
 
 				}
@@ -1100,7 +1449,7 @@ public class LevelConstructorXMLParser
 							sceneObject.addProperty(property_name, value);
 						}
 						else
-							System.err.println("LEVEL READER ERROR: null property name");
+							System.out.println("LEVEL READER ERROR: null property name");
 					}
 
 					//if it is the end of the entire list
@@ -1123,10 +1472,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: properties setter reached end of document");
+		System.out.println("LEVEL READER ERROR: properties setter reached end of document");
 	}
 	
 	private HashMap<String, Integer> readProperties()
@@ -1193,7 +1542,7 @@ public class LevelConstructorXMLParser
 
 							else
 							{
-								System.err.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
+								System.out.println("LEVEL READER ERROR: unrecognized attribute: " + attributeName);
 							}
 
 						}
@@ -1208,7 +1557,7 @@ public class LevelConstructorXMLParser
 							}
 							catch (NumberFormatException e)
 							{
-								System.err.println("LEVEL READER ERROR: property value is not an integer");
+								System.out.println("LEVEL READER ERROR: property value is not an integer");
 							}
 
 						}
@@ -1223,7 +1572,7 @@ public class LevelConstructorXMLParser
 
 					else
 					{
-						System.err.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
+						System.out.println("PROPERTIES: ERROR: unrecongized element: " + elementName);
 					}
 
 				}
@@ -1250,7 +1599,7 @@ public class LevelConstructorXMLParser
 							properties.put(property_name, value);
 						}
 						else
-							System.err.println("LEVEL READER ERROR: null property name");
+							System.out.println("LEVEL READER ERROR: null property name");
 					}
 
 					//if it is the end of the entire list
@@ -1273,10 +1622,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: properties reader reached end of document");
+		System.out.println("LEVEL READER ERROR: properties reader reached end of document");
 		return properties;
 	}
 	
@@ -1368,7 +1717,7 @@ public class LevelConstructorXMLParser
 					
 					else
 					{
-						System.err.println("CONDITIONS: ERROR: unrecongized element: " + elementName);
+						System.out.println("CONDITIONS: ERROR: unrecongized element: " + elementName);
 					}
 					
 				}
@@ -1411,10 +1760,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: conditions reader reached end of document");
+		System.out.println("LEVEL READER ERROR: conditions reader reached end of document");
 		return conditions;
 	}
 	
@@ -1480,7 +1829,7 @@ public class LevelConstructorXMLParser
 					}
 					else
 					{
-						System.err.println("PASS GROUP: ERROR: unknown starting element: " + elementName);
+						System.out.println("PASS GROUP: ERROR: unknown starting element: " + elementName);
 					}
 				}
 
@@ -1503,7 +1852,7 @@ public class LevelConstructorXMLParser
 					}
 					else
 					{
-						System.err.println("PASS GROUP: ERROR: unknown ending element: " + endElementName);
+						System.out.println("PASS GROUP: ERROR: unknown ending element: " + endElementName);
 					}
 				}
 			}
@@ -1519,10 +1868,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: pass group reader reached end of document");
+		System.out.println("LEVEL READER ERROR: pass group reader reached end of document");
 	}
 	
 	private void setFailGroup(Condition condition)
@@ -1587,7 +1936,7 @@ public class LevelConstructorXMLParser
 					}
 					else
 					{
-						System.err.println("FAIL GROUP: ERROR: unknown starting element: " + elementName);
+						System.out.println("FAIL GROUP: ERROR: unknown starting element: " + elementName);
 					}
 				}
 
@@ -1610,7 +1959,7 @@ public class LevelConstructorXMLParser
 					}
 					else
 					{
-						System.err.println("FAIL GROUP: ERROR: unknown ending element: " + endElementName);
+						System.out.println("FAIL GROUP: ERROR: unknown ending element: " + endElementName);
 					}
 				}
 			}
@@ -1626,10 +1975,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: fail group reader reached end of document");
+		System.out.println("LEVEL READER ERROR: fail group reader reached end of document");
 	}
 	
 	private List<Action> readActions()
@@ -1718,7 +2067,7 @@ public class LevelConstructorXMLParser
 										
 										if(target == Level.SCENARIO_ID)
 										{
-											System.err.println("LEVEL READER ERROR: specified non scenario ID manually");
+											System.out.println("LEVEL READER ERROR: specified non scenario ID manually");
 										}
 										
 										action.setActionTarget(target);
@@ -1726,7 +2075,7 @@ public class LevelConstructorXMLParser
 								}
 								catch (NumberFormatException e)
 								{
-									System.err.println("EXIT: ERROR: non-int value as target ID attribute");
+									System.out.println("EXIT: ERROR: non-int value as target ID attribute");
 								}
 							}
 							
@@ -1784,10 +2133,10 @@ public class LevelConstructorXMLParser
 		//if an error occurs, print the stack trace
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(System.out);
 		}
 
-		System.err.println("LEVEL READER ERROR: actions reader reached end of document");
+		System.out.println("LEVEL READER ERROR: actions reader reached end of document");
 		return actions;
 	}
 	
@@ -1812,8 +2161,8 @@ public class LevelConstructorXMLParser
 			event = eventReader.nextEvent();
 		} catch (XMLStreamException e)
 		{
-			System.err.println("LEVEL READER ERROR: could not get starting element name");
-			e.printStackTrace();
+			System.out.println("LEVEL READER ERROR: could not get starting element name");
+			e.printStackTrace(System.out);
 		}
 		
 		return startElementName;
@@ -1829,22 +2178,26 @@ public class LevelConstructorXMLParser
 		String eventData = null;
 		try
 		{
-			eventData = event.asCharacters().getData();
+			if(event.isEndElement())
+				return eventData;
+			
+			if(!event.asCharacters().isIgnorableWhiteSpace())
+				eventData = event.asCharacters().getData();
 		}
 		catch (ClassCastException e)
 		{
-			System.err.println("LEVEL READER ERROR: Could not cast event to character data");
-			//e.printStackTrace();
-			System.err.println(e.toString());
+			System.out.println("LEVEL READER ERROR: Could not cast event to character data");
+			//e.printStackTrace(System.out);
+			System.out.println(e.toString());
 		}
 		
-		return eventData;
+		return eventData.trim();
 	}
 
 	private void printXMLStreamException(Exception e)
 	{
-		System.err.println("LEVEL READER ERROR: Stream Exception: Possible document error");
-		e.printStackTrace();
+		System.out.println("LEVEL READER ERROR: Stream Exception: Possible document error");
+		e.printStackTrace(System.out);
 	}
 	
 	private void debugLog(String str)
