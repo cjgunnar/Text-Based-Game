@@ -55,7 +55,10 @@ public class EndState
 		
 		//TODO stop input from player, show EXIT button
 		System.out.println("END STATE: triggered!");
-		_game.Output("GAME OVER");
+		_game.Output("");
+		_game.Output("THE END");
+		
+		_game.EndGame();
 	}
 	
 	/**
