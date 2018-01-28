@@ -32,6 +32,13 @@ public class Game
 		
 		//output prolog
 		Output(level.getProlog());
+		
+		
+	}
+	
+	public void EndGame()
+	{
+		frame.EndGameScreen();
 	}
 	
 	/** 

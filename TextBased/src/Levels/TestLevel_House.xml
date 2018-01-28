@@ -34,16 +34,14 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 						<property_name>current-room</property_name>
 						<target>scenario</target>
 						<type>=</type>
-						<value>2</value>
+						<value>1</value>
 						<pass> <!-- in hallway -->
 							<actions>
-								<action type="out">You are in the hallway trying to sleep</action>
-								<action type="property_change" property_name="time" target="scenario">11</action>
+								<action type="trigger-ending">1</action>
 							</actions>
 						</pass>
 						<fail> <!-- not in hallway -->
 							<actions>
-								<action type="out">You are not in the hallway and executed sleep</action>
 								<action type="trigger-ending">2</action>
 							</actions>							
 						</fail>
@@ -58,12 +56,14 @@ nightstand, the light streaming in from the window, and the glowing-red santa ni
 		<end-state id="1"> 
 			<trigger type="property" property_name="time" target="scenario" operator=">">10</trigger>
 			<actions>
-				<action type="out">Well, that's all folks</action>
+				<action type="out">You decide that your life long dream to see Santa is too much work</action>
+				<action type="out">So you go back to sleep</action>
 			</actions>
 		</end-state>
 		<end-state id="2">
 			<actions>
-				<action type="out">It always has to be done the manual way</action>
+				<action type="out">You carefully retrace your steps back up to your bedroom and crawl into bed</action>
+				<action type="out">You are asleep before your head hits the pillow</action>
 			</actions>
 		</end-state>
 	</end-states>
@@ -1077,17 +1077,11 @@ A stairwell descends to the main level. In the darkness, you can make out cards 
 	<room id="4">
 		<name>Basement</name>
 		<description>You hate going down to the basement, especially when it is this freezing</description>
-		
 		<aliases>
 			<alias>downstairs</alias>
 		</aliases>
-		
-		<objects>
-		
-		</objects>
-		
 		<exits>
-		
+
 		</exits>
 	</room>
  

@@ -15,12 +15,20 @@ public class Runner
 	
 	public static void main(String[] args)
 	{
+		PlayFromLevelSelector();
+	}
+	
+	/**
+	 * Opens the level selection window, then plays the level the use selects
+	 */
+	public static void PlayFromLevelSelector()
+	{
 		//display the level selector
 		CreateLevelSelectionWindow();
 	}
 	
 	/**
-	 * 
+	 * Performs neccesary operations to create level and play game
 	 * @param levelPath
 	 */
 	public static void PlayLevel(String levelPath)
@@ -35,12 +43,19 @@ public class Runner
 		game.Start();
 	}
 	
+	/** Opens a level selection window */
 	private static void CreateLevelSelectionWindow()
 	{
 		LevelSelectionWindow levelSelect = new LevelSelectionWindow();
 		levelSelect.setVisible(true);
 	}
 	
+	/**
+	 * Creates level from levelFile, then assigns it to game
+	 * @param levelFile The name of the XML file in src/Levels/
+	 * @param game The game to set the created level reference to
+	 * @return the created level (unused)
+	 */
 	public static Level LoadLevel(String levelFile, Game game)
 	{
 		boolean debugMode = promptEnableDebugMode();
@@ -59,6 +74,10 @@ public class Runner
     	return level;
 	}
 	
+	/**
+	 * Shows a Option Dialog about wheter to enable debug mode or not
+	 * @return True if debug mode, false if no debug mode
+	 */
 	public static boolean promptEnableDebugMode()
 	{
 		int result = JOptionPane.showOptionDialog(null, "Enable Debug-Mode?", "Debug Mode", 

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
+import java.awt.event.ActionListener;
 //import java.awt.event.KeyEvent;
 //import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-//import javax.swing.JButton;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 //import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,6 +33,9 @@ public class GameFrame extends JFrame
 	private JTextArea logText;
 	private JScrollPane logScroll;
 	private JTextArea errText;
+	
+	private JPanel endGamePanel;
+	private JPanel outerInputPanel;
 	
 	private Game game;
 	
@@ -137,6 +140,10 @@ public class GameFrame extends JFrame
 		//input panel contains the textbox and error message
 		//outerInputPanel is used so inputPanel's components don't stretch with the window
 
+		//outerInputPanel is nested inside another panel called bottomPanel
+		//bottomPanel contains the game over options, and replaces the outerInputPanel
+		//when the game ends
+		
 		//error text
 		errText = new JTextArea(1, 10);
 		errText.setBackground(Color.black);
@@ -183,7 +190,44 @@ public class GameFrame extends JFrame
 		//panels and nested panels (see above)
 		JPanel panel = new JPanel();
 		JPanel inputPanel = new JPanel();
-		JPanel outerInputPanel = new JPanel(new BorderLayout());
+		outerInputPanel = new JPanel(new BorderLayout());
+		
+		//End of Game Panel
+		endGamePanel = new JPanel();
+		JButton restartGame = new JButton("Replay");
+		restartGame.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Runner.PlayFromLevelSelector();
+				
+				//close current game
+				dispose();
+			}
+		});
+		
+		restartGame.setPreferredSize(new Dimension(600, 100));
+		restartGame.setMinimumSize(new Dimension(100, 100));
+		JButton exitGame = new JButton("Exit");
+		exitGame.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				dispose();
+			}
+		});
+		exitGame.setPreferredSize(new Dimension(600, 100));
+		exitGame.setMinimumSize(new Dimension(100, 100));
+		endGamePanel.add(restartGame);
+		endGamePanel.add(exitGame);
+		endGamePanel.setVisible(false);
+		endGamePanel.setBackground(Color.black);
+		
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		bottomPanel.add(outerInputPanel, BorderLayout.CENTER);
+		bottomPanel.add(endGamePanel, BorderLayout.SOUTH);
 		
 		panel.setLayout(new BorderLayout());
 		inputPanel.setLayout(new BorderLayout());
@@ -196,10 +240,16 @@ public class GameFrame extends JFrame
 		panel.add(logScroll, BorderLayout.CENTER);
 		panel.setBackground(Color.black);
 		
-		panel.add(outerInputPanel, BorderLayout.SOUTH);
-		
+		panel.add(bottomPanel, BorderLayout.SOUTH);
+	
 		//finally add the main panel
 		add(panel);
-		setBackground(Color.black);
 	}
+	
+	public void EndGameScreen()
+	{
+		endGamePanel.setVisible(true);
+		outerInputPanel.setVisible(false);
+	}
+	
 }
