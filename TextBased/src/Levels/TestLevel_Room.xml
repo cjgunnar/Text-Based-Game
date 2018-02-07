@@ -1,36 +1,196 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level>
 
-	<room id="1">
-		<name>Classroom</name>
-		<description>Mr. Wespetal's class</description>
+	<prolog>Oh my you are cramped. You try to sit up, and your head spins. When your eyes adjust, you see that you are in a small dark room. Where's the lightswitch?</prolog>
+
+	<scenario>
+		<properties>
+			<property name="floor">13</property>
+			<property name="complete">0</property>
+		</properties>
+		
+		<!-- global commands -->
+		<!-- 
+		<requests>
+			<request>
+				<input type="exact"></input>
+				<conditions>
+					<condition>
+						
+					</condition>
+				</conditions>
+			</request>
+		</requests>
+		 -->
+		 
+	</scenario>
+
+	<room id="1">  <!-- starting room, broom closet -->
+		<name>Closet</name>
+		<description>The cramped broom closet</description>
 		<aliases>
-			<alias>Classroom</alias>
-			<alias>The class</alias>
+			<alias>broom closet</alias>
+			<alias>storage closet</alias>
+			<alias>small closet</alias>
 		</aliases>
 		<objects>
 			<simple_object>
-				<name>Teacher's Desk</name>
-				<description>Mr. Wespetal's desk has his computer, a phone, a chromebook, and math textbooks on his desk.</description>
+				<name>lightswitch</name>
+				<description>The lightswitch is off, and the room is dark</description>
 				<aliases>
-					<alias>Teacher Desk</alias>
-					<alias>Mr. Wespetal's Desk</alias>
+					<alias>light switch</alias>
+					<alias>lights</alias>
+					<alias>light</alias>
+					<alias>lights switch</alias>
+				</aliases>
+				<properties>
+					<property name="on">0</property>
+				</properties>
+				<requests>
+					<request>
+						<input type="exact">turn on lights</input>
+						<input type="verb">hit</input>
+						<input type="verb">flick</input>
+						<input type="verb">flip</input>
+						<input type="verb">attack</input> <!-- recongizes hit -->
+						<input type="verb">use</input>
+						<conditions>
+							<condition>
+								<property_name>on</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- the lights are off -->
+									<actions>
+										<action type="out">You flick the lights on, illuminatining the room</action>
+										<action type="out">You can tell you are in a broom closet, namely because there is a broom sitting in the corner</action>
+										<action type="out">You also see a shelf with some cleaning supplies, and of course the door out of here</action>
+										<action type="property_change" property_name="on">1</action>
+									</actions>
+								</pass>
+								<fail> <!-- the lights are on -->
+									<actions>
+										<action type="out">The lights are already on, and there is no reason to turn them off</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+					<request>
+						<input type="verb">search</input>
+						<input type="verb">find</input>
+						<input type="exact">look for lights</input>
+						<conditions>
+							<condition>
+								<property_name>on</property_name>
+								<type>=</type>
+								<value>0</value>
+								<pass> <!-- the lights are off -->
+									<actions>
+										<action type="out">You feel along the wall for the switch</action>
+										<action type="out">Aha! There it is. Time to get some light in here</action>
+									</actions>
+								</pass>
+								<fail> <!-- the lights are on -->
+									<actions>
+										<action type="out">The lights are already on, and there is no reason to turn them off</action>
+									</actions>
+								</fail>
+							</condition>
+						</conditions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object>
+				<name>Broom</name>
+				<description>The broom rests against some shelves</description>
+				<aliases>
+					<alias>bed</alias>
+					<alias>my bed</alias>
 				</aliases>
 				<requests>
 					<request>
-						<input type="verb">sit at</input>
+						<input type="verb">examine</input>
 						<actions>
-							<action type="out">You take a seat at Wespetal's desk</action>
-						
+							<action type="out:description">null</action>
 						</actions>
 					</request>
-				
+					<request>
+						<input type="verb">take</input>
+						<actions>
+							<action type="out">You don't need a broom</action>
+						</actions>
+					</request>
 				</requests>
 			</simple_object>
-		
-		
+			<simple_object>
+				<name>Shelf</name>
+				<description>The shelf lays mostly empty, but it has some cleaning supplies</description>
+				<aliases>
+					<alias>shelves</alias>
+					<alias>shelving unit</alias>
+					<alias>shelf unit</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">null</action>
+						</actions>
+					</request>
+				</requests>
+			</simple_object>
+			<simple_object>
+				<name>Cleaning supplies</name>
+				<description>Misc cleaning supplies are on the shelf. Not much use</description>
+				<aliases>
+					<alias>supplies</alias>
+					<alias>cleaning stuff</alias>
+					<alias>things on shelf</alias>
+					<alias>bleach</alias>
+				</aliases>
+				<requests>
+					<request>
+						<input type="verb">examine</input>
+						<actions>
+							<action type="out:description">null</action>
+						</actions>
+					</request>
+					<request>
+						<input type="verb">take</input>
+						<actions>
+							<action type="out">You don't know why you would need these cleaning supplies</action>
+						</actions>
+					</request>
+				</requests>
+			</simple_object>
 		</objects>
+		<exits>
+			<exit>
+				<name>door</name>
+				<description>The door leading out of the broom closet is appropiately sized, that is, small</description>
+				<aliases>
+					<alias>door out of the closet</alias>
+					<alais>closet door</alais>
+				</aliases>
+				<entranceTo>2</entranceTo> <!-- floor 13 hallway -->
+				<requests>
+					<request>
+						<input type="verb">use</input>
+						<input type="verb">enter</input>
+						<actions>
+							<action type="out">You feel better, and it is time to get out of this closet and look around</action>
+							<action type="exit:change_room">null</action>
+						</actions>
+					</request>
+				</requests>
+			</exit>
+		</exits>
+	</room>
 	
+	<room id="2"> <!-- Floor 13 hallway -->
+		<name>Floor 13 Hallway</name>
+		<description>The hallway seems typical of an office building. How in the world did you end up here?</description>
+		
 	</room>
 
 </level>
