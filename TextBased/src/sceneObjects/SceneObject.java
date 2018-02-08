@@ -124,6 +124,12 @@ public interface SceneObject
 	public abstract void addAlias(String alias);
 
 	/**
+	 * Removes an alias from the object
+	 * @param alias The alias to remove
+	 */
+	public abstract void removeAlias(String alias);
+	
+	/**
 	 * used by XML parser
 	 * @param request request to add
 	 */

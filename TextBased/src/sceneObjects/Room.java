@@ -446,6 +446,12 @@ public class Room implements SceneObject
 	}
 
 	@Override
+	public void removeAlias(String alias)
+	{
+		aliases.remove(alias);
+	}
+	
+	@Override
 	public void addRequest(Request request)
 	{
 		// TODO Auto-generated method stub

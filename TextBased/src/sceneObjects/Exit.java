@@ -374,6 +374,12 @@ public class Exit implements SceneObject
 	}
 
 	@Override
+	public void removeAlias(String alias)
+	{
+		aliases.remove(alias);
+	}
+	
+	@Override
 	public void addRequest(Request request)
 	{
 		requests.add(request);

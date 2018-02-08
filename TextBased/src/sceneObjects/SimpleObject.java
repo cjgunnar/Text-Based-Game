@@ -282,6 +282,12 @@ public class SimpleObject implements SceneObject
 		//System.out.println("Simple object: adding alias of " + alias);
 	}
 
+	@Override
+	public void removeAlias(String alias)
+	{
+		aliases.remove(alias);
+	}
+	
 	public void addRequest(Request request)
 	{
 		requests.add(request);
@@ -293,7 +299,7 @@ public class SimpleObject implements SceneObject
 	@Override
 	public String toString()
 	{
-		return name;
+		return name + "#" + ID;
 		
 		/*
 		final int MAX_DESCRIPTION_LENGTH = 10;
