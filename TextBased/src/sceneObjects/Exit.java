@@ -12,7 +12,7 @@ import gamelogic.Request;
  * @author cjgunnar
  *
  */
-public class Exit implements SceneObject
+public class Exit extends SimpleObject
 {
 	//name and description of the object
 	String name;
@@ -278,6 +278,12 @@ public class Exit implements SceneObject
 	public void addProperty(String propName)
 	{
 		addProperty(propName, SceneObject.defaultValue);
+	}
+	
+	@Override
+	public void removeProperty(String propName)
+	{
+		properties.remove(propName);
 	}
 	
 	//exit related methods

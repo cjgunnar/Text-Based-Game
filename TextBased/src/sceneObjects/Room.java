@@ -2,6 +2,7 @@ package sceneObjects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gamelogic.Command;
 import gamelogic.Game;
@@ -9,7 +10,7 @@ import gamelogic.Request;
 
 //Caden Gunnarson
 
-public class Room implements SceneObject
+public class Room extends SimpleObject
 {
 	//name used to identify it
 	String name;
@@ -143,6 +144,18 @@ public class Room implements SceneObject
 	public void addProperty(String propName)
 	{
 		addProperty(propName, SceneObject.defaultValue);
+	}
+	
+	@Override
+	public void removeProperty(String propName)
+	{
+		properties.remove(propName);
+	}
+	
+	@Override
+	public Map<String, Integer> getProperties()
+	{
+		return this.properties;
 	}
 	
 	//initialize exits

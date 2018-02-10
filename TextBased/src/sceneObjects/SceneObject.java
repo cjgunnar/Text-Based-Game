@@ -1,4 +1,6 @@
 package sceneObjects;
+import java.util.Map;
+
 import gamelogic.Command;
 import gamelogic.Game;
 import gamelogic.Request;
@@ -53,6 +55,18 @@ public interface SceneObject
 	 * @return
 	 */
 	public abstract boolean checkProperty(String propName, String operator, int value);
+	
+	/**
+	 * Removes a property from the SceneObject
+	 * @param propName Name of the property to remove
+	 */
+	public abstract void removeProperty(String propName);
+	
+	/**
+	 * return a Map of the properties name, value pairs
+	 * @return Map of name, value
+	 */
+	public abstract Map<String, Integer> getProperties();
 	
 	//commands
 	/**

@@ -39,6 +39,9 @@ public class RoomSelectorPanel extends JPanel
 		
 		selectedRoomInfo = new RoomPanel();
 		
+		//USED AS COMPONENT FOR CENTERING OPTION BOXES
+		JPanel thisPanel = this;
+		
 		//DELETE BUTTON
 		JButton delRoom = new JButton("Delete Room");
 		delRoom.setEnabled(false);
@@ -82,7 +85,7 @@ public class RoomSelectorPanel extends JPanel
 				
 				Object[] message = {"Room Name: ", roomName, "Description: ", roomDescription};
 				
-				int option = JOptionPane.showConfirmDialog(null, message, "Create New Room", JOptionPane.OK_CANCEL_OPTION);
+				int option = JOptionPane.showConfirmDialog(thisPanel, message, "Create New Room", JOptionPane.OK_CANCEL_OPTION);
 				
 				if(option == JOptionPane.OK_OPTION)
 				{

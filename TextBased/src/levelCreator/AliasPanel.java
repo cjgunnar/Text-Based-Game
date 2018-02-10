@@ -8,6 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import sceneObjects.SceneObject;
 
@@ -21,23 +23,17 @@ class AliasPanel extends JPanel
 {
 	SceneObject owner;
 	
-	public AliasPanel(SceneObject owner)
+	DefaultListModel<String> aliasesList;
+	
+	public AliasPanel()
 	{
-		this.owner = owner;
 		CreateComponents();
 	}
 	
 	private void CreateComponents()
 	{
-		DefaultListModel<String> aliasesList = new DefaultListModel<String>();
+		aliasesList = new DefaultListModel<String>();
 		JList<String> aliasesListUI = new JList<String>(aliasesList);
-		
-		/*
-		for(int i = 0; i < owner.getAliases().length; i++)
-		{
-			aliasesList.addElement(owner.getAliases()[i]);
-		}
-		*/
 		
 		JTextField newAlias = new JTextField(20);
 		JButton addButton = new JButton("Add");
@@ -61,6 +57,7 @@ class AliasPanel extends JPanel
 		});
 		
 		JButton delButton = new JButton("Delete");
+		delButton.setEnabled(false);
 		delButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -81,9 +78,41 @@ class AliasPanel extends JPanel
 			}
 		});
 		
+		//disable/enable delte button depending on if something is selected
+		aliasesListUI.addListSelectionListener(new ListSelectionListener()
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent event)
+			{
+				if(aliasesListUI.getSelectedIndex() != -1) //nothing selected
+					delButton.setEnabled(true); //disable button
+				else
+					delButton.setEnabled(false); //enable button
+			}	
+		});
+		
 		this.add(aliasesListUI);
 		this.add(newAlias);
 		this.add(addButton);
 		this.add(delButton);
+	}
+	
+	public void setOwner(SceneObject owner)
+	{
+		clear();
+		
+		this.owner = owner;
+		
+		for(String alias : owner.getAliases())
+		{
+			aliasesList.addElement(alias);
+		}
+	}
+	
+	public void clear()
+	{
+		if(aliasesList == null)
+			System.out.println("error");
+		aliasesList.clear();
 	}
 }

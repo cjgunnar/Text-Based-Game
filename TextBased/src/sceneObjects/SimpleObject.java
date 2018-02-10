@@ -2,6 +2,7 @@ package sceneObjects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gamelogic.Command;
 import gamelogic.Game;
@@ -221,6 +222,12 @@ public class SimpleObject implements SceneObject
 		addProperty(propName, SceneObject.defaultValue);
 	}
 	
+	@Override
+	public void removeProperty(String propName)
+	{
+		properties.remove(propName);
+	}
+	
 	//non-property getters and setters
 	@Override
 	public int getID()
@@ -314,5 +321,13 @@ public class SimpleObject implements SceneObject
 		+ aliases.toString() + ", requests=" + requests + ", properties=" + properties.toString() + "]";
 		*/
 	}
+
+	@Override
+	public Map<String, Integer> getProperties()
+	{
+		return this.properties;
+	}
+
+
 
 }

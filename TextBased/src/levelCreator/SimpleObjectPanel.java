@@ -29,6 +29,11 @@ public class SimpleObjectPanel extends JPanel
 	/** Contains ID, name, and description */
 	JPanel basicProperties;
 	
+	/** Contains properties of the object we are editing, tabbed */
+	PropertiesPanel propertyPanel;
+	
+	AliasPanel aliasPanel;
+	
 	/** Creates a panel used to display/edit information about a SceneObject */
 	public SimpleObjectPanel()
 	{
@@ -48,8 +53,12 @@ public class SimpleObjectPanel extends JPanel
 		
 		//Tabs for object
 		objectOptions = new JTabbedPane();
-		objectOptions.addTab("Properties", null, new PropertiesPanel(currentObject), "Open Object Properties");
-		objectOptions.addTab("Alias", null, new AliasPanel(currentObject), "Open Object Alias");
+		
+		propertyPanel = new PropertiesPanel();
+		objectOptions.addTab("Properties", null, propertyPanel, "Open Object Properties");
+		
+		aliasPanel = new AliasPanel();
+		objectOptions.addTab("Alias", null, aliasPanel, "Open Object Alias");
 		objectOptions.addTab("Requests", null, new JPanel(), "Open Object Requests");
 		
 		basicProperties = new JPanel();
@@ -77,6 +86,9 @@ public class SimpleObjectPanel extends JPanel
 		name.setText(object.getName());
 		description.setText(object.getDescription());
 		
+		propertyPanel.setOwner(object);
+		aliasPanel.setOwner(object);
+		
 		//hide when not in use, reopen here
 		objectOptions.setVisible(true);
 		basicProperties.setVisible(true);
@@ -90,6 +102,9 @@ public class SimpleObjectPanel extends JPanel
 		id.setText("ID");
 		name.setText("Name");
 		description.setText("Description");
+		
+		propertyPanel.clear();
+		aliasPanel.clear();
 		
 		//hide when not in use
 		objectOptions.setVisible(false);

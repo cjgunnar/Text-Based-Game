@@ -11,26 +11,44 @@ import javax.swing.JTextField;
 
 import sceneObjects.Room;
 
+/**
+ * Displays and allows editing of a room
+ * @author cjgunnar
+ */
 @SuppressWarnings("serial")
 public class RoomPanel extends JPanel
 {
+	/** Field to view ID */
 	JTextField id;
+	
+	/** Field to view/edit na,e */
 	JTextField name;
+	
+	/** Field to view/edit description */
 	JTextArea description;
 	
+	/** TabbedPane with the options of the room (properties, aliases, objects) */
 	JTabbedPane roomOptions;
 	
-	Room selectedRoom;
-	
+	/** Contains id, name, description for formatting view */
 	JPanel basicProperties;
 	
+	/** Tab that allows selection of objects */
 	ObjectSelectorPanel objectSelector;
 	
+	/** Tab that allows viewing/editing properties */
+	PropertiesPanel propertiesPanel;
+	
+	/** Tab that allows viewing/editing aliases */
+	AliasPanel aliasPanel;
+	
+	/** Create a new RoomPanel */
 	public RoomPanel()
 	{
 		CreateComponents();
 	}
 	
+	/** Create neccessary components */
 	private void CreateComponents()
 	{
 		id = new JTextField(5);
@@ -52,8 +70,12 @@ public class RoomPanel extends JPanel
 		description = new JTextArea(2, 20);
 		
 		roomOptions = new JTabbedPane();
-		roomOptions.addTab("Properties", null, new PropertiesPanel(selectedRoom), "Open Room Properties Panel");
-		roomOptions.addTab("Aliases", null, new AliasPanel(selectedRoom), "Open Room Alias Panel");
+		
+		propertiesPanel = new PropertiesPanel();
+		roomOptions.addTab("Properties", null, propertiesPanel, "Open Room Properties Panel");
+		
+		aliasPanel = new AliasPanel();
+		roomOptions.addTab("Aliases", null, aliasPanel, "Open Room Alias Panel");
 		
 		objectSelector = new ObjectSelectorPanel();
 		roomOptions.addTab("Objects", null, objectSelector, "Open Room Objects Panel");
@@ -73,6 +95,10 @@ public class RoomPanel extends JPanel
 		clear();
 	}
 	
+	/**
+	 * Set the room to display
+	 * @param room Room to display
+	 */
 	public void setSelectedRoom(Room room)
 	{
 		//selectedRoom = room;
@@ -82,11 +108,14 @@ public class RoomPanel extends JPanel
 		description.setText(room.getDescription());
 		
 		objectSelector.setSelectedRoom(room);
+		propertiesPanel.setOwner(room);
+		aliasPanel.setOwner(room);
 		
 		basicProperties.setVisible(true);
 		roomOptions.setVisible(true);
 	}
 	
+	/** Clear the currently selected room */
 	public void clear()
 	{
 		id.setText("ID");
@@ -94,6 +123,8 @@ public class RoomPanel extends JPanel
 		description.setText("Description");
 		
 		objectSelector.clear();
+		propertiesPanel.clear();
+		aliasPanel.clear();
 		
 		basicProperties.setVisible(false);
 		roomOptions.setVisible(false);
