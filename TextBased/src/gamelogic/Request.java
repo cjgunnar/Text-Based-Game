@@ -114,6 +114,24 @@ public class Request
 	}
 
 	/**
+	 * Returns the list of verbs this request will activate to
+	 * @return The List of verbs
+	 */
+	public List<String> getVerbs()
+	{
+		return verbs;
+	}
+	
+	/**
+	 * Returns the list of exact phrases this request will activate to
+	 * @return the List of exact phrases
+	 */
+	public List<String> getExacts()
+	{
+		return exacts;
+	}
+	
+	/**
 	 * @param verb the verb to add to the list
 	 */
 	public void addVerb(String verb)

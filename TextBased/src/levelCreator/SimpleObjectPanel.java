@@ -59,7 +59,7 @@ public class SimpleObjectPanel extends JPanel
 		
 		aliasPanel = new AliasPanel();
 		objectOptions.addTab("Alias", null, aliasPanel, "Open Object Alias");
-		objectOptions.addTab("Requests", null, new JPanel(), "Open Object Requests");
+		objectOptions.addTab("Requests", null, new RequestSelectorPanel(), "Open Object Requests");
 		
 		basicProperties = new JPanel();
 		basicProperties.add(id);

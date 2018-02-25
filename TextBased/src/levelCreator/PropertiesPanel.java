@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,7 +20,7 @@ import sceneObjects.SceneObject;
 
 /**
  * Allows properties to be edited, has an owner which it sets
- * @author Caden
+ * @author cjgunnar
  *
  */
 @SuppressWarnings("serial")
@@ -32,7 +33,6 @@ class PropertiesPanel extends JPanel
 	
 	/**
 	 * Creates a new panel, responsbile for owner
-	 * @param owner SceneObject to add/remove/update properties
 	 */
 	public PropertiesPanel()
 	{
@@ -144,9 +144,14 @@ class PropertiesPanel extends JPanel
 				}
 			}
 		});
-				
-		this.add(addButton);
-		this.add(delButton);
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(addButton);
+		buttonPanel.add(delButton);
+		
+		this.add(buttonPanel);
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 	
 	public void setOwner(SceneObject owner)
