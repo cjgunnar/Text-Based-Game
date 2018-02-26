@@ -1,13 +1,14 @@
 package gamelogic;
 
+import java.util.List;
+
 import sceneObjects.Exit;
 import sceneObjects.SceneObject;
 
 //actions do things
 
-public class Action
+public class Action implements Executable
 {
-	//types of actions
 	/**
 	 * An action of type out displays its value to the log, basically sends text
 	 */
@@ -41,7 +42,7 @@ public class Action
 	
 	private Game _game;
 	
-	public void runAction()
+	public void run()
 	{
 		//run action...
 		//use game reference or parent reference to do that
@@ -141,7 +142,7 @@ public class Action
 			System.err.println("ACTION: ERROR: no target object found with ID: " + actionTarget);
 	}
 	
-	public void setParentSceneObject(SceneObject parentObject)
+	public void setParentObject(SceneObject parentObject)
 	{
 		this.parentObject = parentObject;
 	}
@@ -230,6 +231,26 @@ public class Action
 	public void setPropertyName(String propertyName)
 	{
 		this.propertyName = propertyName;
+	}
+
+	@Override
+	public void addExecutable(Executable executable)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public List<Executable> getExecutables()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean getSuccess()
+	{
+		//actions run unconditionally
+		return true;
 	}
 	
 }

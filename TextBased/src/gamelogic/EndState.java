@@ -11,11 +11,8 @@ public class EndState
 	/** List of triggers that can activate this end state */
 	ArrayList<EndStateTrigger> triggers = new ArrayList<EndStateTrigger>();
 	
-	/** Conditions to run when game over */
-	ArrayList<Condition> conditions = new ArrayList<Condition>();
-	
-	/** Actions to run when game over */
-	ArrayList<Action> actions = new ArrayList<Action>();
+	/** Executables to run when game over */
+	ArrayList<Executable> executables = new ArrayList<Executable>();
 	
 	/** Allow communication with game logic to end game */
 	Game _game;
@@ -41,19 +38,12 @@ public class EndState
 	/** runs actions, then conditions under it and brings up game over screen */
 	public void TriggerEndState()
 	{
-		//run all default actions
-		for(Action action: actions)
+		//run all executables actions
+		for(Executable executable: executables)
 		{
-			action.runAction();
+			executable.run();
 		}
 		
-		//run conditions
-		for(Condition condition: conditions)
-		{
-			condition.runCondition();
-		}
-		
-		//TODO stop input from player, show EXIT button
 		System.out.println("END STATE: triggered!");
 		_game.Output("");
 		_game.Output("THE END");
@@ -72,14 +62,9 @@ public class EndState
 			trigger.set_game(game);
 		}
 		
-		for(Action action: actions)
+		for(Executable executable: executables)
 		{
-			action.setGame(game);
-		}
-		
-		for(Condition condition: conditions)
-		{
-			condition.setGame(game);
+			executable.setGame(game);
 		}
 	}
 	
@@ -93,21 +78,12 @@ public class EndState
 	}
 	
 	/**
-	 * Adds action to this ending to be executed automatically
-	 * @param action The Action to add
+	 * Adds executable to this ending to be executed
+	 * @param executable The executable to add
 	 */
-	public void addAction(Action action)
+	public void addExecutable(Executable executable)
 	{
-		actions.add(action);
-	}
-	
-	/**
-	 * Adds condition to be added to this ending
-	 * @param condition The Condition to add
-	 */
-	public void addCondition(Condition condition)
-	{
-		conditions.add(condition);
+		executables.add(executable);
 	}
 	
 	public int getID()

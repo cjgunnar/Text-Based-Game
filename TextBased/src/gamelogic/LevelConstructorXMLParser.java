@@ -21,23 +21,13 @@ import sceneObjects.Room;
 import sceneObjects.SceneObject;
 import sceneObjects.SimpleObject;
 
-//@SuppressWarnings("unused")
 /**
  * Creates the rooms and objects by reading the XML File
- * @author Caden
+ * @author cjgunnar
  *
  */
 public class LevelConstructorXMLParser
 {
-	/*
-    static final String DATE = "date";
-    static final String ITEM = "item";
-    static final String MODE = "mode";
-    static final String UNIT = "unit";
-    static final String CURRENT = "current";
-    static final String INTERACTIVE = "interactive";
-	 */
-
 	static final String LEVEL = "level";
 	static final String PROLOG = "prolog";
 	static final String SCENARIO = "scenario";
@@ -67,13 +57,17 @@ public class LevelConstructorXMLParser
 	static final String REQUESTS = "requests";
 	static final String REQUEST = "request";
 	
-	static final String CONDITIONS = "conditions";
+	static final String EXECUTABLES = "executables";
+	
+	static final String EXECUTABLE_GROUP = "executable_group";
+	static final String MAX_EXECUTED = "max_executed";
+	
 	static final String CONDITION = "condition";
 	static final String PASS = "pass";
 	static final String FAIL = "fail";
 	static final String VALUE = "value";
 	
-	static final String ACTIONS = "actions";
+	//static final String ACTIONS = "actions";
 	static final String ACTION = "action";
 	
 	static final String INPUT = "input";
@@ -88,7 +82,7 @@ public class LevelConstructorXMLParser
 	static final String VERB = "verb";
 	static final String EXACT = "exact";
 	
-	boolean debugMode = true;
+	static boolean debugMode = true;
 	
 	String levelFile;
 
@@ -98,11 +92,6 @@ public class LevelConstructorXMLParser
 	//the current event the iterator is on
 	//placed here so helper methods have access
 	XMLEvent event;
-
-	public LevelConstructorXMLParser(boolean debugMode)
-	{
-		this.debugMode = debugMode;
-	}
 	
 	/**
 	 * From XML file, returns a Level object that can be played
@@ -618,7 +607,7 @@ public class LevelConstructorXMLParser
 								int target;
 								
 								//if the target property is global/in scenario
-								if(attributeValue.equalsIgnoreCase(SCENARIO) || attributeValue.equalsIgnoreCase("GLOBAL")) //TODO update at all target Scenario checks
+								if(attributeValue.equalsIgnoreCase(SCENARIO) || attributeValue.equalsIgnoreCase("GLOBAL")) //TODO update global keyword at all target Scenario checks
 								{
 									target = Level.SCENARIO_ID;
 								}
@@ -669,26 +658,15 @@ public class LevelConstructorXMLParser
 						
 					}
 					
-					//if hits conditions list
-					else if(elementName.equals(CONDITIONS))
+					//if hits executables list
+					else if(elementName.equals(EXECUTABLES))
 					{
-						//read conditions
-						List<Condition> conditions = readConditions();
+						//read executables
+						List<Executable> executables = readExecutables();
 						
-						//add conditions
-						for(Condition condition: conditions)
-							endState.addCondition(condition);
-					}
-					
-					//if it hits actions list
-					else if(elementName.equals(ACTIONS))
-					{
-						//read actions
-						List<Action> actions = readActions();
-						
-						//add actions
-						for(Action action: actions)
-							endState.addAction(action);
+						//add executables
+						for(Executable executable: executables)
+							endState.addExecutable(executable);
 					}
 					
 					else
@@ -1223,17 +1201,16 @@ public class LevelConstructorXMLParser
 						//go to next iteration
 						continue;
 					}
-					else if(elementName.equals(ACTIONS))
+					else if(elementName.equals(EXECUTABLES))
 					{
-						//read actions
-						List<Action> actions = readActions();
+						//read executables
+						List<Executable> executables = readExecutables();
 						
-						debugLog("REQUEST: adding " + actions.size() + " actions to request");
+						debugLog("REQUEST: adding " + executables.size() + " top-level executables to request");
 						
-						for(Action action: actions)
+						for(Executable executable: executables)
 						{
-							//debugLog("adding action to request...");
-							request.addAction(action);
+							request.addExecutable(executable);
 						}
 					}
 					else if(elementName.equals(INPUT))
@@ -1266,19 +1243,6 @@ public class LevelConstructorXMLParser
 									request.addExact(eventData);
 								}
 							}
-						}
-						
-					}
-					
-					//list of conditions
-					else if(elementName.equals(CONDITIONS))
-					{
-						ArrayList<Condition> conditions = readConditions();
-						
-						//add the conditions to the request
-						for(Condition condition: conditions)
-						{
-							request.addCondition(condition);
 						}
 						
 					}
@@ -1629,371 +1593,16 @@ public class LevelConstructorXMLParser
 		return properties;
 	}
 	
-	private ArrayList<Condition> readConditions()
+	private ArrayList<Executable> readExecutables()
 	{
 		//Create a list of conditions that will be outputed at the end
-		ArrayList<Condition> conditions = new ArrayList<Condition>();
-		
-		debugLog("OPENING CONDITIONS");
-		
-		//inside the try block incase error occurs
-		try
-		{
-			//begin to read the XML File
-			Condition condition = new Condition();
+		ArrayList<Executable> executables = new ArrayList<Executable>();
 
-			//while the iterator eventReader has events
-			while(eventReader.hasNext())
-			{
-				//every iteration make a new event
-				event = eventReader.nextEvent();
-
-				//returns true if the event is the start of an element ex: <simple_object> or <name>
-				if(event.isStartElement())
-				{
-					//StartElement startElement = event.asStartElement();
-
-					String elementName = getStartElementName();
-
-					String eventData = getEventData();
-
-					if(eventData != null)
-						debugLog("CONDITIONS: element=" + elementName + ", value=" + eventData);
-					else
-						debugLog("CONDITIONS: element=" + elementName + ", value=null");
-					
-					//if the starting element is a condition, create a new one to reset
-					if(elementName.equals(CONDITION))
-					{
-						debugLog("CREATING NEW CONDITION");
-
-						//create a new condition to reset the current one, added to list at closing
-						condition = new Condition();
-
-						//go to next iteration
-						continue;
-					}
-					
-					//conditions have <type>, <target>, <property_name>, <value>, <pass> (group), <fail> (group)
-					
-					//type is "=", "<", ">"
-					else if(elementName.equals(TYPE))
-					{
-						condition.setOperator(eventData);
-					}
-					
-					else if(elementName.equals(TARGET))
-					{
-						if(eventData.equalsIgnoreCase(SCENARIO))
-						{
-							condition.setTarget(Level.SCENARIO_ID);
-						}
-						else
-						{
-							condition.setTarget(eventData);
-						}
-					}
-					
-					//property_name
-					else if(elementName.equals(PROPERTY_NAME))
-					{
-						condition.setProperty_name(eventData);
-					}
-					
-					else if(elementName.equals(VALUE))
-					{
-						condition.setValue(eventData);
-					}
-					
-					else if(elementName.equals(PASS))
-					{
-						setPassGroup(condition);
-					}
-					
-					else if(elementName.equals(FAIL))
-					{
-						setFailGroup(condition);
-					}
-					
-					else
-					{
-						System.out.println("CONDITIONS: ERROR: unrecongized element: " + elementName);
-					}
-					
-				}
-
-				//if it is the ending element, ex: </room> or </simple_object>
-				else if (event.isEndElement())
-				{
-					//create object of type end element
-					EndElement endElement = event.asEndElement();
-
-					//get the name of the ending element as we did before with the start element
-					String endElementName = endElement.getName().getLocalPart().toString();
-
-					//debugLog("CLOSING CONDITIONS ELEMENT: " + endElementName);
-
-					//if it is the end of this action
-					if(endElementName.equalsIgnoreCase(CONDITION))
-					{
-						conditions.add(condition);
-					}
-
-					//if it is the end of the entire list
-					else if(endElementName.equalsIgnoreCase(CONDITIONS))
-					{
-						debugLog("CONDITIONS: FINSIHED CONDITIONS LIST, len=" + conditions.size());
-
-						return conditions;
-					}
-				}
-			}
-
-
-		} 
-		//Stream exception thrown by malformed XML document
-		catch(XMLStreamException e)
-		{
-			printXMLStreamException(e);
-		}
-
-		//if an error occurs, print the stack trace
-		catch (Exception e)
-		{
-			e.printStackTrace(System.out);
-		}
-
-		System.out.println("LEVEL READER ERROR: conditions reader reached end of document");
-		return conditions;
-	}
-	
-	private void setPassGroup(Condition condition)
-	{
-		debugLog("SETTING PASS GROUP");
+		debugLog("OPENING EXECUTABLES");
 
 		//inside the try block incase error occurs
 		try
 		{
-			//while the iterator eventReader has events
-			while(eventReader.hasNext())
-			{
-				//every iteration make a new event
-				event = eventReader.nextEvent();
-
-				//returns true if the event is the start of an element ex: <simple_object> or <name>
-				if(event.isStartElement())
-				{
-					//StartElement startElement = event.asStartElement();
-
-					String elementName = getStartElementName();
-
-					String eventData = getEventData();
-
-					if(eventData != null)
-						debugLog("PASS GROUP: element=" + elementName + ", value=" + eventData);
-					else
-						debugLog("PASS GROUP: element=" + elementName + ", value=null");
-
-					if(eventData == null)
-					{
-						debugLog("no event data, using default 0");
-						eventData = SceneObject.defaultValue + "";
-					}
-
-					//if the starting element is a group of actions, add them
-					if(elementName.equals(ACTIONS))
-					{
-						debugLog("PASS GROUP: READING ACTIONS GROUP");
-
-						ArrayList<Action> actions = (ArrayList<Action>)readActions();
-						
-						//add pass actions to the conditional
-						for(Action action: actions)
-						{
-							condition.addPassAction(action);
-						}
-					}
-					
-					//if it is a nested conditions
-					else if(elementName.equals(CONDITIONS))
-					{
-						debugLog("PASS GROUP: READING NESTED CONDITIONS");
-						
-						ArrayList<Condition> conditions = readConditions();
-						
-						//add pass nested conditions to the conditional
-						for(Condition currentCondition: conditions)
-						{
-							condition.addPassNestedCondition(currentCondition);
-						}
-					}
-					else
-					{
-						System.out.println("PASS GROUP: ERROR: unknown starting element: " + elementName);
-					}
-				}
-
-				//if it is the ending element, ex: </room> or </simple_object>
-				else if (event.isEndElement())
-				{
-					//create object of type end element
-					EndElement endElement = event.asEndElement();
-
-					//get the name of the ending element as we did before with the start element
-					String endElementName = endElement.getName().getLocalPart().toString();
-
-					//if it is the end of the entire list
-					if(endElementName.equalsIgnoreCase(PASS))
-					{
-						debugLog("FINISHED SETTING PASS GROUP");
-						
-						//stop reading
-						return;
-					}
-					else
-					{
-						System.out.println("PASS GROUP: ERROR: unknown ending element: " + endElementName);
-					}
-				}
-			}
-
-
-		} 
-		//Stream exception thrown by malformed XML document
-		catch(XMLStreamException e)
-		{
-			printXMLStreamException(e);
-		}
-
-		//if an error occurs, print the stack trace
-		catch (Exception e)
-		{
-			e.printStackTrace(System.out);
-		}
-
-		System.out.println("LEVEL READER ERROR: pass group reader reached end of document");
-	}
-	
-	private void setFailGroup(Condition condition)
-	{
-		debugLog("SETTING FAIL GROUP");
-
-		//inside the try block incase error occurs
-		try
-		{
-			//while the iterator eventReader has events
-			while(eventReader.hasNext())
-			{
-				//every iteration make a new event
-				event = eventReader.nextEvent();
-
-				//returns true if the event is the start of an element ex: <simple_object> or <name>
-				if(event.isStartElement())
-				{
-					//StartElement startElement = event.asStartElement();
-
-					String elementName = getStartElementName();
-
-					String eventData = getEventData();
-
-					if(eventData != null)
-						debugLog("FAIL GROUP: element=" + elementName + ", value=" + eventData);
-					else
-						debugLog("FAIL GROUP: element=" + elementName + ", value=null");
-
-					if(eventData == null)
-					{
-						debugLog("no event data, using default 0");
-						eventData = SceneObject.defaultValue + "";
-					}
-
-					//if the starting element is a group of actions, add them
-					if(elementName.equals(ACTIONS))
-					{
-						debugLog("FAIL GROUP: READING ACTIONS GROUP");
-
-						ArrayList<Action> actions = (ArrayList<Action>)readActions();
-						
-						//add fail actions to the conditional
-						for(Action action: actions)
-						{
-							condition.addFailAction(action);
-						}
-					}
-					
-					//if it is a nested conditions
-					else if(elementName.equals(CONDITIONS))
-					{
-						debugLog("FAIL GROUP: READING NESTED CONDITIONS GROUP");
-						
-						ArrayList<Condition> conditions = readConditions();
-						
-						//add fail nested conditions to the conditional
-						for(Condition currentCondition: conditions)
-						{
-							condition.addFailNestedCondition(currentCondition);
-						}
-					}
-					else
-					{
-						System.out.println("FAIL GROUP: ERROR: unknown starting element: " + elementName);
-					}
-				}
-
-				//if it is the ending element, ex: </room> or </simple_object>
-				else if (event.isEndElement())
-				{
-					//create object of type end element
-					EndElement endElement = event.asEndElement();
-
-					//get the name of the ending element as we did before with the start element
-					String endElementName = endElement.getName().getLocalPart().toString();
-
-					//if it is the end of the entire list
-					if(endElementName.equalsIgnoreCase(FAIL))
-					{
-						debugLog("FINISHED SETTING FAIL GROUP");
-						
-						//stop reading
-						return;
-					}
-					else
-					{
-						System.out.println("FAIL GROUP: ERROR: unknown ending element: " + endElementName);
-					}
-				}
-			}
-
-
-		} 
-		//Stream exception thrown by malformed XML document
-		catch(XMLStreamException e)
-		{
-			printXMLStreamException(e);
-		}
-
-		//if an error occurs, print the stack trace
-		catch (Exception e)
-		{
-			e.printStackTrace(System.out);
-		}
-
-		System.out.println("LEVEL READER ERROR: fail group reader reached end of document");
-	}
-	
-	private List<Action> readActions()
-	{
-		//create a list of string aliases that will be outputed at the end
-		List<Action> actions = new ArrayList<Action>();
-
-		debugLog("OPENING ACTIONS");
-
-		//inside the try block incase error occurs
-		try
-		{
-			//begin to read the XML File
-			Action action = new Action();
-
 			//while the iterator eventReader has events
 			while(eventReader.hasNext())
 			{
@@ -2010,24 +1619,72 @@ public class LevelConstructorXMLParser
 					String eventData = getEventData();
 
 					if(eventData != null)
-						debugLog("ACTIONS: element=" + elementName + ", value=" + eventData);
+						debugLog("EXECUTABLES: element=" + elementName + ", value=" + eventData);
 					else
-						debugLog("ACTIONS: element=" + elementName + ", value=null");
-					
-					if(eventData == null)
+						debugLog("EXECUTABLES: element=" + elementName + ", value=null");
+
+					if(elementName.equals(EXECUTABLE_GROUP))
 					{
-						debugLog("no event data, using default 0");
-						eventData = SceneObject.defaultValue + "";
+						debugLog("CREATING NEW EXECUTABLE GROUP");
+						
+						ExecutableGroup exeGroup = new ExecutableGroup();
+						
+						//read attributes
+						//get all the attributes in the element
+						@SuppressWarnings("unchecked")
+						Iterator<Attribute> attributes = startElement.getAttributes();
+
+						//while the iterator has more attributes to go over
+						while(attributes.hasNext())
+						{
+							//create variable for the individual attribute
+							Attribute attribute = attributes.next();
+
+							String attributeName = attribute.getName().getLocalPart();
+							String attributeValue = attribute.getValue();
+							
+							debugLog("CURRENT ATTRIBUTE: " + attributeName + ", value=" + attributeValue);
+
+							//check for the attributes we are looking for and set them
+							if(attributeName.equals(ID))
+							{
+								try
+								{
+									exeGroup.setMaxExecutions(Integer.parseInt(attributeValue));
+								}
+								catch (NumberFormatException e)
+								{
+									System.out.println("LEVEL READER ERROR: EXECUTABLES: EXECUTABLE GROUP: non-int value as max executions attribute");
+								}
+							}
+						}
+						
+						//read executables in the group
+						ArrayList<Executable> exes = readExecutables();
+						
+						//set executables
+						for(Executable e: exes)
+						{
+							exeGroup.addExecutable(e);
+						}
+						
+						executables.add(exeGroup);
 					}
 					
-					//if the starting element is a action, read attributes
-					if(elementName.equals(ACTION))
+					else if(elementName.equals(CONDITION))
+					{
+						debugLog("CREATING NEW CONDITION");
+
+						Condition condition = readCondition();
+						executables.add(condition);
+					}
+
+					else if(elementName.equals(ACTION))
 					{
 						debugLog("CREATING NEW ACTION");
-
-						//create a new action to reset
-						action = new Action();
-
+						
+						Action action = new Action();
+						
 						//get attributes of actions
 						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
@@ -2090,9 +1747,24 @@ public class LevelConstructorXMLParser
 						//set the value of the action
 						action.setActionValue(eventData);
 						
-						//go to next iteration
-						continue;
+						executables.add(action);
 					}
+					
+					else if(elementName.equals("RANDOM"))
+					{
+						//TODO staticize that and create
+					}
+					
+					else if(elementName.equals(PASS) || elementName.equals(FAIL))
+					{
+						//do nothing until closing but I don't want it outputting unknown element
+					}
+					
+					else
+					{
+						System.out.println("EXECUTABLES: ERROR: unrecongized element: " + elementName);
+					}
+
 				}
 
 				//if it is the ending element, ex: </room> or </simple_object>
@@ -2104,26 +1776,34 @@ public class LevelConstructorXMLParser
 					//get the name of the ending element as we did before with the start element
 					String endElementName = endElement.getName().getLocalPart().toString();
 
-					//debugLog("CLOSING ACTION ELEMENT: " + endElementName);
-
-					//if it is the end of this action
-					if(endElementName.equalsIgnoreCase(ACTION))
+					//if it is the end of the entire list
+					if(endElementName.equalsIgnoreCase(EXECUTABLES))
 					{
-						actions.add(action);
+						debugLog("EXECUTABLES: FINISHED EXECUTABLES LIST, len=" + executables.size());
+
+						return executables;
 					}
 					
-					//if it is the end of the entire list
-					else if(endElementName.equalsIgnoreCase(ACTIONS))
+					else if(endElementName.equals(EXECUTABLE_GROUP))
 					{
-						debugLog("CLOSED ACTIONS ELEMENT");
-
-						return actions;
+						debugLog("EXECUTABLES: FINISHED EXECUTABLE GROUP LIST, len=" + executables.size());
+						return executables;
+					}
+					
+					else if(endElementName.equals(PASS))
+					{
+						debugLog("EXECUTABLES: FINISHED EXECUTABLES LIST FOR PASS, len=" + executables.size());
+						return executables;
+					}
+					
+					else if(endElementName.equals(FAIL))
+					{
+						debugLog("EXECUTABLES: FINISHED EXECUTABLES LIST FOR FAIL, len=" + executables.size());
+						return executables;
 					}
 				}
 			}
-
-
-		} 
+		}
 		//Stream exception thrown by malformed XML document
 		catch(XMLStreamException e)
 		{
@@ -2136,8 +1816,140 @@ public class LevelConstructorXMLParser
 			e.printStackTrace(System.out);
 		}
 
-		System.out.println("LEVEL READER ERROR: actions reader reached end of document");
-		return actions;
+		System.out.println("LEVEL READER ERROR: executables reader reached end of document");
+		return executables;
+	}
+	
+	private Condition readCondition()
+	{
+		debugLog("OPENING CONDITION");
+		
+		//inside the try block incase error occurs
+		try
+		{
+			//begin to read the XML File
+			Condition condition = new Condition();
+
+			//while the iterator eventReader has events
+			while(eventReader.hasNext())
+			{
+				//every iteration make a new event
+				event = eventReader.nextEvent();
+
+				//returns true if the event is the start of an element ex: <simple_object> or <name>
+				if(event.isStartElement())
+				{
+					//StartElement startElement = event.asStartElement();
+
+					String elementName = getStartElementName();
+
+					String eventData = getEventData();
+
+					if(eventData != null)
+						debugLog("CONDITION: element=" + elementName + ", value=" + eventData);
+					else
+						debugLog("CONDITION: element=" + elementName + ", value=null");
+					
+					//if the starting element is a condition, create a new one to reset
+					if(elementName.equals(CONDITION))
+					{
+						debugLog("CREATING NEW CONDITION");
+					}
+					
+					//conditions have <type>, <target>, <property_name>, <value>, <pass> (group), <fail> (group)
+					
+					//type is "=", "<", ">"
+					else if(elementName.equals(TYPE))
+					{
+						condition.setOperator(eventData);
+					}
+					
+					else if(elementName.equals(TARGET))
+					{
+						if(eventData.equalsIgnoreCase(SCENARIO))
+						{
+							condition.setTarget(Level.SCENARIO_ID);
+						}
+						else
+						{
+							condition.setTarget(eventData);
+						}
+					}
+					
+					//property_name
+					else if(elementName.equals(PROPERTY_NAME))
+					{
+						condition.setProperty_name(eventData);
+					}
+					
+					else if(elementName.equals(VALUE))
+					{
+						condition.setValue(eventData);
+					}
+					
+					//pass list contains executables to run if condition passes
+					else if(elementName.equals(PASS))
+					{
+						ArrayList<Executable> exes = readExecutables();
+						
+						for(Executable e: exes)
+						{
+							condition.addPassExecutable(e);
+						}
+					}
+					
+					//fail list contains executables to run if condition fails
+					else if(elementName.equalsIgnoreCase(FAIL))
+					{
+						ArrayList<Executable> exes = readExecutables();
+
+						for(Executable e: exes)
+						{
+							condition.addFailExecutable(e);
+						}
+					}
+					
+					else
+					{
+						System.out.println("CONDITION: ERROR: unrecongized element: " + elementName);
+					}
+					
+				}
+
+				//if it is the ending element, ex: </room> or </simple_object>
+				else if (event.isEndElement())
+				{
+					//create object of type end element
+					EndElement endElement = event.asEndElement();
+
+					//get the name of the ending element as we did before with the start element
+					String endElementName = endElement.getName().getLocalPart().toString();
+
+					//debugLog("CLOSING CONDITIONS ELEMENT: " + endElementName);
+
+					//if it is the end of this action
+					if(endElementName.equalsIgnoreCase(CONDITION))
+					{
+						return condition;
+					}
+				}
+			}
+		} 
+		
+		//Stream exception thrown by malformed XML document
+		catch(XMLStreamException e)
+		{
+			printXMLStreamException(e);
+		}
+
+		//if an error occurs, print the stack trace
+		catch (Exception e)
+		{
+			e.printStackTrace(System.out);
+		}
+
+		System.out.println("LEVEL READER ERROR: condition reader reached end of document");
+		return null;
 	}
 	
 	private String getStartElementName()
@@ -2167,6 +1979,7 @@ public class LevelConstructorXMLParser
 		
 		return startElementName;
 	}
+	
 	
 	/**
 	 * Reads the value of the element, returns null and a ClassCastException if none
@@ -2208,87 +2021,4 @@ public class LevelConstructorXMLParser
 		}
 	}
 
-/*
- * 
- * The original code I found on the internet, above code is my modified version of it
- * 
-    @SuppressWarnings({ "unchecked", "null" })
-    public List<Item> readConfig(String configFile) {
-        List<Item> items = new ArrayList<Item>();
-        try {
-            // First, create a new XMLInputFactory
-            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-            // Setup a new eventReader
-            InputStream in = new FileInputStream(configFile);
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-            // read the XML document
-            Item item = null;
-
-            while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
-
-                if (event.isStartElement()) {
-                    StartElement startElement = event.asStartElement();
-                    // If we have an item element, we create a new item
-                    if (startElement.getName().getLocalPart().equals(ITEM)) {
-                        item = new Item();
-                        // We read the attributes from this tag and add the date
-                        // attribute to our object
-                        Iterator<Attribute> attributes = startElement
-                                .getAttributes();
-                        while (attributes.hasNext()) {
-                            Attribute attribute = attributes.next();
-                            if (attribute.getName().toString().equals(DATE)) {
-                                item.setDate(attribute.getValue());
-                            }
-
-                        }
-                    }
-
-                    if (event.isStartElement()) {
-                        if (event.asStartElement().getName().getLocalPart()
-                                .equals(MODE)) {
-                            event = eventReader.nextEvent();
-                            item.setMode(event.asCharacters().getData());
-                            continue;
-                        }
-                    }
-                    if (event.asStartElement().getName().getLocalPart()
-                            .equals(UNIT)) {
-                        event = eventReader.nextEvent();
-                        item.setUnit(event.asCharacters().getData());
-                        continue;
-                    }
-
-                    if (event.asStartElement().getName().getLocalPart()
-                            .equals(CURRENT)) {
-                        event = eventReader.nextEvent();
-                        item.setCurrent(event.asCharacters().getData());
-                        continue;
-                    }
-
-                    if (event.asStartElement().getName().getLocalPart()
-                            .equals(INTERACTIVE)) {
-                        event = eventReader.nextEvent();
-                        item.setInteractive(event.asCharacters().getData());
-                        continue;
-                    }
-                }
-                // If we reach the end of an item element, we add it to the list
-                if (event.isEndElement()) {
-                    EndElement endElement = event.asEndElement();
-                    if (endElement.getName().getLocalPart().equals(ITEM)) {
-                        items.add(item);
-                    }
-                }
-
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (XMLStreamException e) {
-            e.printStackTrace();
-        }
-        return items;
-    }
- */
 }

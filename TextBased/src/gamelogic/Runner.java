@@ -37,7 +37,10 @@ public class Runner
 		Game game = new Game();
 		
 		//create level from XML
-		LoadLevel(levelPath, game);
+		Level level = LoadLevel(levelPath, game);
+		
+		//create summary
+		level.outputLevelSummaryData();
 		
 		//start game
 		game.Start();
@@ -58,10 +61,12 @@ public class Runner
 	 */
 	public static Level LoadLevel(String levelFile, Game game)
 	{
+		//promp user for debug mode
 		boolean debugMode = promptEnableDebugMode();
+		LevelConstructorXMLParser.debugMode = debugMode;
 		
     	//maybe that name can be shortened, and be static-ized
-    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser(debugMode);
+    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser();
     	
     	//create the level from the XML file
     	Level level = reader.readLevel(LEVEL_LOCATIONS + levelFile);

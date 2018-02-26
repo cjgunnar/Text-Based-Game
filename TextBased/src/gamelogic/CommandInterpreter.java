@@ -23,9 +23,9 @@ public class CommandInterpreter
 	
 	static String[] uncover = {"uncover", "show", "get out from behind"};
 	
-	static String[] search = {"search", "go through", "look through", "search through"};
+	static String[] search = {"search", "go through", "look through", "search through", "look for"};
 	
-	static String[] use = {"use", "go out"};
+	static String[] use = {"use", "go out", "go down", "enable"};
 	
 	static String[] enter = {"enter", "go", "walk through", "walk into", "go to", "walk into", "go into", "walk to"};
 	

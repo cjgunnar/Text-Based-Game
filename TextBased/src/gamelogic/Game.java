@@ -62,7 +62,7 @@ public class Game
 		//if the player is trying to quit the game, close the program
 		if(command.getRaw().equalsIgnoreCase("quit") || command.getRaw().equalsIgnoreCase("quit game") || command.getRaw().equalsIgnoreCase("exit") || command.getRaw().equalsIgnoreCase("exit game"))
 		{
-			frame.dispose();
+			EndGame();
 		}
 		
 		//try scenario exact phrase matching
