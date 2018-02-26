@@ -1,122 +1,98 @@
 package gamelogic;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import sceneObjects.SceneObject;
 
 /**
- * Will do pass or fail actions based on a property condition
+ * Executable that will do pass or fail actions based on a property condition of a target object
  * @author cjgunnar
  *
  */
-public class Condition
+public class Condition implements Executable
 {
-	/**
-	 * Can be SceneObject.greaterThan, SceneObject.lessThan, or SceneObject.equalTo
-	 */
+	/** Can be SceneObject.greaterThan, SceneObject.lessThan, or SceneObject.equalTo */
 	String operator;
 	
-	/**
-	 * id of the target, 0 will return an error
-	 */
+	/** Target of the condition, 0 will use parent */
 	int target;
 	
-	/**
-	 * the value that will be evaluated with the target property value
-	 */
+	/** the value that will be evaluated with the target property value */
 	int value;
 	
-	/**
-	 * name of the target property to get the value
-	 */
+	/** name of the target property to get the value */
 	String property_name;
 
-	/**
-	 * actions to execute if action passes
-	 */
-	ArrayList<Action> pass = new ArrayList<Action>();
+	/** actions to execute if action passes */
+	ArrayList<Executable> pass = new ArrayList<Executable>();
 	
-	/**
-	 * actions to execute if action fails
-	 */
-	ArrayList<Action> fail = new ArrayList<Action>();
+	/** actions to execute if action fails */
+	ArrayList<Executable> fail = new ArrayList<Executable>();
 	
-	/**
-	 * Allow conditions to have conditions (nested conditions) for AND operations.
-	 * This list executed if the condition passes
-	 */
-	ArrayList<Condition> nestedPassConditions = new ArrayList<Condition>();
-	
-	/**
-	 * Allow conditions to have conditions (nested conditions) for AND operations.
-	 * This list executed if the condition fails
-	 */
-	ArrayList<Condition> nestedFailConditions = new ArrayList<Condition>();
-	
-	/**
-	 * reference to the parent object of this condition
-	 */
+	/** reference to the parent object of this condition */
 	SceneObject parentObject;
 	
-	/**
-	 * reference to game
-	 */
+	/** reference to game */
 	Game _game;
 	
-	//default condition constructor
-	public Condition() {}
+	/** Keeps track of if the pass or fail condition ran */
+	boolean success;
+	
+	/** Default condition constructor */
+	public Condition() 
+	{
+		target = 0;
+		success = false;
+	}
 
+	@Override
+	public void run()
+	{
+		if(checkCondition())
+		{
+			//run pass
+			executePass(_game);
+			success = true;
+		}
+		else
+		{
+			//run fail
+			executeFail(_game);
+			success = false;
+		}
+	}
+
+	@Override
+	public void addExecutable(Executable executable)
+	{
+		//default add to pass group
+		addPassExecutable(executable);
+	}
+
+	@Override
+	public List<Executable> getExecutables()
+	{
+		// TODO make this work with opposite two executable lists
+		return null;
+	}
+	
 	/**
 	 * Add action to execute on condition pass
-	 * @param action the action to add
+	 * @param executable the executable to add
 	 */
-	public void addPassAction(Action action)
+	public void addPassExecutable(Executable executable)
 	{
-		pass.add(action);
+		pass.add(executable);
 	}
 	
 	/**
 	 * Add action to execute on condition fail
 	 * @param action the action to add
 	 */
-	public void addFailAction(Action action)
+	public void addFailExecutable(Executable executable)
 	{
-		fail.add(action);
-	}
-	
-	/**
-	 * Add a nested condition to execute on condition pass
-	 * @param condition nested condition to add
-	 */
-	public void addPassNestedCondition(Condition condition)
-	{
-		nestedPassConditions.add(condition);
-	}
-	
-	/**
-	 * Add a nested condition to execute on condition fail
-	 * @param condition nested condition to add
-	 */
-	public void addFailNestedCondition(Condition condition)
-	{
-		nestedFailConditions.add(condition);
-	}
-	
-	/**
-	 * Runs this condition. If the condition is true, runs pass list, if false, runs fail list
-	 */
-	public void runCondition()
-	{
-		if(checkCondition())
-		{
-			//run pass
-			executePass(_game);
-		}
-		else
-		{
-			//run fail
-			executeFail(_game);
-		}
+		fail.add(executable);
 	}
 	
 	/**
@@ -135,6 +111,7 @@ public class Condition
 			System.err.println("CONDITION: ERROR: property_name is null");
 			return false;
 		}
+		
 		
 		//find the target object, if target is 0 use parent
 		SceneObject targetObject;
@@ -185,25 +162,23 @@ public class Condition
 	 */
 	private void executeFail(Game game)
 	{
-		//execute fail actions
-		for(Action action: fail)
+		for(Executable executable: fail)
 		{
-			if(game != null && parentObject != null)
+			if(game != null)
+				executable.setGame(game);
+			else
+				System.out.println("CONDITION: ERROR: game reference");
+				
+			if(parentObject != null)
 			{
-				action.setGame(game);
-				action.setParentSceneObject(parentObject);
-				action.runAction();
+				executable.setParentObject(parentObject);
 			}
 			else
-				System.err.println("CONDITION: ERROR: null parent object or game reference");
-		}
-		
-		//execute fail nested conditions
-		for(Condition condition: nestedFailConditions)
-		{
-			condition.setGame(game);
-			condition.setParentObject(parentObject);
-			condition.runCondition();
+			{
+				System.out.println("CONDITION: WARNING: null parent object");
+			}
+			
+			executable.run();
 		}
 	}
 	
@@ -213,24 +188,23 @@ public class Condition
 	 */
 	private void executePass(Game game)
 	{
-		for(Action action: pass)
+		for(Executable executable: pass)
 		{
-			if(game != null && parentObject != null)
+			if(game != null)
+				executable.setGame(game);
+			else
+				System.out.println("CONDITION: ERROR: game reference");
+				
+			if(parentObject != null)
 			{
-				action.setGame(game);
-				action.setParentSceneObject(parentObject);
-				action.runAction();
+				executable.setParentObject(parentObject);
 			}
 			else
-				System.err.println("CONDITION: ERROR: null parent object or game reference");
-		}
-		
-		//execute pass nested conditions
-		for(Condition condition: nestedPassConditions)
-		{
-			condition.setGame(game);
-			condition.setParentObject(parentObject);
-			condition.runCondition();
+			{
+				System.out.println("CONDITION: WARNING: null parent object");
+			}
+				
+			executable.run();
 		}
 	}
 	
@@ -322,6 +296,12 @@ public class Condition
 	public void setProperty_name(String property_name)
 	{
 		this.property_name = property_name;
+	}
+
+	@Override
+	public boolean getSuccess()
+	{
+		return success;
 	}
 	
 }

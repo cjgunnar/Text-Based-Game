@@ -7,25 +7,14 @@ import sceneObjects.SceneObject;
 
 public class Request
 {
-	/**
-	 * all the actions that will be executed when requested, unconditional
-	 */
-	List<Action> actions = new ArrayList<Action>();
+	/** all the executables that will be executed when requested */
+	List<Executable> executables = new ArrayList<Executable>();
 	
-	/**
-	 * verbs that will activate this request
-	 */
+	/** verbs that will activate this request */
 	List<String> verbs = new ArrayList<String>();
 	
-	/**
-	 * exact phrases that will activate this request
-	 */
+	/** exact phrases that will activate this request */
 	List<String> exacts = new ArrayList<String>();
-	
-	/**
-	 * conditions and their actions
-	 */
-	List<Condition> conditions = new ArrayList<Condition>();
 	
 	/**
 	 * Returns true if the request has a verb matching the input
@@ -72,24 +61,14 @@ public class Request
 	 */
 	public void ExecuteActions(Game game, SceneObject parentObject)
 	{
-		System.out.println("REQUEST: running " + actions.size() + " actions unconditionally");
+		System.out.println("REQUEST: running " + executables.size() + " executables");
 		
-		//run default actions
-		for(Action action: actions)
+		//run executables
+		for(Executable executable: executables)
 		{
-			action.setGame(game);
-			action.setParentSceneObject(parentObject);
-			action.runAction();
-		}
-		
-		System.out.println("REQUEST: running " + conditions.size() + " conditions");
-		
-		//run conditionals
-		for(Condition condition: conditions)
-		{
-			condition.setGame(game);
-			condition.setParentObject(parentObject);
-			condition.runCondition();
+			executable.setGame(game);
+			executable.setParentObject(parentObject);
+			executable.run();
 		}
 	}
 
@@ -97,20 +76,9 @@ public class Request
 	 * Adds a condition to the list of conditions this request has
 	 * @param condition the condition to add to the list
 	 */
-	public void addCondition(Condition condition)
+	public void addExecutable(Executable executable)
 	{
-		if(condition != null)
-			conditions.add(condition);
-		else
-			System.err.println("REQUEST: ERROR: trying to add null condition");
-	}
-	
-	/**
-	 * @param action the action to add to the list
-	 */
-	public void addAction(Action action)
-	{
-		actions.add(action);
+		executables.add(executable);
 	}
 
 	/**
@@ -153,7 +121,7 @@ public class Request
 	@Override
 	public String toString()
 	{
-		return "Request [actions=" + actions + ", verbs=" + verbs + ", exacts=" + exacts + ", conditions=" + conditions
+		return "Request [verbs=" + verbs + ", exacts=" + exacts + ", executables=" + executables
 				+ "]";
 	}
 }

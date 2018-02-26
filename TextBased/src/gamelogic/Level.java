@@ -17,15 +17,21 @@ public class Level
 {
 	ArrayList<Room> rooms = new ArrayList<Room>();
 	
+	/** Text outputted at beginning of game */
 	String _prolog;
 	
+	/** The level's global properties, requests, etc */
 	Scenario scenario;
 	
+	/** Endings of the game that can be triggered by Actions */
+	ArrayList<EndState> endings = new ArrayList<EndState>();
+	
+	/** An int to use to designate that the global/scenario is the target */
 	public static final int SCENARIO_ID = 100000;
 	
 	/**
-	 * Sets prolog text
-	 * @param prolog Text to set
+	 * Sets the text (prolog) to output at the beginning of the game
+	 * @param prolog The text to use (String)
 	 */
 	public void setProlog(String prolog)
 	{
@@ -33,8 +39,8 @@ public class Level
 	}
 	
 	/**
-	 * Returns prolog text
-	 * @return prolog text returned
+	 * Returns the text (prolog) that is outputeed at start of game
+	 * @return The prolog text
 	 */
 	public String getProlog()
 	{
@@ -70,34 +76,75 @@ public class Level
 	}
 	
 	/**
-	 * Sets its list of filled rooms based on name of level in /Levels
-	 * @param levelFile Name of level is src/Levels/
-	 * @param game Reference to game to pass on to rooms, objects, etc
+	 * Sets game references for the level
+	 * @param game The game to set references to
 	 */
-	public void LoadLevel(String levelFile, Game game)
-	{		
-    	//maybe that name can be shortened
-    	LevelConstructorXMLParser reader = new LevelConstructorXMLParser(game);
-    	
-    	//create the list from the XML file
-    	ArrayList<Room> rooms = (ArrayList<Room>) reader.readLevel(levelFile);
-    	
-    	//set own list to this
-    	this.rooms = rooms;
-    	
-    	//set references for all rooms, objects, and exits
-    	//now that we know everything is loaded
-    	for (Room room : rooms)
-    	{
-    		//probably could of been done at time of construction
-    		room.setGame(game);
-    		room.setAllObjectsGame(game);
-    		room.setAllExitsGame(game);
-    		
-    		room.InitializeAllExits();
-    	}
-    	
-    	outputLevelSummaryData();
+	public void InitializeLevel(Game game)
+	{
+		InitializeRooms(game);
+		
+		for(EndState ending: endings)
+		{
+			ending.set_game(game);
+			ending.Initialize(game);
+		}
+			
+	}
+	
+	/** Sets game references and inits room destinations 
+	 *  @param game The game to set references to
+	 * */
+	private void InitializeRooms(Game game)
+	{
+		for(Room room: rooms)
+		{
+			//probably could of been done at time of construction
+			room.setGame(game);
+			room.setAllObjectsGame(game);
+			room.setAllExitsGame(game);
+			
+			room.InitializeAllExits();
+		}
+	}
+	
+	/**
+	 * Checks all the endings and sees if one has activated
+	 */
+	public void checkEndStates()
+	{
+		for(EndState ending: endings)
+		{
+			ending.checkEndState();
+		}
+	}
+	
+	/**
+	 * Find and trigger ending with ID
+	 * @param ID the ID of the EndState to trigger
+	 */
+	public void TriggerEndState(int ID)
+	{
+		for(EndState ending: endings)
+		{
+			if(ending.getID() == ID)
+			{
+				ending.TriggerEndState();
+				return;
+			}
+		}
+		
+		System.out.println("LEVEL: ERROR: no ending with ID " + ID);
+	}
+	
+	/**
+	 * Add an ending to the level
+	 * @param ending The EndState ending to add
+	 */
+	public void addEndState(EndState ending)
+	{
+		if(ending == null)
+			System.out.println("LEVEL: ERROR: trying to add null ending");
+		endings.add(ending);
 	}
 	
 	/**
@@ -132,9 +179,9 @@ public class Level
 	}
 	
 	/**
-	 * Searches for room with roomName
-	 * @param roomName Name to look for
-	 * @return true or false
+	 * Returns true/false if there is a room in the level with that name
+	 * @param roomName The name of the room to search for
+	 * @return true or false if the room was found
 	 */
 	public boolean hasRoom(String roomName)
 	{
@@ -233,10 +280,8 @@ public class Level
 		return null;
 	}
 	
-	/**
-	 * Prints a summary of the room loaded and their objects
-	 */
-	private void outputLevelSummaryData()
+	/** Prints a summary of the room loaded and their objects */
+	public void outputLevelSummaryData()
 	{
     	System.out.println("\nLOADED LEVEL SUMMARY DATA");
     	System.out.println("-----------------");
