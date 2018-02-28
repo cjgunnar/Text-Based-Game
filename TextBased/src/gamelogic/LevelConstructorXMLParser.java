@@ -1683,11 +1683,14 @@ public class LevelConstructorXMLParser
 					{
 						debugLog("CREATING NEW ACTION");
 						
-						Action action = new Action();
-						
 						//get attributes of actions
 						@SuppressWarnings("unchecked")
 						Iterator<Attribute> attributes = startElement.getAttributes();
+						
+						//important values that could be used
+						String type = null;
+						int target = 0;
+						String propertyName = null;
 						
 						//while the iterator has more attributes to go over
 						while(attributes.hasNext())
@@ -1706,7 +1709,7 @@ public class LevelConstructorXMLParser
 							//check for the attributes we are looking for and set them
 							if(attributeName.equals(TYPE))
 							{
-								action.setActionType(attributeValue);
+								type = attributeValue;
 							}
 							
 							//used for type CHANGE_PROPERTY
@@ -1716,18 +1719,16 @@ public class LevelConstructorXMLParser
 								{
 									if(attributeValue.equalsIgnoreCase(SCENARIO))
 									{
-										action.setActionTarget(Level.SCENARIO_ID);
+										target = Level.SCENARIO_ID;
 									}
 									else
 									{
-										int target = Integer.parseInt(attributeValue);
+										target = Integer.parseInt(attributeValue);
 										
 										if(target == Level.SCENARIO_ID)
 										{
 											System.out.println("LEVEL READER ERROR: specified non scenario ID manually");
 										}
-										
-										action.setActionTarget(target);
 									}
 								}
 								catch (NumberFormatException e)
@@ -1739,15 +1740,42 @@ public class LevelConstructorXMLParser
 							//used for type CHANGE_PROPERTY
 							else if(attributeName.equals(PROPERTY_NAME))
 							{
-								action.setPropertyName(attributeValue);
+								propertyName = attributeValue;
 							}
 							
 						}
 						
-						//set the value of the action
-						action.setActionValue(eventData);
+						//after getting values from while loop
 						
-						executables.add(action);
+						//based on type, add to executables
+						if(type.equals(OUT))
+						{
+							OutAction action = new OutAction(eventData);
+							executables.add(action);
+						}
+						else if(type.equals(PROPERTY_CHANGE))
+						{
+							PropertyChangeAction action = new PropertyChangeAction();
+							action.setPropertyName(propertyName);
+							action.setTarget(target);
+							action.setValue(Integer.parseInt(eventData));
+							executables.add(action);
+						}
+						else if(type.equals("out:description"))
+						{
+							DescriptionAction action = new DescriptionAction();
+							executables.add(action);
+						}
+						else if(type.equals("exit:change_room"))
+						{
+							ExitAction action = new ExitAction();
+							executables.add(action);
+						}
+						else
+						{
+							System.out.println("LEVEL READER ERROR: ACTION: unknown type");
+						}
+				
 					}
 					
 					else if(elementName.equals("RANDOM"))
