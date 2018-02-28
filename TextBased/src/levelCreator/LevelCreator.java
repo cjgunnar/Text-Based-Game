@@ -42,18 +42,11 @@ public class LevelCreator extends JFrame
 		setMinimumSize(new Dimension(900, 500));
 		setTitle("Level Creator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		CreateComponents();
 	}
 
-	public static void main(String[] args)
-	{
-		LevelCreator levelCreatorGUI = new LevelCreator();
-
-		levelCreatorGUI.CreateComponents();
-
-		levelCreatorGUI.Display();
-	}
-
-	public void CreateComponents()
+	private void CreateComponents()
 	{
 		JTabbedPane mainTabs = new JTabbedPane();
 		

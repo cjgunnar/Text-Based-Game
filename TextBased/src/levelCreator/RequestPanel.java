@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -24,6 +25,8 @@ public class RequestPanel extends JPanel
 	DefaultListModel<String> exactList;
 	JList<String> exactsUI;
 	
+	JPanel subPanel;
+	
 	public RequestPanel(Request request)
 	{
 		this.request = request;
@@ -38,6 +41,18 @@ public class RequestPanel extends JPanel
 	
 	private void CreateComponents()
 	{
+		//used to show/hide the panel
+		JButton showButton = new JButton("+");
+		showButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				//toggle visibility of subPanel
+				subPanel.setVisible(!subPanel.isVisible());
+			}
+		});
+		
 		JLabel instructions = new JLabel("Add exact phrases, verbs to trigger request");
 		
 		verbList = new DefaultListModel<String>();
@@ -81,13 +96,36 @@ public class RequestPanel extends JPanel
 		JButton delVerb = new JButton("Delete Verb");
 		JButton delExact = new JButton("Delete Exact");
 		
-		this.add(instructions);
-		this.add(addVerb);
-		this.add(addExact);
-		this.add(verbsUI);
-		this.add(exactsUI);
-		this.add(delVerb);
-		this.add(delExact);
+		JDialog editor = new ExecutableEditor();
+
+		JButton exeEditorBtn = new JButton("Open Executable Editor");
+		exeEditorBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				editor.setVisible(true);
+			}
+		});
+		
+		//add components to hideable subpanel, showButton will be used to expand it
+		subPanel = new JPanel();
+		
+		subPanel.add(instructions);
+		subPanel.add(addVerb);
+		subPanel.add(addExact);
+		subPanel.add(verbsUI);
+		subPanel.add(exactsUI);
+		subPanel.add(delVerb);
+		subPanel.add(delExact);
+		
+		subPanel.add(exeEditorBtn);
+		
+		//hide by default
+		subPanel.setVisible(false);
+		
+		add(showButton);
+		add(subPanel);
 	}
 	
 	public void setRequest(Request request)
