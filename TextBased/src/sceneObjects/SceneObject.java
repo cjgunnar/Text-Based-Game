@@ -74,13 +74,7 @@ public interface SceneObject
 	 * @param command the command to execute
 	 */
 	public abstract void ExecuteCommand (Command command);
-	
-	//built in commands
-	/**
-	 * Outputs the description of the object to the game
-	 */
-	public abstract void Built_In_Command_OutputDescription();
-	
+		
 	//getter and setter methods:
 	
 	/**

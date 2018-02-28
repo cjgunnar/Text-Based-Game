@@ -1,51 +1,36 @@
 package sceneObjects;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import gamelogic.Command;
 import gamelogic.Game;
-import gamelogic.Request;
 
-//Caden Gunnarson
-
+/** Stores objects and exits, along with helpers to find them and set them up 
+ *  @author cjgunnar
+ */
 public class Room extends SimpleObject
 {
-	//name used to identify it
-	String name;
-	
-	//aliases of the room
-	List<String> aliases = new ArrayList<String>();
-	
-	//description of the room
-	String description;
-	
-	//id of the room
-	int ID;
-	
-	//reference to game to send messages
-	Game game;
-	
-	//list of all the objects in the room
-	List<SceneObject> objects = new ArrayList<SceneObject>();
+	/** List of all the objects in the room */
+	private List<SceneObject> objects;
 
-	//list of exits to room
-	List<Exit> exits = new ArrayList<Exit>();
-	
-	//properties of the object (HashMap), name int pairs
-	HashMap<String, Integer> properties = new HashMap<String, Integer>();
+	/** List of all exits to the room */
+	private List<Exit> exits;
 	
 	//full constructor
 	public Room(String name, String description, Game game) 
 	{
-		this.name = name;
-		this.description = description;
-		this.game = game;
+		super(name, description, game);
+		objects = new ArrayList<SceneObject>();
+		exits = new ArrayList<Exit>();
 	}
 	
 	//default constructor
-	public Room() {};
+	public Room()
+	{
+		super();
+		objects = new ArrayList<SceneObject>();
+		exits = new ArrayList<Exit>();
+	}
 	
 	/**
 	 * Execute command on every object in room
@@ -65,100 +50,7 @@ public class Room extends SimpleObject
 		}
 	}
 	
-	//property related methods
-	@Override
-	public void changeProperty(String propName, int value)
-	{
-		properties.put(propName, value);
-	}
-
-	@Override
-	public int getProperty(String propName)
-	{
-		int value = properties.get(propName);
-		return value;
-	}
-
-	@Override
-	public boolean checkProperty(String propName, String operator, int value)
-	{
-		int propValue = properties.get(propName);
-
-		if(operator == null)
-		{
-			System.out.println(name.toUpperCase() + " ERROR: null operator");
-			return false;
-		}
-
-		if(operator.equals(SceneObject.greaterThan))
-		{
-			//check if the property is greater than value
-			if(propValue > value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else if(operator.equals(SceneObject.lessThan))
-		{
-			//check if the property is less than value
-			if(propValue < value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else if(operator.equals(SceneObject.equalTo))
-		{
-			//checkk if the property is equal to the value
-			if(propValue == value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			System.out.println(name.toUpperCase() + " ERROR: operator " + operator + " not supported");
-			return false;
-		}
-
-	}
-
-	@Override
-	public void addProperty(String propName, int initValue)
-	{
-		properties.put(propName, initValue);
-	}
-
-	@Override
-	public void addProperty(String propName)
-	{
-		addProperty(propName, SceneObject.defaultValue);
-	}
-	
-	@Override
-	public void removeProperty(String propName)
-	{
-		properties.remove(propName);
-	}
-	
-	@Override
-	public Map<String, Integer> getProperties()
-	{
-		return this.properties;
-	}
-	
-	//initialize exits
+	/** Initialize Exits with destinations after level reading */
 	public void InitializeAllExits()
 	{
 		for(int i = 0; i < exits.size(); i++)
@@ -168,6 +60,12 @@ public class Room extends SimpleObject
 	}
 	
 	//room related finding SceneObjects and exits
+	
+	/**
+	 * Returns an exit leading to the room, or null
+	 * @param destination Room to search for an entrance to
+	 * @return Null or the exit that leads to that room
+	 */
 	public Exit FindExitByDestination(Room destination)
 	{
 		for(Exit exit: exits)
@@ -314,25 +212,12 @@ public class Room extends SimpleObject
 		return null;
 	}
 
-	
 	//command related
 	@Override
 	public void ExecuteCommand(Command command)
 	{
 		System.out.println("ERROR: unsupported: execute command on room");
 		
-	}
-
-	public void Built_In_Command_OutputDescription()
-	{
-		if(description != null)
-			game.Output(description);
-	}
-	
-	//getters and setters
-	public String getDescription() 
-	{
-		return description;
 	}
 	
 	public void addObject (SceneObject object)
@@ -381,29 +266,6 @@ public class Room extends SimpleObject
 		exits.add(exit);
 	}
 	
-	public void setID(int id)
-	{
-		//System.out.println("ID set to: " + id);
-		this.ID = id;
-	}
-	
-	public int getID()
-	{
-		
-		return ID;
-	}
-	
-	public String getName()
-	{
-		return name;
-	}
-	
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	
-	
 	public void setAllObjectsGame(Game game)
 	{
 		for(int i = 0; i < objects.size(); i++)
@@ -424,51 +286,6 @@ public class Room extends SimpleObject
 		{
 			exits.get(i).setGame(game);
 		}
-	}
-	
-	@Override
-	public void setDescription(String description)
-	{
-		this.description = description;
-		
-	}
-
-	@Override
-	public void setGame(Game game)
-	{
-		this.game = game;
-		
-	}
-
-	@Override
-	public String[] getAliases()
-	{
-		String[] aliasesArray = new String[aliases.size()];
-		for(int i = 0; i < aliases.size(); i++)
-		{
-			aliasesArray[i] = aliases.get(i);
-		}
-		return aliasesArray;
-	}
-
-	@Override
-	public void addAlias(String alias)
-	{
-		//adds this alias to the list of aliases
-		aliases.add(alias);
-	}
-
-	@Override
-	public void removeAlias(String alias)
-	{
-		aliases.remove(alias);
-	}
-	
-	@Override
-	public void addRequest(Request request)
-	{
-		// TODO Auto-generated method stub
-		System.err.println("ERROR: not yet implemented requests in ROOMS");
 	}
 	
 	//toString override

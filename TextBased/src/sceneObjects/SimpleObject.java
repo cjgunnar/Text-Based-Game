@@ -39,15 +39,19 @@ public class SimpleObject implements SceneObject
 	//full constructor
 	public SimpleObject(String name, String description, Game game) 
 	{
-		//super(name, description);
 		this.name = name;
 		this.description = description;
 		this.game = game;
-		//System.out.println("Created object: " + name);
 	}
 	
 	//default constructor
-	public SimpleObject() {}
+	public SimpleObject() 
+	{
+		ID = 0;
+		name = "SimpleObject";
+		description = "Description";
+		game = null;
+	}
 	
 	@Override
 	public void ExecuteCommand(Command command)
@@ -62,11 +66,12 @@ public class SimpleObject implements SceneObject
 		if(requests.isEmpty())
 		{
 			System.out.println(name.toUpperCase() + ": no requests available");
+			return;
 		}
-		else
-		{
-			System.out.println(name.toUpperCase() + ": looking through " + requests.size() + " requests...");
-		}
+		
+		
+		System.out.println(name.toUpperCase() + ": looking through " + requests.size() + " requests...");
+		
 		
 		for(Request request: requests)
 		{
@@ -81,37 +86,7 @@ public class SimpleObject implements SceneObject
 				System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
 				request.ExecuteActions(game, this);
 			}
-			/*
-			else
-			{
-				System.out.println(name.toUpperCase() + ": current request does not have verb");
-			}
-			*/
 		}
-		
-		/*
-		
-		//System.out.println("Running command with params: " + command.getTypeOfCommand() + " " + name);
-		if (command.getTypeOfCommand().equals("look at"))
-		{
-			game.Output(description);
-		}
-		else if (command.getTypeOfCommand().equals("use"))
-		{
-			game.sendErrorMessage("You cannot use the " + name);
-		}
-		else
-		{
-			game.sendErrorMessage("You can't " + command.getTypeOfCommand() + " the " + name);
-		}
-		
-		*/
-	}
-	
-	public void Built_In_Command_OutputDescription()
-	{
-		if(description != null)
-			game.Output(description);
 	}
 	
 	//property related methods
@@ -131,6 +106,7 @@ public class SimpleObject implements SceneObject
 	@Override
 	public boolean checkProperty(String propName, String operator, int value)
 	{
+		//safety checks
 		if(propName == null)
 		{
 			System.err.println(name.toUpperCase() + ": ERROR: can't check null property name as input");
@@ -166,41 +142,25 @@ public class SimpleObject implements SceneObject
 			return false;
 		}
 		
+		//greater than
 		if(operator.equals(SceneObject.greaterThan))
 		{
 			//check if the property is greater than value
-			if(propValue > value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue > value;
 		}
+		
+		//less than
 		else if(operator.equals(SceneObject.lessThan))
 		{
 			//check if the property is less than value
-			if(propValue < value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue < value;
 		}
+		
+		//equal to
 		else if(operator.equals(SceneObject.equalTo))
 		{
 			//checkk if the property is equal to the value
-			if(propValue == value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue == value;
 		}
 		else
 		{
