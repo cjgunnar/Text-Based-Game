@@ -1,6 +1,10 @@
 package gamelogic;
 
+import java.util.Scanner;
+
 import javax.swing.JOptionPane;
+
+import levelCreator.LevelCreator;
 
 //starts the game
 
@@ -15,7 +19,30 @@ public class Runner
 	
 	public static void main(String[] args)
 	{
-		PlayFromLevelSelector();
+		//temporary LevelCreator/LevelLoader selection
+		Scanner scan = new Scanner(System.in);
+		
+		System.out.println("Enter (L)oad or (C)reate:");
+		String choice = scan.next();
+		
+		scan.close();
+		
+		if(choice.equalsIgnoreCase("C") || choice.equalsIgnoreCase("Create"))
+		{
+			System.out.println("Opening level creator");
+			LevelCreator levelCreator = new LevelCreator();
+			levelCreator.Display();
+		}
+		else if(choice.equalsIgnoreCase("L") || choice.equalsIgnoreCase("Load"))
+		{
+			System.out.println("Opening level selector");
+			PlayFromLevelSelector();
+		}
+		else
+		{
+			System.out.println("Invalid Response. Exiting.");
+		}
+		
 	}
 	
 	/**
