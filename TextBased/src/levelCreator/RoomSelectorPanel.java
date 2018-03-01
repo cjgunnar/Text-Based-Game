@@ -15,6 +15,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import gamelogic.Level;
 import sceneObjects.Room;
 
 @SuppressWarnings("serial")
@@ -28,6 +29,14 @@ public class RoomSelectorPanel extends JPanel
 	public RoomSelectorPanel()
 	{
 		CreateComponents();
+	}
+	
+	public void LoadRooms(Level level)
+	{
+		for(Room room : level.getRooms())
+		{
+			roomsList.addElement(room);
+		}
 	}
 	
 	private void CreateComponents()

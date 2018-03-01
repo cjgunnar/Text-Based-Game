@@ -1,5 +1,6 @@
 package levelCreator;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -29,11 +30,13 @@ public class RequestSelectorPanel extends JPanel
 	
 	private void CreateComponents()
 	{
+		//simple JLabel with instructions
 		JLabel instructions = new JLabel("Instructions");
 		add(instructions);
 		
 		reqPanels = new ArrayList<RequestPanel>();
 		
+		//create request button
 		JButton newReq = new JButton("Create Request");
 		newReq.addActionListener(new ActionListener(){
 
@@ -50,11 +53,14 @@ public class RequestSelectorPanel extends JPanel
 		reqPanelHolder = new JPanel();
 		reqPanelHolder.setLayout(new BoxLayout(reqPanelHolder, BoxLayout.Y_AXIS));
 		
+		//scroll pane, min width and height
 		reqScroll = new JScrollPane(reqPanelHolder);
+		reqScroll.setMinimumSize(new Dimension(100, 400));
 		
 		add(newReq);
 		add(reqScroll);
 		
+		//make them display going down, not L to R
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 	

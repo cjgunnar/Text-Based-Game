@@ -7,6 +7,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import gamelogic.Level;
+import sceneObjects.Room;
+import sceneObjects.SceneObject;
+import sceneObjects.SimpleObject;
 
 
 /**
@@ -48,9 +51,25 @@ public class LevelCreator extends JFrame
 
 	private void CreateComponents()
 	{
+		//create a bit of an example room
+		level = new Level();
+		Room roomStart = new Room();
+		roomStart.setID(1);
+		roomStart.setName("Start Room");
+		roomStart.setDescription("The Starting Room and an Example");
+		
+		SceneObject obj1 = new SimpleObject();
+		obj1.setName("Chair");
+		obj1.setDescription("A chair in the middle of the room.");
+		
+		roomStart.addObject(obj1);
+		
+		level.addRoom(roomStart);
+		
 		JTabbedPane mainTabs = new JTabbedPane();
 		
 		RoomSelectorPanel roomSelector = new RoomSelectorPanel();
+		roomSelector.LoadRooms(level);
 		
 		mainTabs.addTab("Rooms", roomSelector);
 		mainTabs.addTab("Scenario", new JPanel()); //TODO create Scenario tab
