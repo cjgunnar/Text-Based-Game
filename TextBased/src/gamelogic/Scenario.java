@@ -22,14 +22,18 @@ public class Scenario
 	 * HashMap of global properites,
 	 * In String name, Integer value pairs
 	 */
-	HashMap<String, Integer> properties = new HashMap<String, Integer>();
+	HashMap<String, Integer> properties;
 
 	/** List of gloabl requests */
-	ArrayList<Request> requests = new ArrayList<Request>();
+	ArrayList<Request> requests;
 
 	/** Default constructor */
-	public Scenario() {}
-		
+	public Scenario() 
+	{
+		properties = new HashMap<String, Integer>();
+		requests = new ArrayList<Request>();
+	}
+
 	/**
 	 * Can only use exact phrases to match since it has no name/place
 	 * @param exact Exact phrase to check against (from Command)
@@ -43,7 +47,8 @@ public class Scenario
 			//if it does...
 			if(request.hasExact(exact))
 			{
-				request.ExecuteActions(_game, null);
+				request.setGame(_game);
+				request.ExecuteActions();
 				return true;
 			}
 		}
@@ -110,38 +115,16 @@ public class Scenario
 		if(operator.equals(SceneObject.greaterThan))
 		{
 			//check if the property is greater than value
-			if(propValue > value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue > value;
 		}
 		else if(operator.equals(SceneObject.lessThan))
 		{
 			//check if the property is less than value
-			if(propValue < value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue > value;
 		}
 		else if(operator.equals(SceneObject.equalTo))
 		{
-			//checkk if the property is equal to the value
-			if(propValue == value)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return propValue == value;
 		}
 		else
 		{

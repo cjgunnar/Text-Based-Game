@@ -1,7 +1,6 @@
 package gamelogic;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import sceneObjects.Exit;
 import sceneObjects.Room;

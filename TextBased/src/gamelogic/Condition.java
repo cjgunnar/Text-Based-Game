@@ -25,10 +25,10 @@ public class Condition implements Executable
 	String property_name;
 
 	/** actions to execute if action passes */
-	ArrayList<Executable> pass = new ArrayList<Executable>();
+	ArrayList<Executable> pass;
 	
 	/** actions to execute if action fails */
-	ArrayList<Executable> fail = new ArrayList<Executable>();
+	ArrayList<Executable> fail;
 	
 	/** reference to the parent object of this condition */
 	SceneObject parentObject;
@@ -43,7 +43,32 @@ public class Condition implements Executable
 	public Condition() 
 	{
 		target = 0;
+		property_name = "Unset";
+		operator = "=";
+		value = 0;
+		
+		pass = new ArrayList<Executable>();
+		fail = new ArrayList<Executable>();
 		success = false;
+	}
+	
+	/**
+	 * Main Constructor
+	 * @param target the ID of the SceneObject with the property to get
+	 * @param property_name the name of the property to get from the target
+	 * @param operator how to compare the property with the value
+	 * @param value the value to test against
+	 */
+	public Condition(int target, String property_name, String operator, int value)
+	{
+		this.target = target;
+		this.property_name = property_name;
+		this.operator = operator;
+		this.value = value;
+		
+		success = false;
+		pass = new ArrayList<Executable>();
+		fail = new ArrayList<Executable>();
 	}
 
 	@Override
@@ -304,4 +329,9 @@ public class Condition implements Executable
 		return success;
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "CONDITION: IF ID#" + target + "'s " + property_name + " IS " + operator + " " + value + " THEN";
+	}
 }

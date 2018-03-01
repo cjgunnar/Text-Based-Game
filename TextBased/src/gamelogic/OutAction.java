@@ -9,6 +9,7 @@ public class OutAction extends Action
 	/** Default Constructor */
 	public OutAction() 
 	{
+		super();
 		textOut = "Text out";
 	}
 	
@@ -31,4 +32,9 @@ public class OutAction extends Action
 			System.out.println("OUT ACTION: ERROR: null game reference");
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "OUT: " + textOut;
+	}
 }

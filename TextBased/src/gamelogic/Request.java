@@ -8,13 +8,28 @@ import sceneObjects.SceneObject;
 public class Request
 {
 	/** all the executables that will be executed when requested */
-	List<Executable> executables = new ArrayList<Executable>();
+	List<Executable> executables;
 	
 	/** verbs that will activate this request */
-	List<String> verbs = new ArrayList<String>();
+	List<String> verbs;
 	
 	/** exact phrases that will activate this request */
-	List<String> exacts = new ArrayList<String>();
+	List<String> exacts;
+	
+	/** Parent of this request */
+	SceneObject parentObject;
+	
+	/** Reference to the I/O and control class game */
+	Game game;
+	
+	/** Default Constructor */
+	public Request()
+	{
+		executables = new ArrayList<Executable>();
+		verbs = new ArrayList<String>();
+		exacts = new ArrayList<String>();
+		parentObject = null;
+	}
 	
 	/**
 	 * Returns true if the request has a verb matching the input
@@ -59,7 +74,7 @@ public class Request
 	 * @param game reference to the game
 	 * @param parentObject reference to the owner of this request
 	 */
-	public void ExecuteActions(Game game, SceneObject parentObject)
+	public void ExecuteActions()
 	{
 		System.out.println("REQUEST: running " + executables.size() + " executables");
 		
@@ -72,6 +87,42 @@ public class Request
 		}
 	}
 
+	/**
+	 * Sets the parent object of the request
+	 * @param parentObject the parent/owner of this object
+	 */
+	public void setParentObject(SceneObject parentObject)
+	{
+		this.parentObject = parentObject;
+	}
+	
+	/**
+	 * Gets the parent object of the request
+	 * @return the parent object
+	 */
+	public SceneObject getParentObject()
+	{
+		return parentObject;
+	}
+	
+	/**
+	 * Sets a reference to the game class
+	 * @param game the game to set a reference to
+	 */
+	public void setGame(Game game)
+	{
+		this.game = game;
+	}
+	
+	/**
+	 * Returns a reference to the game
+	 * @param game The game
+	 */
+	public Game getGame()
+	{
+		return game;
+	}
+	
 	/**
 	 * Adds a condition to the list of conditions this request has
 	 * @param condition the condition to add to the list

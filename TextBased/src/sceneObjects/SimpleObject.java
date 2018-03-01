@@ -78,13 +78,17 @@ public class SimpleObject implements SceneObject
 			if(request.hasExact(command.getRaw()))
 			{
 				System.out.println(name.toUpperCase() + ": MATCH with raw: " + command.getRaw());
-				request.ExecuteActions(game, this);
+				request.setGame(game);
+				request.setParentObject(this);
+				request.ExecuteActions();
 			}
 			
 			if(request.hasVerb(command.getTypeOfCommand()))
 			{
 				System.out.println(name.toUpperCase() + ": MATCH with verb: " + command.getTypeOfCommand());
-				request.ExecuteActions(game, this);
+				request.setGame(game);
+				request.setParentObject(this);
+				request.ExecuteActions();
 			}
 		}
 	}

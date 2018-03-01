@@ -13,6 +13,15 @@ public class PropertyChangeAction extends Action
 	/** New value to set the property of target to */
 	private int newValue;
 	
+	/** Default Constructor */
+	public PropertyChangeAction()
+	{
+		super();
+		target = 0;
+		propertyName = "unset";
+		newValue = 0;
+	}
+	
 	@Override
 	public void run()
 	{
@@ -98,6 +107,12 @@ public class PropertyChangeAction extends Action
 	public void setValue(int newValue)
 	{
 		this.newValue = newValue;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Change property " + propertyName + " from ID#" + target + "to " + newValue;
 	}
 	
 }
