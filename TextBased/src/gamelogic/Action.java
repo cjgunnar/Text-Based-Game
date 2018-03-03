@@ -1,5 +1,6 @@
 package gamelogic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sceneObjects.SceneObject;
@@ -35,8 +36,7 @@ public abstract class Action implements Executable
 	@Override
 	public List<Executable> getExecutables()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Executable>();
 	}
 
 	@Override

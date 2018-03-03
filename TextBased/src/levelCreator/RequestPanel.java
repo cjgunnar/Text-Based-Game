@@ -37,6 +37,7 @@ public class RequestPanel extends JPanel
 	public RequestPanel(Request request)
 	{
 		this.request = request;
+		
 		CreateComponents();
 	}
 	
@@ -44,6 +45,7 @@ public class RequestPanel extends JPanel
 	public RequestPanel()
 	{
 		request = new Request();
+		
 		CreateComponents();
 	}
 	
@@ -114,7 +116,7 @@ public class RequestPanel extends JPanel
 		JButton delExact = new JButton("Delete Exact");
 		
 		//dialog with executables editing
-		JDialog editor = new ExecutableEditor();
+		JDialog editor = new ExecutableEditor(request);
 
 		//button to open the editor, modal will pop up
 		JButton exeEditorBtn = new JButton("Open Executable Editor");
@@ -145,6 +147,9 @@ public class RequestPanel extends JPanel
 		
 		add(showButton);
 		add(subPanel);
+		
+		if(request != null)
+			setRequest(request);
 	}
 	
 	/**
@@ -152,8 +157,26 @@ public class RequestPanel extends JPanel
 	 * @param request The request to display
 	 */
 	public void setRequest(Request request)
-	{
+	{	
 		this.request = request;
+		
+		//clear verb list
+		verbList.clear();
+		
+		//add all verbs
+		for(String verb: request.getVerbs())
+		{
+			verbList.addElement(verb);
+		}
+		
+		//clear exact phrase list
+		exactList.clear();
+		
+		//add all exact phrases
+		for(String exact: request.getExacts())
+		{
+			exactList.addElement(exact);
+		}
 	}
 	
 }

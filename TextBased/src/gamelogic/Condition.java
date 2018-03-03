@@ -25,10 +25,10 @@ public class Condition implements Executable
 	String property_name;
 
 	/** actions to execute if action passes */
-	ArrayList<Executable> pass;
+	ExecutableGroup pass;
 	
 	/** actions to execute if action fails */
-	ArrayList<Executable> fail;
+	ExecutableGroup fail;
 	
 	/** reference to the parent object of this condition */
 	SceneObject parentObject;
@@ -47,8 +47,8 @@ public class Condition implements Executable
 		operator = "=";
 		value = 0;
 		
-		pass = new ArrayList<Executable>();
-		fail = new ArrayList<Executable>();
+		pass = new ExecutableGroup(ExecutableGroup.PASS);
+		fail = new ExecutableGroup(ExecutableGroup.FAIL);
 		success = false;
 	}
 	
@@ -67,8 +67,8 @@ public class Condition implements Executable
 		this.value = value;
 		
 		success = false;
-		pass = new ArrayList<Executable>();
-		fail = new ArrayList<Executable>();
+		pass = new ExecutableGroup(ExecutableGroup.PASS);
+		fail = new ExecutableGroup(ExecutableGroup.FAIL);
 	}
 
 	@Override
@@ -98,8 +98,11 @@ public class Condition implements Executable
 	@Override
 	public List<Executable> getExecutables()
 	{
-		// TODO make this work with opposite two executable lists
-		return null;
+		ArrayList<Executable> total = new ArrayList<Executable>();
+		total.add(pass);
+		total.add(fail);
+		
+		return total;
 	}
 	
 	/**
@@ -108,7 +111,7 @@ public class Condition implements Executable
 	 */
 	public void addPassExecutable(Executable executable)
 	{
-		pass.add(executable);
+		pass.addExecutable(executable);
 	}
 	
 	/**
@@ -117,7 +120,7 @@ public class Condition implements Executable
 	 */
 	public void addFailExecutable(Executable executable)
 	{
-		fail.add(executable);
+		fail.addExecutable(executable);
 	}
 	
 	/**
@@ -187,7 +190,7 @@ public class Condition implements Executable
 	 */
 	private void executeFail(Game game)
 	{
-		for(Executable executable: fail)
+		for(Executable executable: fail.getExecutables())
 		{
 			if(game != null)
 				executable.setGame(game);
@@ -213,7 +216,7 @@ public class Condition implements Executable
 	 */
 	private void executePass(Game game)
 	{
-		for(Executable executable: pass)
+		for(Executable executable: pass.getExecutables())
 		{
 			if(game != null)
 				executable.setGame(game);

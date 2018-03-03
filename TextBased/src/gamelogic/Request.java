@@ -70,6 +70,20 @@ public class Request
 	}
 	
 	/**
+	 * Returns the executables that will be executed when ExecuteActions called
+	 * @return the List of executables
+	 */
+	public List<Executable> getExecutables()
+	{
+		if(executables == null)
+		{
+			System.out.println("REQUEST: WARNING: null executables list");
+		}
+		System.out.println(executables);
+		return executables;
+	}
+	
+	/**
 	 * Executes all the actions it has, and process conditionals
 	 * @param game reference to the game
 	 * @param parentObject reference to the owner of this request

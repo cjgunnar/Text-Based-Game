@@ -47,10 +47,26 @@ public class ExecutableEditor extends JDialog
 	/** Model for tree */
 	DefaultTreeModel treeModel;
 	
+	/** Root of the tree model */
+	DefaultMutableTreeNode root;
+	
 	/** Default Constructor */
 	public ExecutableEditor()
 	{
 		super();
+		
+		setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		setModalityType(ModalityType.APPLICATION_MODAL);
+		setTitle("Executable Editor");
+		
+		CreateComponents();
+	}
+	
+	public ExecutableEditor(Request request)
+	{
+		super();
+		
+		this.request = request;
 		
 		setMinimumSize(new Dimension(WIDTH, HEIGHT));
 		setModalityType(ModalityType.APPLICATION_MODAL);
@@ -68,7 +84,7 @@ public class ExecutableEditor extends JDialog
 		JLabel executableDisplay = new JLabel();
 		
 		//create root of tree
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+		root = new DefaultMutableTreeNode("Root");
 
 		//sample leaves for now
 		DefaultMutableTreeNode leafA = new DefaultMutableTreeNode("Leaf");
@@ -252,6 +268,58 @@ public class ExecutableEditor extends JDialog
 		main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
 		
 		add(main);
+		
+		//if a request was set, display it
+		if(request != null)
+		{
+			setRequest(request);
+		}
+	}
+	
+	public void setRequest(Request request)
+	{
+		
+		root = new DefaultMutableTreeNode("Root");
+		
+		treeModel.setRoot(root);
+		
+		//System.out.println("There are " + request.getExecutables().size() + " to add");
+		for(Executable exe : request.getExecutables())
+		{
+			addExecutableToModel(root, exe);
+		}
+		
+	}
+	
+	/**
+	 * Recursively adds a executable and all of its children into the treeModel, first call should use root
+	 * @param node Recursive node to add, start with root
+	 * @param executable Recursive executable to add, start with all in request
+	 */
+	private void addExecutableToModel(DefaultMutableTreeNode node, Executable executable)
+	{
+		if(executable == null)
+		{
+			System.out.println("Error: null executable");
+			return;
+		}
+		else if(node == null)
+		{
+			System.out.println("Error: null node");
+			return;
+		}
+		
+		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode();
+		newNode.setUserObject(executable);
+		
+		treeModel.insertNodeInto(newNode, node, node.getChildCount());
+		
+		//System.out.println(executable + ":" + executable.getExecutables());
+		for(Executable exe : executable.getExecutables())
+		{
+			addExecutableToModel(newNode, exe);
+		}
+		
 	}
 	
 	/**
